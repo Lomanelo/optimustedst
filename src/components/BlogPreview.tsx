@@ -56,37 +56,10 @@ const BlogPreview: React.FC = () => {
     );
   }
 
-  // Create placeholder blog posts if no real posts exist
-  const fallbackPosts = [
-    {
-      id: 'fallback-1',
-      title: getContent('blog_post1_title'),
-      excerpt: getContent('blog_post1_excerpt'),
-      slug: 'future-of-business-education',
-      coverImage: '/grabbedPhotos/blog/blog1.jpg'
-    },
-    {
-      id: 'fallback-2',
-      title: getContent('blog_post2_title'),
-      excerpt: getContent('blog_post2_excerpt'),
-      slug: 'leadership-digital-age',
-      coverImage: '/grabbedPhotos/blog/blog2.jpg'
-    },
-    {
-      id: 'fallback-3',
-      title: getContent('blog_post3_title'),
-      excerpt: getContent('blog_post3_excerpt'),
-      slug: 'building-tomorrows-workforce',
-      coverImage: '/grabbedPhotos/blog/blog3.jpg'
-    }
-  ];
-
-  // Use real blog posts if available, otherwise use fallback
-  const postsToDisplay = loading 
-    ? [] 
-    : blogPosts.length > 0 
-      ? blogPosts 
-      : fallbackPosts;
+  // Don't render the section if there are no blog posts
+  if (!loading && blogPosts.length === 0) {
+    return null;
+  }
 
   if (loading) {
     return (
@@ -134,7 +107,7 @@ const BlogPreview: React.FC = () => {
         </div>
         
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          {postsToDisplay.map((post) => (
+          {blogPosts.map((post) => (
             <article key={post.id} className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
               <img 
                 src={post.coverImage || '/grabbedPhotos/blog/blog1.jpg'} 

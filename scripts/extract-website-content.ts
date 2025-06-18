@@ -818,66 +818,6 @@ export const extractedContent: CMSContent[] = [
     updatedBy: 'system'
   },
   {
-    id: 'blog_post1_title',
-    key: 'blog_post1_title',
-    section: CMS_SECTIONS.BLOG_PREVIEW,
-    content_en: 'The Future of Business Education',
-    content_ar: 'مستقبل تعليم الأعمال',
-    description: 'Blog post 1 title',
-    lastUpdated: new Date().toISOString(),
-    updatedBy: 'system'
-  },
-  {
-    id: 'blog_post1_excerpt',
-    key: 'blog_post1_excerpt',
-    section: CMS_SECTIONS.BLOG_PREVIEW,
-    content_en: 'Discover how business education is evolving to meet the demands of the modern economy.',
-    content_ar: 'اكتشف كيف يتطور تعليم الأعمال لتلبية متطلبات الاقتصاد الحديث.',
-    description: 'Blog post 1 excerpt',
-    lastUpdated: new Date().toISOString(),
-    updatedBy: 'system'
-  },
-  {
-    id: 'blog_post2_title',
-    key: 'blog_post2_title',
-    section: CMS_SECTIONS.BLOG_PREVIEW,
-    content_en: 'Leadership in the Digital Age',
-    content_ar: 'القيادة في العصر الرقمي',
-    description: 'Blog post 2 title',
-    lastUpdated: new Date().toISOString(),
-    updatedBy: 'system'
-  },
-  {
-    id: 'blog_post2_excerpt',
-    key: 'blog_post2_excerpt',
-    section: CMS_SECTIONS.BLOG_PREVIEW,
-    content_en: 'Learn about the essential leadership skills needed to thrive in our digital world.',
-    content_ar: 'تعرف على مهارات القيادة الأساسية اللازمة للازدهار في عالمنا الرقمي.',
-    description: 'Blog post 2 excerpt',
-    lastUpdated: new Date().toISOString(),
-    updatedBy: 'system'
-  },
-  {
-    id: 'blog_post3_title',
-    key: 'blog_post3_title',
-    section: CMS_SECTIONS.BLOG_PREVIEW,
-    content_en: 'Building Tomorrow\'s Workforce',
-    content_ar: 'بناء قوة العمل للغد',
-    description: 'Blog post 3 title',
-    lastUpdated: new Date().toISOString(),
-    updatedBy: 'system'
-  },
-  {
-    id: 'blog_post3_excerpt',
-    key: 'blog_post3_excerpt',
-    section: CMS_SECTIONS.BLOG_PREVIEW,
-    content_en: 'Exploring the skills and knowledge required for the workforce of tomorrow.',
-    content_ar: 'استكشاف المهارات والمعرفة المطلوبة لقوة العمل في المستقبل.',
-    description: 'Blog post 3 excerpt',
-    lastUpdated: new Date().toISOString(),
-    updatedBy: 'system'
-  },
-  {
     id: 'blog_read_more',
     key: 'blog_read_more',
     section: CMS_SECTIONS.BLOG_PREVIEW,
