@@ -11,7 +11,8 @@ import {
   GraduationCap,
   LogOut,
   BookOpen,
-  FileText
+  FileText,
+  Mail
 } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
@@ -54,6 +55,7 @@ export default function AdminLayout({
     { href: '/admin/programs', label: 'Programs', icon: Layers },
     { href: '/admin/blog', label: 'Blog', icon: FileText },
     { href: '/admin/cms', label: 'CMS (Text Content)', icon: FileText },
+    { href: '/admin/contacts', label: 'Contacts & Emails', icon: Mail },
     { href: '/admin/users', label: 'Users', icon: Users },
     { href: '/admin/settings', label: 'Social Media Links', icon: ExternalLink },
   ];

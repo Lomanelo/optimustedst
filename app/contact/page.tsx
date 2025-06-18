@@ -3,9 +3,12 @@
 import React from 'react';
 import ClientLayout from '../components/ClientLayout';
 import ContactForm from '../../src/components/ContactForm';
+import { useContact } from '../contexts/contact-context';
 import { MapPin, Phone, Mail, Clock } from 'lucide-react';
 
 export default function ContactPage() {
+  const { contactInfo } = useContact();
+
   return (
     <ClientLayout>
       <div className="pt-20 pb-16 bg-gray-50">
@@ -31,7 +34,7 @@ export default function ContactPage() {
                     <MapPin className="text-accent shrink-0 mr-4 mt-1" size={20} />
                     <div>
                       <p className="font-medium">Address</p>
-                      <p className="text-gray-600">Optimus Education Center, Business Bay, Dubai, UAE</p>
+                      <p className="text-gray-600">{contactInfo.address}</p>
                     </div>
                   </div>
                   
@@ -39,7 +42,7 @@ export default function ContactPage() {
                     <Phone className="text-accent shrink-0 mr-4 mt-1" size={20} />
                     <div>
                       <p className="font-medium">Phone</p>
-                      <p className="text-gray-600">+971 569852211</p>
+                      <p className="text-gray-600">{contactInfo.phoneNumber}</p>
                     </div>
                   </div>
                   
@@ -47,31 +50,48 @@ export default function ContactPage() {
                     <Mail className="text-accent shrink-0 mr-4 mt-1" size={20} />
                     <div>
                       <p className="font-medium">Email</p>
-                      <p className="text-gray-600">optimusksa@gmail.com</p>
+                      <p className="text-gray-600">{contactInfo.generalInquiriesEmail}</p>
+                    </div>
+                  </div>
+
+                  {/* Additional Contact Emails */}
+                  <div className="border-t border-gray-200 pt-4">
+                    <h3 className="font-medium text-gray-900 mb-3">Specific Inquiries</h3>
+                    <div className="space-y-2 text-sm">
+                      <div>
+                        <span className="font-medium text-gray-700">Admissions:</span>
+                        <span className="ml-2 text-gray-600">{contactInfo.admissionsEmail}</span>
+                      </div>
+                      <div>
+                        <span className="font-medium text-gray-700">Support:</span>
+                        <span className="ml-2 text-gray-600">{contactInfo.supportEmail}</span>
+                      </div>
+                      <div>
+                        <span className="font-medium text-gray-700">Marketing:</span>
+                        <span className="ml-2 text-gray-600">{contactInfo.marketingEmail}</span>
+                      </div>
                     </div>
                   </div>
                 </div>
               </div>
-              
-              <div className="bg-primary rounded-lg shadow-md p-6 text-white">
-                <div className="flex items-start mb-4">
-                  <Clock className="text-accent shrink-0 mr-4 mt-1" size={20} />
-                  <h2 className="text-xl font-bold text-white">Operating Hours</h2>
-                </div>
-                
-                <div className="space-y-2 ml-8">
-                  <p>Sunday - Thursday: 9:00 AM - 6:00 PM</p>
-                  <p>Saturday: 10:00 AM - 4:00 PM</p>
-                  <p className="mt-4 text-white/80">Closed on Fridays and public holidays</p>
-                </div>
-              </div>
-              
-              <div className="bg-white rounded-lg shadow-md p-6 h-64">
-                {/* Map placeholder - would be replaced with actual map component */}
-                <div className="w-full h-full flex items-center justify-center text-gray-500 bg-gray-100 rounded-lg">
-                  <div className="text-center">
-                    <MapPin className="mx-auto mb-2 text-accent" size={32} />
-                    <p className="font-medium">Google Maps Integration</p>
+
+              <div className="bg-white rounded-lg shadow-md p-6">
+                <h3 className="text-xl font-bold text-primary mb-4 flex items-center">
+                  <Clock className="mr-2" size={20} />
+                  Operating Hours
+                </h3>
+                <div className="space-y-2 text-sm">
+                  <div className="flex justify-between">
+                    <span className="font-medium">Monday - Friday:</span>
+                    <span className="text-gray-600">9:00 AM - 6:00 PM</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="font-medium">Saturday:</span>
+                    <span className="text-gray-600">10:00 AM - 2:00 PM</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="font-medium">Sunday:</span>
+                    <span className="text-gray-600">Closed</span>
                   </div>
                 </div>
               </div>

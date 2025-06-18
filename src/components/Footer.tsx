@@ -2,11 +2,13 @@
 
 import React from 'react';
 import { useCMS } from '../../app/contexts/cms-context';
+import { useContact } from '../../app/contexts/contact-context';
 import FlowingShape from './FlowingShape';
 import SocialMediaLinks from './SocialMediaLinks';
 
 const Footer: React.FC = () => {
   const { getContent, loading: cmsLoading, currentLanguage } = useCMS();
+  const { contactInfo } = useContact();
   const isArabic = currentLanguage === 'ar';
   const logoSrc = isArabic ? "/whitelogoArabic.png" : "/OptimusLogoOnPurple.png";
   
@@ -45,6 +47,8 @@ const Footer: React.FC = () => {
     );
   }
   
+  const currentYear = new Date().getFullYear();
+
   return (
     <footer className="bg-primary text-white relative overflow-hidden">
       <FlowingShape 
@@ -72,21 +76,19 @@ const Footer: React.FC = () => {
           <div>
             <h3 className="text-lg font-bold mb-4">{getContent('footer_quick_links_title')}</h3>
             <ul className="space-y-2">
-              <li><a href="/programs" className="text-white/80 hover:text-white transition-colors">{getContent('footer_link_programs')}</a></li>
-              <li><a href="/about" className="text-white/80 hover:text-white transition-colors">{getContent('footer_link_about')}</a></li>
-              <li><a href="/contact" className="text-white/80 hover:text-white transition-colors">{getContent('footer_link_admissions')}</a></li>
-              <li><a href="/contact" className="text-white/80 hover:text-white transition-colors">{getContent('footer_link_contact')}</a></li>
-              <li><a href="/landing/short" className="text-white/80 hover:text-white transition-colors">{getContent('footer_link_career_guide')}</a></li>
-              <li><a href="/landing/long" className="text-white/80 hover:text-white transition-colors">{getContent('footer_link_program_showcase')}</a></li>
+              <li><a href="/programs" className="text-white/80 hover:text-accent transition-colors">{getContent('footer_link_programs')}</a></li>
+              <li><a href="/about" className="text-white/80 hover:text-accent transition-colors">{getContent('footer_link_about')}</a></li>
+              <li><a href="/blog" className="text-white/80 hover:text-accent transition-colors">{getContent('footer_link_blog')}</a></li>
+              <li><a href="/contact" className="text-white/80 hover:text-accent transition-colors">{getContent('footer_link_contact')}</a></li>
             </ul>
           </div>
           
           <div>
             <h3 className="text-lg font-bold mb-4">{getContent('footer_contact_info_title')}</h3>
             <ul className="space-y-2">
-              <li className="text-white/80">{getContent('footer_contact_address')}</li>
-              <li className="text-white/80">{getContent('footer_contact_phone')}</li>
-              <li className="text-white/80">{getContent('footer_contact_email')}</li>
+              <li className="text-white/80">{contactInfo.address}</li>
+              <li className="text-white/80">{contactInfo.phoneNumber}</li>
+              <li className="text-white/80">{contactInfo.generalInquiriesEmail}</li>
               <li><a href="/contact" className="text-accent hover:underline">{getContent('footer_get_in_touch')}</a></li>
             </ul>
           </div>
@@ -111,7 +113,7 @@ const Footer: React.FC = () => {
         
         <div className="pt-8 border-t border-white/20 flex flex-col md:flex-row justify-between items-center no-rtl-flip">
           <p className="text-white/60 text-sm mb-4 md:mb-0">
-            {getContent('footer_copyright').replace('2023', new Date().getFullYear().toString())}
+            © {currentYear} {getContent('footer_copyright')}
           </p>
           <div className="flex space-x-6 no-rtl-flip">
             <a href="/privacy" className="text-white/60 hover:text-white text-sm transition-colors">{getContent('footer_privacy_policy')}</a>

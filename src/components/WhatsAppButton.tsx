@@ -3,6 +3,7 @@
 import React from 'react';
 import { MessageCircle } from 'lucide-react';
 import { useCMS } from '../../app/contexts/cms-context';
+import { useContact } from '../../app/contexts/contact-context';
 
 interface WhatsAppButtonProps {
   className?: string;
@@ -10,15 +11,14 @@ interface WhatsAppButtonProps {
 
 const WhatsAppButton: React.FC<WhatsAppButtonProps> = ({ className = '' }) => {
   const { getContent, loading: cmsLoading } = useCMS();
+  const { getWhatsAppUrl, loading: contactLoading } = useContact();
 
   const handleWhatsAppClick = () => {
-    const phoneNumber = '+966500000000'; // Replace with actual WhatsApp number
-    const message = encodeURIComponent('Hello! I would like to know more about your programs.');
-    const whatsappUrl = `https://wa.me/${phoneNumber}?text=${message}`;
+    const whatsappUrl = getWhatsAppUrl('Hello! I would like to know more about your programs.');
     window.open(whatsappUrl, '_blank');
   };
 
-  if (cmsLoading) {
+  if (cmsLoading || contactLoading) {
     return (
       <button className={`fixed bottom-6 right-6 bg-green-500 text-white p-4 rounded-full shadow-lg opacity-50 ${className}`}>
         <MessageCircle size={24} />
