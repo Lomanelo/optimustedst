@@ -1,0 +1,430 @@
+'use client';
+
+import React, { useState, useEffect, Suspense } from 'react';
+import Link from 'next/link';
+import { useRouter, useSearchParams } from 'next/navigation';
+import ClientLayout from '../components/ClientLayout';
+import { Filter, ChevronDown, ChevronUp, X } from 'lucide-react';
+import { accreditations as accreditationsData } from '../../src/data/optimus-data';
+import programService, { Program as ServiceProgram } from '../../src/services/programService';
+
+// Filter options
+const programTypeOptions = ['MBA', 'PHD'];
+const specialityOptions = [
+  'Digital Transformation',
+  'Strategic Management',
+  'Healthcare Management',
+  'Project Management',
+  'Accounting & Finance Management',
+  'Marketing Management',
+  'Logistics & Supply Chain Management',
+  'Human Resources Management',
+  'Quality Management',
+  'Accounting & Finance',
+  'Entrepreneurship & Innovation',
+  'International Business Management',
+  'Sports Management',
+  'Hospitality & Events Management'
+];
+const studyTimeOptions = ['< 50 hours', '50-100 hours', '100-200 hours', '> 200 hours'];
+
+interface Program {
+  id: string;
+  title: string;
+  type: string;
+  programType: string;
+  speciality: string;
+  studyTime: string;
+  price: number;
+  description?: string;
+  accreditations?: string[];
+  status?: 'published' | 'draft';
+  createdAt?: any;
+}
+
+// Interface for search params
+interface PageProps {
+  params?: {};
+  searchParams: Record<string, string | string[] | undefined>;
+}
+
+// Create a component that uses useSearchParams
+function ProgramsContent({ searchParams }: { searchParams: Record<string, string | string[] | undefined> }) {
+  const router = useRouter();
+  const queryParams = useSearchParams();
+  const [allPrograms, setAllPrograms] = useState<Program[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  // Filter state
+  const [selectedProgramTypes, setSelectedProgramTypes] = useState<string[]>([]);
+  const [selectedSpecialities, setSelectedSpecialities] = useState<string[]>([]);
+  const [selectedStudyTimes, setSelectedStudyTimes] = useState<string[]>([]);
+  
+  // UI state
+  const [openFilters, setOpenFilters] = useState({
+    programType: false,
+    speciality: false,
+    studyTime: false
+  });
+
+  // Initialize filters from URL parameters
+  useEffect(() => {
+    if (queryParams) {
+      const programType = queryParams.get('programType');
+      if (programType && programTypeOptions.includes(programType)) {
+        setSelectedProgramTypes([programType]);
+      }
+    }
+  }, [queryParams]);
+
+  // Set up real-time listener for programs
+  useEffect(() => {
+    setLoading(true);
+    
+    // Use the ProgramService's listener to get real-time updates of published programs
+    const unsubscribe = programService.listenToPublishedProgramChanges((programs: ServiceProgram[]) => {
+      // Transform the programs to match our component's format
+      const transformedPrograms = programs.map((program: ServiceProgram) => ({
+        id: program.id,
+        title: program.title,
+        type: program.type || 'Professional Certificate',
+        programType: program.level === 'Level 7' ? 'MBA' : program.level === 'Level 8' ? 'PHD' : 'MBA',
+        speciality: program.specialization || program.category || 'General',
+        studyTime: program.duration || '',
+        price: program.price,
+        description: program.description,
+        accreditations: program.requirements || [],
+        status: program.status,
+        createdAt: program.createdAt,
+      } as Program));
+      
+      setAllPrograms(transformedPrograms);
+      setLoading(false);
+    });
+    
+    // Clean up the listener when the component unmounts
+    return () => unsubscribe();
+  }, []);
+
+  const getHoursFromDuration = (duration: string): number => {
+    const match = duration.match(/(\d+)\s*hours?/i);
+    return match ? parseInt(match[1]) : 0;
+  };
+
+  const toggleFilter = (filterType: keyof typeof openFilters) => {
+    setOpenFilters(prev => ({
+      ...prev,
+      [filterType]: !prev[filterType]
+    }));
+  };
+
+  const handleProgramTypeChange = (programType: string) => {
+    setSelectedProgramTypes(prev => 
+      prev.includes(programType) 
+        ? prev.filter(t => t !== programType) 
+        : [...prev, programType]
+    );
+  };
+
+  const handleSpecialityChange = (speciality: string) => {
+    setSelectedSpecialities(prev => 
+      prev.includes(speciality) 
+        ? prev.filter(s => s !== speciality)
+        : [...prev, speciality]
+    );
+  };
+
+  const handleStudyTimeChange = (studyTime: string) => {
+    setSelectedStudyTimes(prev => 
+      prev.includes(studyTime) 
+        ? prev.filter(d => d !== studyTime)
+        : [...prev, studyTime]
+    );
+  };
+
+  const clearAllFilters = () => {
+    setSelectedProgramTypes([]);
+    setSelectedSpecialities([]);
+    setSelectedStudyTimes([]);
+  };
+
+  // Filter programs based on selected criteria
+  const filteredPrograms = allPrograms.filter(program => {
+    // Program type filter
+    if (selectedProgramTypes.length > 0 && !selectedProgramTypes.includes(program.programType)) {
+      return false;
+    }
+
+    // Speciality filter
+    if (selectedSpecialities.length > 0 && !selectedSpecialities.includes(program.speciality)) {
+      return false;
+    }
+
+    // Study time filter
+    if (selectedStudyTimes.length > 0) {
+      const hours = getHoursFromDuration(program.studyTime);
+      const matchesStudyTime = selectedStudyTimes.some(studyTime => {
+        switch (studyTime) {
+          case '< 50 hours':
+            return hours < 50;
+          case '50-100 hours':
+            return hours >= 50 && hours <= 100;
+          case '100-200 hours':
+            return hours > 100 && hours <= 200;
+          case '> 200 hours':
+            return hours > 200;
+          default:
+            return false;
+        }
+      });
+      if (!matchesStudyTime) return false;
+    }
+
+    return true;
+  });
+
+  if (loading) {
+    return (
+      <ClientLayout>
+        <div className="container mx-auto px-4 py-8">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary mx-auto"></div>
+            <p className="mt-4 text-gray-600">Loading programs...</p>
+          </div>
+        </div>
+      </ClientLayout>
+    );
+  }
+
+  return (
+    <ClientLayout>
+      <div className="container mx-auto px-4 py-8">
+        <div className="mb-8 text-center">
+          <h1 className="text-4xl font-bold text-primary mb-4">Our Programs</h1>
+          <p className="text-xl text-gray-600 mb-2">
+            Discover our comprehensive range of educational programs designed for tomorrow's leaders.
+          </p>
+          <p className="text-lg text-accent font-medium">
+            Get certified in a year – fully online
+          </p>
+        </div>
+
+        <div className="flex flex-col lg:flex-row gap-8">
+          {/* Filters Sidebar */}
+          <div className="lg:w-1/4">
+            <div className="bg-white rounded-lg shadow-md p-6 sticky top-4">
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-lg font-semibold text-primary flex items-center">
+                  <Filter className="w-5 h-5 mr-2" />
+                  Filters
+                </h2>
+                {(selectedProgramTypes.length > 0 || selectedSpecialities.length > 0 || 
+                  selectedStudyTimes.length > 0) && (
+                  <button
+                    onClick={clearAllFilters}
+                    className="text-sm text-red-600 hover:text-red-800 flex items-center"
+                  >
+                    <X className="w-4 h-4 mr-1" />
+                    Clear All
+                  </button>
+                )}
+              </div>
+
+              {/* Program Type Filter */}
+              <div className="mb-4">
+                <button
+                  onClick={() => toggleFilter('programType')}
+                  className="w-full flex items-center justify-between p-2 text-left font-medium text-primary hover:bg-gray-50 rounded"
+                >
+                  Program Type
+                  {openFilters.programType ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+                </button>
+                {openFilters.programType && (
+                  <div className="mt-2 space-y-2">
+                    {programTypeOptions.map(programType => (
+                      <label key={programType} className="flex items-center">
+                        <input
+                          type="checkbox"
+                          checked={selectedProgramTypes.includes(programType)}
+                          onChange={() => handleProgramTypeChange(programType)}
+                          className="rounded border-gray-300 text-accent focus:ring-accent"
+                        />
+                        <span className="ml-2 text-sm text-gray-600">{programType}</span>
+                      </label>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {/* Speciality Filter */}
+              <div className="mb-4">
+                <button
+                  onClick={() => toggleFilter('speciality')}
+                  className="w-full flex items-center justify-between p-2 text-left font-medium text-primary hover:bg-gray-50 rounded"
+                >
+                  Speciality
+                  {openFilters.speciality ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+                </button>
+                {openFilters.speciality && (
+                  <div className="mt-2 space-y-2 max-h-48 overflow-y-auto">
+                    {specialityOptions.map(spec => (
+                      <label key={spec} className="flex items-center">
+                        <input
+                          type="checkbox"
+                          checked={selectedSpecialities.includes(spec)}
+                          onChange={() => handleSpecialityChange(spec)}
+                          className="rounded border-gray-300 text-accent focus:ring-accent"
+                        />
+                        <span className="ml-2 text-sm text-gray-600">{spec}</span>
+                      </label>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {/* Study Time Filter */}
+              <div className="mb-4">
+                <button
+                  onClick={() => toggleFilter('studyTime')}
+                  className="w-full flex items-center justify-between p-2 text-left font-medium text-primary hover:bg-gray-50 rounded"
+                >
+                  Study time
+                  {openFilters.studyTime ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+                </button>
+                {openFilters.studyTime && (
+                  <div className="mt-2 space-y-2">
+                    {studyTimeOptions.map(studyTime => (
+                      <label key={studyTime} className="flex items-center">
+                        <input
+                          type="checkbox"
+                          checked={selectedStudyTimes.includes(studyTime)}
+                          onChange={() => handleStudyTimeChange(studyTime)}
+                          className="rounded border-gray-300 text-accent focus:ring-accent"
+                        />
+                        <span className="ml-2 text-sm text-gray-600">{studyTime}</span>
+                      </label>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+
+            </div>
+          </div>
+
+          {/* Programs Grid */}
+          <div className="lg:w-3/4">
+            <div className="mb-4 flex items-center justify-between">
+              <p className="text-gray-600">
+                Showing {filteredPrograms.length} of {allPrograms.length} programs
+              </p>
+            </div>
+
+            {filteredPrograms.length === 0 ? (
+              <div className="text-center py-12">
+                <p className="text-gray-500 text-lg">No programs match your current filters.</p>
+                <button
+                  onClick={clearAllFilters}
+                  className="mt-4 bg-accent text-white px-6 py-2 rounded-md hover:bg-accent-dark transition-colors"
+                >
+                  Clear Filters
+                </button>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+                {filteredPrograms.map((program) => (
+                  <div key={program.id} className="bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300 overflow-hidden">
+                    <div className="p-6">
+                      <div className="flex items-start justify-between mb-3">
+                        <span className="inline-block bg-primary/10 text-primary text-xs font-semibold px-2 py-1 rounded-full">
+                          {program.type}
+                        </span>
+                      </div>
+                      
+                      <h3 className="text-lg font-semibold text-primary mb-2 line-clamp-2">
+                        {program.title}
+                      </h3>
+                      
+                      <div className="space-y-2 mb-4">
+                        <p className="text-sm text-gray-600">
+                          <span className="font-medium">Program Type:</span> {program.programType}
+                        </p>
+                        <p className="text-sm text-gray-600">
+                          <span className="font-medium">Speciality:</span> {program.speciality}
+                        </p>
+                        <p className="text-sm text-gray-600">
+                          <span className="font-medium">Study Time:</span> {program.studyTime}
+                        </p>
+                      </div>
+
+                      {program.description && (
+                        <p className="text-sm text-gray-600 mb-4 line-clamp-3">
+                          {program.description}
+                        </p>
+                      )}
+
+                      {program.accreditations && Array.isArray(program.accreditations) && program.accreditations.length > 0 && (
+                        <div className="mb-4">
+                          <p className="text-xs text-gray-500 mb-1">Accredited by:</p>
+                          <div className="flex flex-wrap gap-1">
+                            {program.accreditations.slice(0, 2).map((acc, index) => (
+                              <span key={index} className="inline-block bg-gray-100 text-gray-700 text-xs px-2 py-1 rounded">
+                                {acc}
+                              </span>
+                            ))}
+                            {program.accreditations.length > 2 && (
+                              <span className="inline-block bg-gray-100 text-gray-700 text-xs px-2 py-1 rounded">
+                                +{program.accreditations.length - 2} more
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                      )}
+
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <p className="text-2xl font-bold text-accent">
+                            {program.price.toLocaleString()} SAR
+                          </p>
+                        </div>
+                        <Link
+                          href={`/programs/${program.id}`}
+                          className="bg-primary text-white px-4 py-2 rounded-md hover:bg-primary-dark transition-colors text-sm font-medium"
+                        >
+                          Learn More
+                        </Link>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    </ClientLayout>
+  );
+}
+
+// Loading fallback
+function ProgramsLoading() {
+  return (
+    <ClientLayout>
+      <div className="container mx-auto px-4 py-8">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary mx-auto"></div>
+          <p className="mt-4 text-gray-600">Loading programs...</p>
+        </div>
+      </div>
+    </ClientLayout>
+  );
+}
+
+// Main page component with Suspense boundary
+export default function ProgramsPage({ searchParams }: PageProps) {
+  return (
+    <Suspense fallback={<ProgramsLoading />}>
+      <ProgramsContent searchParams={searchParams} />
+    </Suspense>
+  );
+} 

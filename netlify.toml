@@ -1,0 +1,74 @@
+[build]
+  command = "npm run build"
+  publish = ".next"
+
+[build.environment]
+  NODE_VERSION = "18"
+  NPM_VERSION = "9"
+
+[[plugins]]
+  package = "@netlify/plugin-nextjs"
+
+[functions]
+  node_bundler = "esbuild"
+
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Frame-Options = "DENY"
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+
+[[headers]]
+  for = "/api/*"
+  [headers.values]
+    Cache-Control = "no-cache"
+
+[[headers]]
+  for = "/_next/static/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+# Domain redirects - optimus-edu.ae to optimusksa.com
+[[redirects]]
+  from = "https://optimus-edu.ae/*"
+  to = "https://optimusksa.com/:splat"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "https://www.optimus-edu.ae/*"
+  to = "https://optimusksa.com/:splat"
+  status = 301
+  force = true
+
+# Preserve admin routes
+[[redirects]]
+  from = "/admin/*"
+  to = "/admin/:splat"
+  status = 200
+
+# Preserve API routes - Updated for Next.js App Router
+[[redirects]]
+  from = "/api/*"
+  to = "/api/:splat"
+  status = 200
+
+# Preserve coming-soon page itself
+[[redirects]]
+  from = "/coming-soon"
+  to = "/coming-soon"
+  status = 200
+
+# Redirect homepage to coming soon
+[[redirects]]
+  from = "/"
+  to = "/coming-soon"
+  status = 302
+
+# Redirect all other pages to coming soon (except admin and API)
+[[redirects]]
+  from = "/*"
+  to = "/coming-soon"
+  status = 302
+  force = false 
