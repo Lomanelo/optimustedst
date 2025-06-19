@@ -4,6 +4,7 @@ import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '../../contexts/auth-context';
+import { useCMS } from '../../contexts/cms-context';
 import { 
   Plus, 
   Pencil, 
@@ -20,7 +21,8 @@ import {
 import blogService, { BlogPost } from '../../../src/services/blogService';
 
 export default function AdminBlogPage() {
-  const { currentUser, userRole, isLoading } = useAuth();
+  const { currentUser, userRole, hasPermission, isLoading } = useAuth();
+  const { getContent } = useCMS();
   const router = useRouter();
   const [blogPosts, setBlogPosts] = useState<BlogPost[]>([]);
   const [loading, setLoading] = useState(true);
@@ -33,8 +35,8 @@ export default function AdminBlogPage() {
   const [featuredUpdating, setFeaturedUpdating] = useState<string | null>(null);
 
   useEffect(() => {
-    // Only fetch blog posts if the user is authenticated and an admin
-    if (!isLoading && currentUser && userRole === 'admin') {
+    // Only fetch blog posts if the user is authenticated and has blog permission
+    if (!isLoading && currentUser && (userRole === 'admin' || hasPermission('blog'))) {
       const unsubscribe = blogService.listenToBlogPosts((posts) => {
         setBlogPosts(posts);
         setLoading(false);
@@ -45,7 +47,7 @@ export default function AdminBlogPage() {
       
       return () => unsubscribe();
     }
-  }, [currentUser, userRole, isLoading, sortOrder]);
+  }, [currentUser, userRole, hasPermission, isLoading, sortOrder]);
 
   const handleDeleteClick = (postId: string) => {
     setDeleteConfirmation(postId);
@@ -211,7 +213,7 @@ export default function AdminBlogPage() {
                   d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"
                 />
               </svg>
-              <h3 className="mt-2 text-sm font-medium text-gray-900">No blog posts found</h3>
+              <h3 className="mt-2 text-sm font-medium text-gray-900">{getContent('blog_noBlogPosts')}</h3>
               <p className="mt-1 text-sm text-gray-500">
                 Get started by creating a new blog post or adjusting your filters.
               </p>

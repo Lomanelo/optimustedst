@@ -328,6 +328,32 @@ export default function ProgramDetailPage({ params }: PageProps) {
                   Download Brochure
                 </button>
               </div>
+
+              {/* Enroll Now */}
+              <div className="bg-accent/5 rounded-lg p-6">
+                <h2 className="text-xl font-bold text-accent mb-4">Ready to Enroll?</h2>
+                <p className="text-gray-600 mb-4">Start your journey with this program today. Complete the enrollment process in just a few steps.</p>
+                <button 
+                  onClick={() => window.location.href = `/enrollment/register?programId=${programId}&price=${program.price}`}
+                  className="w-full bg-accent hover:bg-accent-dark text-white font-bold py-3 px-4 rounded-md transition-colors duration-300 flex items-center justify-center"
+                >
+                  <svg 
+                    xmlns="http://www.w3.org/2000/svg" 
+                    className="h-5 w-5 mr-2" 
+                    fill="none" 
+                    viewBox="0 0 24 24" 
+                    stroke="currentColor"
+                  >
+                    <path 
+                      strokeLinecap="round" 
+                      strokeLinejoin="round" 
+                      strokeWidth={2} 
+                      d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" 
+                    />
+                  </svg>
+                  Enroll Now
+                </button>
+              </div>
             </div>
           </div>
         </div>

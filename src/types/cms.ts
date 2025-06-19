@@ -20,6 +20,7 @@ export interface CMSSection {
 export const CMS_SECTIONS = {
   NAVBAR: 'navbar',
   HERO: 'hero',
+  PROGRAMS: 'programs',
   PROGRAMS_OVERVIEW: 'programs_overview',
   HOW_IT_WORKS: 'how_it_works',
   BLOG_PREVIEW: 'blog_preview',

@@ -261,7 +261,7 @@ function BlogContent() {
         </div>
       ) : filteredPosts.length === 0 ? (
         <div className="text-center py-12">
-          <p className="text-lg text-gray-600 mb-4">No blog posts found.</p>
+          <p className="text-lg text-gray-600 mb-4">{getContent('blog_noBlogPosts')}</p>
           {(selectedTag || searchTerm) && (
             <button
               onClick={() => {

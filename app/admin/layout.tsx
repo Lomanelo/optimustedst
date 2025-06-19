@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useMemo, useRef } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import { useAuth } from '../contexts/auth-context';
 import { 
@@ -22,23 +22,45 @@ export default function AdminLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const { currentUser, userRole, isLoading, logout } = useAuth();
+  const { currentUser, userRole, userPermissions, hasPermission, isLoading, logout } = useAuth();
   const router = useRouter();
   const pathname = usePathname();
+  const hasRedirectedRef = useRef(false);
+
+  // Memoize the permission check to prevent unnecessary re-renders
+  const hasAnyAdminPermission = useMemo(() => {
+    return ['dashboard', 'programs', 'blog', 'cms', 'contacts', 'users', 'settings']
+      .some(permission => userPermissions[permission as keyof typeof userPermissions] || false);
+  }, [userPermissions]);
 
   useEffect(() => {
-    // If not loading and no user, redirect to login
-    if (!isLoading && !currentUser) {
-      router.push('/login');
+    // Reset redirect flag when loading state changes
+    if (isLoading) {
+      hasRedirectedRef.current = false;
       return;
     }
 
-    // If user is not an admin, redirect to dashboard
-    if (!isLoading && currentUser && userRole !== 'admin') {
-      router.push('/dashboard');
+    // If not loading and no user, redirect to login (once)
+    if (!currentUser && !hasRedirectedRef.current) {
+      hasRedirectedRef.current = true;
+      router.replace('/login');
       return;
     }
-  }, [currentUser, userRole, isLoading, router]);
+
+    // If user has no admin permissions, redirect to dashboard (except for admin role during migration)
+    if (currentUser && userRole !== 'admin' && !hasRedirectedRef.current) {
+      // Only log if there's an issue (for debugging)
+      if (!hasAnyAdminPermission) {
+        console.log('Admin access denied for user:', { userRole, hasAnyAdminPermission });
+      }
+      
+      if (!hasAnyAdminPermission) {
+        hasRedirectedRef.current = true;
+        router.replace('/dashboard');
+        return;
+      }
+    }
+  }, [currentUser, userRole, hasAnyAdminPermission, isLoading]);
 
   const handleLogout = async () => {
     try {
@@ -49,16 +71,16 @@ export default function AdminLayout({
     }
   };
 
-  // Static menu items that never change
+  // Dynamic menu items based on permissions
   const adminMenuItems = [
-    { href: '/admin/dashboard', label: 'Dashboard', icon: BarChart3 },
-    { href: '/admin/programs', label: 'Programs', icon: Layers },
-    { href: '/admin/blog', label: 'Blog', icon: FileText },
-    { href: '/admin/cms', label: 'CMS (Text Content)', icon: FileText },
-    { href: '/admin/contacts', label: 'Contacts & Emails', icon: Mail },
-    { href: '/admin/users', label: 'Users', icon: Users },
-    { href: '/admin/settings', label: 'Social Media Links', icon: ExternalLink },
-  ];
+    { href: '/admin/dashboard', label: 'Dashboard', icon: BarChart3, permission: 'dashboard' as const },
+    { href: '/admin/programs', label: 'Programs', icon: Layers, permission: 'programs' as const },
+    { href: '/admin/blog', label: 'Blog', icon: FileText, permission: 'blog' as const },
+    { href: '/admin/cms', label: 'CMS (Text Content)', icon: FileText, permission: 'cms' as const },
+    { href: '/admin/contacts', label: 'Contacts & Emails', icon: Mail, permission: 'contacts' as const },
+    { href: '/admin/users', label: 'Users', icon: Users, permission: 'users' as const },
+    { href: '/admin/settings', label: 'Social Media Links', icon: ExternalLink, permission: 'settings' as const },
+  ].filter(item => hasPermission(item.permission) || userRole === 'admin');
 
   const isActiveRoute = (href: string) => {
     if (href === '/admin/dashboard') {
@@ -67,6 +89,7 @@ export default function AdminLayout({
     return pathname.startsWith(href);
   };
 
+  // Show loading spinner
   if (isLoading) {
     return (
       <div className="flex justify-center items-center h-screen">
@@ -75,7 +98,11 @@ export default function AdminLayout({
     );
   }
 
-  if (!currentUser || !userRole || userRole.trim().toLowerCase() !== 'admin') {
+  // Check access permissions
+  const hasAccess = currentUser && userRole && 
+    (userRole.trim().toLowerCase() === 'admin' || hasAnyAdminPermission);
+
+  if (!hasAccess) {
     return null;
   }
 

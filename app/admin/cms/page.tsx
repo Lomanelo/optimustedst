@@ -28,7 +28,7 @@ interface EditingContent {
 }
 
 export default function AdminCMSPage() {
-  const { currentUser, userRole, isLoading } = useAuth();
+  const { currentUser, userRole, hasPermission, isLoading } = useAuth();
   const router = useRouter();
   const { 
     getAllContent, 
@@ -45,11 +45,11 @@ export default function AdminCMSPage() {
   const [saveStatus, setSaveStatus] = useState<'idle' | 'success' | 'error'>('idle');
 
   useEffect(() => {
-    if (!isLoading && (!currentUser || userRole !== 'admin')) {
+    if (!isLoading && (!currentUser || (userRole !== 'admin' && !hasPermission('cms')))) {
       router.push('/admin/dashboard');
       return;
     }
-  }, [currentUser, userRole, isLoading, router]);
+  }, [currentUser, userRole, hasPermission, isLoading, router]);
 
   const handleEdit = (key: string, content_en: string, content_ar: string) => {
     setEditingItem({ key, content_en, content_ar });
@@ -139,7 +139,7 @@ export default function AdminCMSPage() {
     );
   }
 
-  if (!currentUser || userRole !== 'admin') {
+  if (!currentUser || (userRole !== 'admin' && !hasPermission('cms'))) {
     return null;
   }
 

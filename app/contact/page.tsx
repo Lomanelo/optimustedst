@@ -4,10 +4,12 @@ import React from 'react';
 import ClientLayout from '../components/ClientLayout';
 import ContactForm from '../../src/components/ContactForm';
 import { useContact } from '../contexts/contact-context';
+import { useCMS } from '../contexts/cms-context';
 import { MapPin, Phone, Mail, Clock } from 'lucide-react';
 
 export default function ContactPage() {
   const { contactInfo } = useContact();
+  const { getContent } = useCMS();
 
   return (
     <ClientLayout>
@@ -34,7 +36,7 @@ export default function ContactPage() {
                     <MapPin className="text-accent shrink-0 mr-4 mt-1" size={20} />
                     <div>
                       <p className="font-medium">Address</p>
-                      <p className="text-gray-600">{contactInfo.address}</p>
+                      <p className="text-gray-600">{getContent('footer_address')}</p>
                     </div>
                   </div>
                   

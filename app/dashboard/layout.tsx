@@ -19,7 +19,7 @@ export default function DashboardLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const { currentUser, userRole, isLoading, logout } = useAuth();
+  const { currentUser, userRole, hasPermission, isLoading, logout } = useAuth();
   const router = useRouter();
 
   useEffect(() => {
@@ -44,12 +44,12 @@ export default function DashboardLayout({
     { href: '/dashboard', label: 'Dashboard', icon: BarChart3 },
   ];
 
-  // Admin menu items (shown only to admins)
+  // Admin menu items (shown based on permissions)
   const adminMenuItems = [
-    { href: '/admin/dashboard', label: 'Admin Dashboard', icon: BarChart3 },
-    { href: '/admin/programs', label: 'Manage Programs', icon: BookOpen },
-    { href: '/admin/users', label: 'Manage Users', icon: Users }
-  ];
+    { href: '/admin/dashboard', label: 'Admin Dashboard', icon: BarChart3, permission: 'dashboard' as const },
+    { href: '/admin/programs', label: 'Manage Programs', icon: BookOpen, permission: 'programs' as const },
+    { href: '/admin/users', label: 'Manage Users', icon: Users, permission: 'users' as const }
+  ].filter(item => hasPermission(item.permission) || userRole === 'admin');
 
   if (isLoading) {
     return (
@@ -120,8 +120,8 @@ export default function DashboardLayout({
             </ul>
           </div>
 
-          {/* Admin Section - only show if user is admin */}
-          {userRole === 'admin' && (
+          {/* Admin Section - show if user has any admin permissions */}
+          {adminMenuItems.length > 0 && (
             <div className="p-4 border-t border-white/10">
               <p className="text-xs text-white/40 uppercase tracking-wider mb-3">ADMIN</p>
               <ul className="space-y-2">

@@ -20,59 +20,86 @@ import { db, storage } from '../firebase/firebase';
 export interface Program {
   id: string;
   title: string;
+  title_ar?: string;
   description: string;
+  description_ar?: string;
   shortDescription?: string;
+  shortDescription_ar?: string;
   category: string;
+  category_ar?: string;
   specialization?: string;
+  specialization_ar?: string;
   level: string;
   type: string;
+  type_ar?: string;
   duration: string;
+  duration_ar?: string;
   durationWeeks: number;
   durationHours?: number;
   price: number;
   thumbnail?: string;
   requirements?: string[];
+  requirements_ar?: string[];
   whatYouWillLearn?: string[];
+  whatYouWillLearn_ar?: string[];
   modules?: ProgramModule[];
+  modules_ar?: ProgramModule[];
   instructorId?: string;
   status: 'published' | 'draft';
   enrollments?: number;
+  languages: ('en' | 'ar')[];
   createdAt: any;
   updatedAt: any;
 }
 
 export interface ProgramModule {
   title: string;
+  title_ar?: string;
   description: string;
+  description_ar?: string;
   lessons: ProgramLesson[];
 }
 
 export interface ProgramLesson {
   title: string;
+  title_ar?: string;
   type: string;
+  type_ar?: string;
   description: string;
+  description_ar?: string;
   duration?: number;
   videoUrl?: string;
   materials?: string[];
+  materials_ar?: string[];
 }
 
 export interface CreateProgramData {
   title: string;
+  title_ar?: string;
   description: string;
+  description_ar?: string;
   shortDescription?: string;
+  shortDescription_ar?: string;
   category: string;
+  category_ar?: string;
   level: string;
   type: string;
+  type_ar?: string;
   duration: string;
+  duration_ar?: string;
   durationWeeks: number;
   durationHours?: number;
   price: number;
   thumbnail?: File | string;
   requirements?: string[];
+  requirements_ar?: string[];
   whatYouWillLearn?: string[];
+  whatYouWillLearn_ar?: string[];
   modules?: ProgramModule[];
+  modules_ar?: ProgramModule[];
   instructorId?: string;
   status: 'published' | 'draft';
+  languages: ('en' | 'ar')[];
 }
 
 export interface UpdateProgramData extends Partial<CreateProgramData> {

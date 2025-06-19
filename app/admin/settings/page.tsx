@@ -38,7 +38,7 @@ interface WebsiteSettings {
 }
 
 export default function AdminSettingsPage() {
-  const { currentUser, userRole, isLoading } = useAuth();
+  const { currentUser, userRole, hasPermission, isLoading } = useAuth();
   const router = useRouter();
   const [saving, setSaving] = useState(false);
   const [saveStatus, setSaveStatus] = useState<'idle' | 'success' | 'error'>('idle');
@@ -52,15 +52,15 @@ export default function AdminSettingsPage() {
   });
 
   useEffect(() => {
-    if (!isLoading && (!currentUser || userRole !== 'admin')) {
+    if (!isLoading && (!currentUser || (userRole !== 'admin' && !hasPermission('settings')))) {
       router.push('/admin/dashboard');
       return;
     }
 
-    if (currentUser && userRole === 'admin') {
+    if (currentUser && (userRole === 'admin' || hasPermission('settings'))) {
       loadSettings();
     }
-  }, [currentUser, userRole, isLoading, router]);
+  }, [currentUser, userRole, hasPermission, isLoading, router]);
 
   const loadSettings = async () => {
     try {
@@ -170,7 +170,7 @@ export default function AdminSettingsPage() {
     );
   }
 
-  if (!currentUser || userRole !== 'admin') {
+  if (!currentUser || (userRole !== 'admin' && !hasPermission('settings'))) {
     return null;
   }
 

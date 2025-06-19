@@ -267,7 +267,7 @@ export default function ComingSoonPage() {
       success_message: 'شكراً لاهتمامك. سنتواصل معك قريباً.',
       disclaimer: 'بإرسال هذا النموذج، أنت توافق على تلقي معلومات حول برامجنا.',
       stay_connected: 'تابعونا للحصول على التحديثات',
-      copyright: '© جميع الحقوق محفوظة. أوبتيموس ٢٠٢٤ '
+              copyright: '© جميع الحقوق محفوظة. أوبتيموس ٢٠٢٥ '
     },
     en: {
       title: 'Coming Soon - OPTIMUS KSA | Your Gateway to the Future',
@@ -296,7 +296,7 @@ export default function ComingSoonPage() {
       success_message: 'Thank you for your interest. We\'ll be in touch soon.',
       disclaimer: 'By submitting this form, you agree to receive information about our programs.',
       stay_connected: 'Stay Connected',
-      copyright: '© 2024 Optimus. All rights reserved.'
+              copyright: '© 2025 Optimus. All rights reserved.'
     }
   };
 

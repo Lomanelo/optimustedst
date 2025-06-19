@@ -120,7 +120,7 @@ export const extractedContent: CMSContent[] = [
     key: 'hero_title',
     section: CMS_SECTIONS.HERO,
     content_en: 'MBA . PHD',
-    content_ar: 'ماجستير إدارة الأعمال . دكتوراه',
+    content_ar: 'ماجستير إدارة الأعمال • دكتوراه',
     description: 'Main title on hero section',
     lastUpdated: new Date().toISOString(),
     updatedBy: 'system'
@@ -272,7 +272,7 @@ export const extractedContent: CMSContent[] = [
     key: 'programs_bachelor_description',
     section: CMS_SECTIONS.PROGRAMS_OVERVIEW,
     content_en: 'Foundational business education with specializations in management, finance, marketing, and international business.',
-    content_ar: 'تعليم الأعمال الأساسي مع التخصصات في الإدارة والمالية والتسويق والأعمال الدولية.',
+    content_ar: 'تعليم الأعمال الأساسي مع التخصصات في الإدارة والمالية والتسويق والأعمال الدولية',
     description: 'Description for bachelor programs',
     lastUpdated: new Date().toISOString(),
     updatedBy: 'system'
@@ -292,7 +292,7 @@ export const extractedContent: CMSContent[] = [
     key: 'programs_mba_description',
     section: CMS_SECTIONS.PROGRAMS_OVERVIEW,
     content_en: 'Advanced business administration with flexible formats including executive, online, and specialized industry tracks.',
-    content_ar: 'إدارة الأعمال المتقدمة مع أشكال مرنة تشمل التنفيذي والإنترنت والمسارات الصناعية المتخصصة.',
+    content_ar: 'إدارة الأعمال المتقدمة مع أشكال مرنة تشمل التنفيذي والإنترنت والمسارات الصناعية المتخصصة',
     description: 'Description for MBA programs',
     lastUpdated: new Date().toISOString(),
     updatedBy: 'system'
@@ -312,7 +312,7 @@ export const extractedContent: CMSContent[] = [
     key: 'programs_doctorate_description',
     section: CMS_SECTIONS.PROGRAMS_OVERVIEW,
     content_en: 'Research-focused doctorate developing thought leaders who drive innovation in business practice and theory.',
-    content_ar: 'دكتوراه تركز على البحث لتطوير قادة الفكر الذين يقودون الابتكار في ممارسة الأعمال والنظرية.',
+    content_ar: 'دكتوراه تركز على البحث لتطوير قادة الفكر الذين يقودون الابتكار في ممارسة الأعمال والنظرية',
     description: 'Description for doctorate programs',
     lastUpdated: new Date().toISOString(),
     updatedBy: 'system'
@@ -324,6 +324,26 @@ export const extractedContent: CMSContent[] = [
     content_en: 'View All Programs',
     content_ar: 'عرض جميع البرامج',
     description: 'Button text to view all programs',
+    lastUpdated: new Date().toISOString(),
+    updatedBy: 'system'
+  },
+  {
+    id: 'program_explore_mba',
+    key: 'program_explore_mba',
+    section: CMS_SECTIONS.PROGRAMS_OVERVIEW,
+    content_en: 'Explore MBA Programs',
+    content_ar: 'استكشف برامج الماجستير',
+    description: 'Link text to explore MBA programs',
+    lastUpdated: new Date().toISOString(),
+    updatedBy: 'system'
+  },
+  {
+    id: 'program_explore_phd',
+    key: 'program_explore_phd',
+    section: CMS_SECTIONS.PROGRAMS_OVERVIEW,
+    content_en: 'Explore PhD Programs',
+    content_ar: 'استكشف برامج الدكتوراه',
+    description: 'Link text to explore PhD programs',
     lastUpdated: new Date().toISOString(),
     updatedBy: 'system'
   },
@@ -485,9 +505,9 @@ export const extractedContent: CMSContent[] = [
     id: 'footer_copyright',
     key: 'footer_copyright',
     section: CMS_SECTIONS.FOOTER,
-    content_en: '© 2024 OPTIMUS Education. All rights reserved.',
-    content_ar: '© 2024 أوبتيموس للتعليم. جميع الحقوق محفوظة.',
-    description: 'Footer copyright text',
+    content_en: 'OPTIMUS Education. All rights reserved.',
+    content_ar: 'أوبتيموس للتعليم - جميع الحقوق محفوظة',
+    description: 'Footer copyright text (year is added automatically by Footer component)',
     lastUpdated: new Date().toISOString(),
     updatedBy: 'system'
   },
@@ -572,6 +592,16 @@ export const extractedContent: CMSContent[] = [
     updatedBy: 'system'
   },
   {
+    id: 'footer_address',
+    key: 'footer_address',
+    section: CMS_SECTIONS.FOOTER,
+    content_en: 'Riyadh, Saudi Arabia',
+    content_ar: 'الرياض، المملكة العربية السعودية',
+    description: 'Footer contact address',
+    lastUpdated: new Date().toISOString(),
+    updatedBy: 'system'
+  },
+  {
     id: 'footer_get_in_touch',
     key: 'footer_get_in_touch',
     section: CMS_SECTIONS.FOOTER,
@@ -632,12 +662,408 @@ export const extractedContent: CMSContent[] = [
     updatedBy: 'system'
   },
   {
+    id: 'footer_link_blog',
+    key: 'footer_link_blog',
+    section: CMS_SECTIONS.FOOTER,
+    content_en: 'Blog',
+    content_ar: 'المدونة',
+    description: 'Footer blog link',
+    lastUpdated: new Date().toISOString(),
+    updatedBy: 'system'
+  },
+  {
     id: 'footer_terms_of_service',
     key: 'footer_terms_of_service',
     section: CMS_SECTIONS.FOOTER,
     content_en: 'Terms of Service',
     content_ar: 'شروط الخدمة',
     description: 'Footer terms of service link',
+    lastUpdated: new Date().toISOString(),
+    updatedBy: 'system'
+  },
+
+  // PROGRAM OVERVIEW CONTENT
+  {
+    id: 'program_overview_certification',
+    key: 'program_overview_certification',
+    section: CMS_SECTIONS.PROGRAMS,
+    content_en: 'Get certified in a year – fully online',
+    content_ar: 'احصل على الشهادة في عام واحد - بالكامل عبر الإنترنت',
+    description: 'Program overview certification tagline',
+    lastUpdated: new Date().toISOString(),
+    updatedBy: 'system'
+  },
+  {
+    id: 'program_mba_description',
+    key: 'program_mba_description',
+    section: CMS_SECTIONS.PROGRAMS,
+    content_en: 'Advanced management and leadership programs designed for working professionals seeking career advancement.',
+    content_ar: 'برامج إدارة وقيادة متقدمة مصممة للمهنيين العاملين الساعين لتطوير مهنهم',
+    description: 'MBA program description',
+    lastUpdated: new Date().toISOString(),
+    updatedBy: 'system'
+  },
+  {
+    id: 'program_phd_description',
+    key: 'program_phd_description',
+    section: CMS_SECTIONS.PROGRAMS,
+    content_en: 'Doctoral programs for academic and professional excellence in specialized fields of study.',
+    content_ar: 'برامج الدكتوراه للتميز الأكاديمي والمهني في مجالات الدراسة المتخصصة',
+    description: 'PhD program description',
+    lastUpdated: new Date().toISOString(),
+    updatedBy: 'system'
+  },
+  {
+    id: 'programs_page_title',
+    key: 'programs_page_title',
+    section: CMS_SECTIONS.PROGRAMS,
+    content_en: 'Our Programs',
+    content_ar: 'برامجنا',
+    description: 'Programs page main title',
+    lastUpdated: new Date().toISOString(),
+    updatedBy: 'system'
+  },
+  {
+    id: 'programs_page_subtitle',
+    key: 'programs_page_subtitle',
+    section: CMS_SECTIONS.PROGRAMS,
+    content_en: 'Discover our comprehensive range of educational programs designed for tomorrow\'s leaders.',
+    content_ar: 'اكتشف مجموعتنا الشاملة من البرامج التعليمية المصممة لقادة المستقبل.',
+    description: 'Programs page subtitle',
+    lastUpdated: new Date().toISOString(),
+    updatedBy: 'system'
+  },
+  {
+    id: 'programs_filters_title',
+    key: 'programs_filters_title',
+    section: CMS_SECTIONS.PROGRAMS,
+    content_en: 'Filters',
+    content_ar: 'المرشحات',
+    description: 'Programs filters section title',
+    lastUpdated: new Date().toISOString(),
+    updatedBy: 'system'
+  },
+  {
+    id: 'programs_clear_all',
+    key: 'programs_clear_all',
+    section: CMS_SECTIONS.PROGRAMS,
+    content_en: 'Clear All',
+    content_ar: 'مسح الكل',
+    description: 'Clear all filters button',
+    lastUpdated: new Date().toISOString(),
+    updatedBy: 'system'
+  },
+  {
+    id: 'programs_program_type',
+    key: 'programs_program_type',
+    section: CMS_SECTIONS.PROGRAMS,
+    content_en: 'Program Type',
+    content_ar: 'نوع البرنامج',
+    description: 'Program type filter label',
+    lastUpdated: new Date().toISOString(),
+    updatedBy: 'system'
+  },
+  {
+    id: 'programs_speciality',
+    key: 'programs_speciality',
+    section: CMS_SECTIONS.PROGRAMS,
+    content_en: 'Speciality',
+    content_ar: 'التخصص',
+    description: 'Speciality filter label',
+    lastUpdated: new Date().toISOString(),
+    updatedBy: 'system'
+  },
+  {
+    id: 'programs_study_time',
+    key: 'programs_study_time',
+    section: CMS_SECTIONS.PROGRAMS,
+    content_en: 'Study time',
+    content_ar: 'وقت الدراسة',
+    description: 'Study time filter label',
+    lastUpdated: new Date().toISOString(),
+    updatedBy: 'system'
+  },
+  {
+    id: 'programs_showing_count',
+    key: 'programs_showing_count',
+    section: CMS_SECTIONS.PROGRAMS,
+    content_en: 'Showing {count} of {total} programs',
+    content_ar: 'عرض {count} من {total} برنامج',
+    description: 'Programs count display',
+    lastUpdated: new Date().toISOString(),
+    updatedBy: 'system'
+  },
+  {
+    id: 'programs_no_results',
+    key: 'programs_no_results',
+    section: CMS_SECTIONS.PROGRAMS,
+    content_en: 'No programs match your current filters.',
+    content_ar: 'لا توجد برامج تطابق المرشحات الحالية.',
+    description: 'No programs found message',
+    lastUpdated: new Date().toISOString(),
+    updatedBy: 'system'
+  },
+  {
+    id: 'programs_clear_filters',
+    key: 'programs_clear_filters',
+    section: CMS_SECTIONS.PROGRAMS,
+    content_en: 'Clear Filters',
+    content_ar: 'مسح المرشحات',
+    description: 'Clear filters button',
+    lastUpdated: new Date().toISOString(),
+    updatedBy: 'system'
+  },
+  {
+    id: 'programs_learn_more',
+    key: 'programs_learn_more',
+    section: CMS_SECTIONS.PROGRAMS,
+    content_en: 'Learn More',
+    content_ar: 'اعرف المزيد',
+    description: 'Learn more button text',
+    lastUpdated: new Date().toISOString(),
+    updatedBy: 'system'
+  },
+
+  // ABOUT PAGE CONTENT
+  {
+    id: 'about_title',
+    key: 'about_title',
+    section: CMS_SECTIONS.ABOUT_PAGE,
+    content_en: 'About Us',
+    content_ar: 'عن أوبتيموس',
+    description: 'About page main title',
+    lastUpdated: new Date().toISOString(),
+    updatedBy: 'system'
+  },
+  {
+    id: 'about_mission_title',
+    key: 'about_mission_title',
+    section: CMS_SECTIONS.ABOUT_PAGE,
+    content_en: 'Our Mission',
+    content_ar: 'مهمتنا',
+    description: 'About page mission section title',
+    lastUpdated: new Date().toISOString(),
+    updatedBy: 'system'
+  },
+  {
+    id: 'about_mission_description',
+    key: 'about_mission_description',
+    section: CMS_SECTIONS.ABOUT_PAGE,
+    content_en: 'To provide world-class education that empowers professionals to excel in their careers and make a positive impact in their communities.',
+    content_ar: 'تقديم تعليم عالمي المستوى يمكّن المهنيين من التفوق في مهنهم وإحداث تأثير إيجابي في مجتمعاتهم.',
+    description: 'About page mission description',
+    lastUpdated: new Date().toISOString(),
+    updatedBy: 'system'
+  },
+  {
+    id: 'about_stats_students',
+    key: 'about_stats_students',
+    section: CMS_SECTIONS.ABOUT_PAGE,
+    content_en: 'Students Worldwide',
+    content_ar: 'طالب حول العالم',
+    description: 'Students statistics label',
+    lastUpdated: new Date().toISOString(),
+    updatedBy: 'system'
+  },
+  {
+    id: 'about_stats_programs',
+    key: 'about_stats_programs',
+    section: CMS_SECTIONS.ABOUT_PAGE,
+    content_en: 'Programs Available',
+    content_ar: 'برنامج متاح',
+    description: 'Programs statistics label',
+    lastUpdated: new Date().toISOString(),
+    updatedBy: 'system'
+  },
+  {
+    id: 'about_stats_satisfaction',
+    key: 'about_stats_satisfaction',
+    section: CMS_SECTIONS.ABOUT_PAGE,
+    content_en: 'Satisfaction Rate',
+    content_ar: 'معدل الرضا',
+    description: 'Satisfaction statistics label',
+    lastUpdated: new Date().toISOString(),
+    updatedBy: 'system'
+  },
+  {
+    id: 'about_stats_support',
+    key: 'about_stats_support',
+    section: CMS_SECTIONS.ABOUT_PAGE,
+    content_en: '24/7 Support',
+    content_ar: 'دعم على مدار الساعة',
+    description: 'Support statistics label',
+    lastUpdated: new Date().toISOString(),
+    updatedBy: 'system'
+  },
+  {
+    id: 'about_why_choose_title',
+    key: 'about_why_choose_title',
+    section: CMS_SECTIONS.ABOUT_PAGE,
+    content_en: 'Why Choose Optimus?',
+    content_ar: 'لماذا تختار أوبتيموس؟',
+    description: 'Why choose section title',
+    lastUpdated: new Date().toISOString(),
+    updatedBy: 'system'
+  },
+  {
+    id: 'about_why_choose_subtitle',
+    key: 'about_why_choose_subtitle',
+    section: CMS_SECTIONS.ABOUT_PAGE,
+    content_en: 'Discover what sets us apart in the world of professional education.',
+    content_ar: 'اكتشف ما يميزنا في عالم التعليم المهني.',
+    description: 'Why choose section subtitle',
+    lastUpdated: new Date().toISOString(),
+    updatedBy: 'system'
+  },
+  {
+    id: 'about_accreditations_title',
+    key: 'about_accreditations_title',
+    section: CMS_SECTIONS.ABOUT_PAGE,
+    content_en: 'Global Accreditations',
+    content_ar: 'الاعتمادات العالمية',
+    description: 'Accreditations section title',
+    lastUpdated: new Date().toISOString(),
+    updatedBy: 'system'
+  },
+  {
+    id: 'about_accreditations_subtitle',
+    key: 'about_accreditations_subtitle',
+    section: CMS_SECTIONS.ABOUT_PAGE,
+    content_en: 'Our programs are recognized by leading international bodies.',
+    content_ar: 'برامجنا معترف بها من قبل الهيئات الدولية الرائدة',
+    description: 'Accreditations section subtitle',
+    lastUpdated: new Date().toISOString(),
+    updatedBy: 'system'
+  },
+  {
+    id: 'about_faculty_title',
+    key: 'about_faculty_title',
+    section: CMS_SECTIONS.ABOUT_PAGE,
+    content_en: 'Expert Faculty',
+    content_ar: 'أعضاء هيئة تدريس خبراء',
+    description: 'Faculty section title',
+    lastUpdated: new Date().toISOString(),
+    updatedBy: 'system'
+  },
+  {
+    id: 'about_faculty_subtitle',
+    key: 'about_faculty_subtitle',
+    section: CMS_SECTIONS.ABOUT_PAGE,
+    content_en: 'Learn from industry leaders and academic experts with real-world experience.',
+    content_ar: 'تعلم من قادة الصناعة والخبراء الأكاديميين ذوي الخبرة الواقعية.',
+    description: 'Faculty section subtitle',
+    lastUpdated: new Date().toISOString(),
+    updatedBy: 'system'
+  },
+  {
+    id: 'about_accredited_title',
+    key: 'about_accredited_title',
+    section: CMS_SECTIONS.ABOUT_PAGE,
+    content_en: 'Internationally Accredited',
+    content_ar: 'معتمد دولياً',
+    description: 'Accredited feature title',
+    lastUpdated: new Date().toISOString(),
+    updatedBy: 'system'
+  },
+  {
+    id: 'about_accredited_desc',
+    key: 'about_accredited_desc',
+    section: CMS_SECTIONS.ABOUT_PAGE,
+    content_en: 'Our qualifications are recognized worldwide by employers and institutions.',
+    content_ar: 'مؤهلاتنا معترف بها عالمياً من قبل أصحاب العمل والمؤسسات.',
+    description: 'Accredited feature description',
+    lastUpdated: new Date().toISOString(),
+    updatedBy: 'system'
+  },
+  {
+    id: 'about_flexible_title',
+    key: 'about_flexible_title',
+    section: CMS_SECTIONS.ABOUT_PAGE,
+    content_en: 'Flexible Learning',
+    content_ar: 'تعلم مرن',
+    description: 'Flexible learning feature title',
+    lastUpdated: new Date().toISOString(),
+    updatedBy: 'system'
+  },
+  {
+    id: 'about_flexible_desc',
+    key: 'about_flexible_desc',
+    section: CMS_SECTIONS.ABOUT_PAGE,
+    content_en: 'Study at your own pace with our fully online, self-paced learning platform.',
+    content_ar: 'ادرس بالسرعة التي تناسبك مع منصة التعلم الذاتي عبر الإنترنت.',
+    description: 'Flexible learning feature description',
+    lastUpdated: new Date().toISOString(),
+    updatedBy: 'system'
+  },
+  {
+    id: 'about_career_title',
+    key: 'about_career_title',
+    section: CMS_SECTIONS.ABOUT_PAGE,
+    content_en: 'Career Advancement',
+    content_ar: 'تطوير المهنة',
+    description: 'Career advancement feature title',
+    lastUpdated: new Date().toISOString(),
+    updatedBy: 'system'
+  },
+  {
+    id: 'about_career_desc',
+    key: 'about_career_desc',
+    section: CMS_SECTIONS.ABOUT_PAGE,
+    content_en: 'Gain practical skills and knowledge that directly impact your career growth.',
+    content_ar: 'اكتسب مهارات ومعرفة عملية تؤثر مباشرة على نمو مسيرتك المهنية.',
+    description: 'Career advancement feature description',
+    lastUpdated: new Date().toISOString(),
+    updatedBy: 'system'
+  },
+
+  // BLOG PAGE CONTENT
+  {
+    id: 'blog_title',
+    key: 'blog_title',
+    section: CMS_SECTIONS.BLOG_PAGE,
+    content_en: 'Blog & Insights',
+    content_ar: 'المدونة والرؤى',
+    description: 'Blog page main title',
+    lastUpdated: new Date().toISOString(),
+    updatedBy: 'system'
+  },
+  {
+    id: 'blog_subtitle',
+    key: 'blog_subtitle',
+    section: CMS_SECTIONS.BLOG_PAGE,
+    content_en: 'Stay updated with the latest trends in education, career development, and industry insights.',
+    content_ar: 'ابق على اطلاع بأحدث الاتجاهات في التعليم والتطوير المهني ورؤى الصناعة.',
+    description: 'Blog page subtitle',
+    lastUpdated: new Date().toISOString(),
+    updatedBy: 'system'
+  },
+  {
+    id: 'blog_noBlogPosts',
+    key: 'blog_noBlogPosts',
+    section: CMS_SECTIONS.BLOG_PAGE,
+    content_en: 'No blog posts found.',
+    content_ar: 'لم يتم العثور على مقالات مدونة',
+    description: 'Message when no blog posts are found',
+    lastUpdated: new Date().toISOString(),
+    updatedBy: 'system'
+  },
+  {
+    id: 'blog_noBlogPostsDescription',
+    key: 'blog_noBlogPostsDescription',
+    section: CMS_SECTIONS.BLOG_PAGE,
+    content_en: 'Learn more about Optimus Education and our mission to shape tomorrow\'s leaders.',
+    content_ar: 'تعلم المزيد عن أوبتيموس للتعليم ومهمتنا لتشكيل قادة المستقبل',
+    description: 'Description text for about page and when no blog posts found',
+    lastUpdated: new Date().toISOString(),
+    updatedBy: 'system'
+  },
+  {
+    id: 'blog_readMore',
+    key: 'blog_readMore',
+    section: CMS_SECTIONS.BLOG_PAGE,
+    content_en: 'Read More',
+    content_ar: 'اقرأ المزيد',
+    description: 'Read more link text for blog posts',
     lastUpdated: new Date().toISOString(),
     updatedBy: 'system'
   },

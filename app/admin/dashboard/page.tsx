@@ -30,7 +30,7 @@ interface Stats {
 }
 
 export default function AdminDashboardPage() {
-  const { currentUser, userRole, isLoading } = useAuth();
+  const { currentUser, userRole, hasPermission, isLoading } = useAuth();
   const router = useRouter();
   const [stats, setStats] = useState<Stats>({
     totalPrograms: 0,
@@ -41,11 +41,11 @@ export default function AdminDashboardPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Only fetch data if the user is authenticated and an admin
-    if (!isLoading && currentUser && userRole === 'admin') {
+    // Only fetch data if the user is authenticated and has dashboard permission
+    if (!isLoading && currentUser && (userRole === 'admin' || hasPermission('dashboard'))) {
       fetchStats();
     }
-  }, [currentUser, userRole, isLoading, router]);
+  }, [currentUser, userRole, hasPermission, isLoading, router]);
 
   const fetchStats = async () => {
     try {

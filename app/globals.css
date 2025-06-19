@@ -194,4 +194,44 @@ footer {
   font-family: 'Cairo', sans-serif;
 }
 
+/* Arabic punctuation and text direction fixes */
+[data-language="ar"] {
+  /* Ensure proper text direction for Arabic */
+  unicode-bidi: embed;
+}
+
+[data-language="ar"] .content-area p,
+[data-language="ar"] .content-area div,
+[data-language="ar"] .content-area span {
+  /* Proper Arabic text handling */
+  unicode-bidi: isolate;
+  direction: rtl;
+}
+
+/* Fix period placement in Arabic text */
+[data-language="ar"] .arabic-text {
+  direction: rtl;
+  unicode-bidi: isolate;
+  text-align: right;
+}
+
+/* Ensure punctuation doesn't get misplaced */
+[data-language="ar"] .arabic-text::after {
+  direction: ltr;
+  unicode-bidi: isolate;
+}
+
+/* No RTL flip for these elements */
+.no-rtl-flip {
+  direction: ltr !important;
+}
+
+/* Specific fixes for common punctuation issues */
+[data-language="ar"] .program-title,
+[data-language="ar"] .hero-title {
+  direction: rtl;
+  unicode-bidi: isolate;
+  text-align: right;
+}
+
  

@@ -30,6 +30,8 @@
     },
     "viewAll": "View All Programs"
   },
+  "program_explore_mba": "Explore MBA Programs",
+  "program_explore_phd": "Explore PhD Programs",
   "whyChoose": {
     "title": "Why Choose Optimus",
     "subtitle": "Our commitment to excellence and innovation creates an ideal environment for developing future leaders.",
@@ -127,7 +129,9 @@
     "title": "Latest Insights",
     "subtitle": "Stay updated with the latest trends in education, career development, and industry insights.",
     "readMore": "Read More",
-    "viewAll": "Read More"
+    "viewAll": "Read More",
+    "noBlogPosts": "No blog posts found.",
+    "noBlogPostsDescription": "Learn more about Optimus Education and our mission to shape tomorrow's leaders."
   },
   "footer": {
     "about": {
@@ -143,7 +147,7 @@
     },
     "contactInfo": {
       "title": "Contact Info",
-      "address": "123 Education Street, Dubai, UAE",
+      "address": "Riyadh, Saudi Arabia",
       "phone": "+971569852211",
       "email": "optimusksa@gmail.com"
     },
@@ -161,7 +165,7 @@
       "placeholder": "Enter your email",
       "subscribe": "Subscribe"
     },
-    "copyright": "© 2023 Optimus Education. All rights reserved.",
+    "copyright": "Optimus Education. All rights reserved.",
     "privacyPolicy": "Privacy Policy",
     "termsOfService": "Terms of Service"
   },
@@ -347,5 +351,6 @@
     "checkEmail": "Please check your email to sign in.",
     "signingIn": "Signing in...",
     "signingOut": "Signing out..."
-  }
+  },
+  "footer_address": "Riyadh, Saudi Arabia"
 } 

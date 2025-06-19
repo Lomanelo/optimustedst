@@ -1,6 +1,6 @@
 'use client';
 
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useMemo } from 'react';
 import { 
   User, 
   UserCredential,
@@ -12,16 +12,19 @@ import {
 } from 'firebase/auth';
 import { doc, setDoc, getDoc, serverTimestamp } from 'firebase/firestore';
 import { auth, db } from '../../src/firebase/firebase';
+import userService, { UserPermissions, DEFAULT_PERMISSIONS, ADMIN_PERMISSIONS } from '../../src/services/userService';
 
 interface AuthContextType {
   currentUser: User | null;
   userRole: string;
+  userPermissions: UserPermissions;
   isLoading: boolean;
   login: (email: string, password: string) => Promise<UserCredential>;
   register: (email: string, password: string, displayName: string) => Promise<UserCredential>;
   logout: () => Promise<void>;
   resetPassword: (email: string) => Promise<void>;
   refreshUserRole: () => Promise<string>;
+  hasPermission: (permission: keyof UserPermissions) => boolean;
 }
 
 const AuthContext = createContext<AuthContextType | null>(null);
@@ -54,6 +57,7 @@ const normalizeRole = (role: string | undefined | null): string => {
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [userRole, setUserRole] = useState<string>('student');
+  const [userPermissions, setUserPermissions] = useState<UserPermissions>(DEFAULT_PERMISSIONS);
   const [isLoading, setIsLoading] = useState<boolean>(true);
 
   // Function to fetch user role from Firestore
@@ -96,16 +100,49 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             console.log('User data from Firestore:', JSON.stringify(userData));
             
             // Normalize the role before setting
-            setUserRole(normalizeRole(userData.role));
+            const role = normalizeRole(userData.role);
+            setUserRole(role);
+            
+            // Set permissions - for existing admin users without permissions, give them all permissions
+            let permissions = userData.permissions || DEFAULT_PERMISSIONS;
+            
+            // Migration: If user is admin but has no permissions set, give them all permissions
+            if (role === 'admin' && !userData.permissions) {
+              permissions = ADMIN_PERMISSIONS;
+              
+              // Update the user document to include permissions
+              try {
+                await setDoc(userDocRef, {
+                  ...userData,
+                  permissions: permissions,
+                  isActive: userData.isActive !== false,
+                  updatedAt: serverTimestamp(),
+                }, { merge: true });
+              } catch (error) {
+                console.error('Error updating admin permissions:', error);
+              }
+            }
+            
+            // Only update permissions if they actually changed to prevent unnecessary re-renders
+            setUserPermissions(prev => {
+              const hasChanged = JSON.stringify(prev) !== JSON.stringify(permissions);
+              return hasChanged ? permissions : prev;
+            });
           } else {
             // Create a new user document if it doesn't exist
             await setDoc(userDocRef, {
               email: user.email,
               displayName: user.displayName || user.email?.split('@')[0] || 'Student',
               role: 'student',
+              permissions: DEFAULT_PERMISSIONS,
+              isActive: true,
               createdAt: serverTimestamp(),
             });
             setUserRole('student');
+            setUserPermissions(prev => {
+              const hasChanged = JSON.stringify(prev) !== JSON.stringify(DEFAULT_PERMISSIONS);
+              return hasChanged ? DEFAULT_PERMISSIONS : prev;
+            });
           }
         } catch (error) {
           console.error('Error fetching user role:', error);
@@ -113,6 +150,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         }
       } else {
         setUserRole('student');
+        setUserPermissions(prev => {
+          const hasChanged = JSON.stringify(prev) !== JSON.stringify(DEFAULT_PERMISSIONS);
+          return hasChanged ? DEFAULT_PERMISSIONS : prev;
+        });
       }
       
       setIsLoading(false);
@@ -137,10 +178,35 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
       
-      // Immediately fetch the user role after login
+      // Immediately fetch the user role and permissions after login
       if (userCredential.user) {
-        const role = await fetchUserRole(userCredential.user.uid);
-        setUserRole(role);
+        try {
+          const userDocRef = doc(db, 'users', userCredential.user.uid);
+          const userDoc = await getDoc(userDocRef);
+          
+          if (userDoc.exists()) {
+            const userData = userDoc.data();
+            const role = normalizeRole(userData.role);
+            setUserRole(role);
+            
+            // Set permissions
+            const permissions = userData.permissions || DEFAULT_PERMISSIONS;
+            setUserPermissions(prev => {
+              const hasChanged = JSON.stringify(prev) !== JSON.stringify(permissions);
+              return hasChanged ? permissions : prev;
+            });
+          }
+        } catch (error) {
+          console.error('Error fetching user data after login:', error);
+        }
+        
+        // Update last login time
+        try {
+          await userService.updateLastLogin(userCredential.user.uid);
+        } catch (error) {
+          console.error('Error updating last login:', error);
+          // Don't fail login for this
+        }
       }
       
       return userCredential;
@@ -159,10 +225,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         email,
         displayName,
         role: 'student',
+        permissions: DEFAULT_PERMISSIONS,
+        isActive: true,
         createdAt: serverTimestamp(),
       });
 
       setUserRole('student');
+      setUserPermissions(prev => {
+        const hasChanged = JSON.stringify(prev) !== JSON.stringify(DEFAULT_PERMISSIONS);
+        return hasChanged ? DEFAULT_PERMISSIONS : prev;
+      });
       return result;
     } catch (error) {
       console.error('Registration error:', error);
@@ -174,6 +246,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       await signOut(auth);
       setUserRole('student');
+      setUserPermissions(prev => {
+        const hasChanged = JSON.stringify(prev) !== JSON.stringify(DEFAULT_PERMISSIONS);
+        return hasChanged ? DEFAULT_PERMISSIONS : prev;
+      });
     } catch (error) {
       console.error('Logout error:', error);
       throw error;
@@ -189,15 +265,21 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
+  const hasPermission = (permission: keyof UserPermissions): boolean => {
+    return userPermissions[permission] || false;
+  };
+
   const value = {
     currentUser,
     userRole,
+    userPermissions,
     isLoading,
     login,
     register,
     logout,
     resetPassword,
     refreshUserRole,
+    hasPermission,
   };
 
   return (

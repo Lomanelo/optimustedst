@@ -86,7 +86,7 @@ const Footer: React.FC = () => {
           <div>
             <h3 className="text-lg font-bold mb-4">{getContent('footer_contact_info_title')}</h3>
             <ul className="space-y-2">
-              <li className="text-white/80">{contactInfo.address}</li>
+              <li className="text-white/80">{getContent('footer_address')}</li>
               <li className="text-white/80">{contactInfo.phoneNumber}</li>
               <li className="text-white/80">{contactInfo.generalInquiriesEmail}</li>
               <li><a href="/contact" className="text-accent hover:underline">{getContent('footer_get_in_touch')}</a></li>

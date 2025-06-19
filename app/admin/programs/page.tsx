@@ -35,7 +35,7 @@ interface Program {
 }
 
 export default function AdminProgramsPage() {
-  const { currentUser, userRole, isLoading } = useAuth();
+  const { currentUser, userRole, hasPermission, isLoading } = useAuth();
   const router = useRouter();
   const [programs, setPrograms] = useState<Program[]>([]);
   const [staticPrograms, setStaticPrograms] = useState<Program[]>([]);
@@ -52,8 +52,8 @@ export default function AdminProgramsPage() {
   const [importSuccess, setImportSuccess] = useState<string | null>(null);
 
   useEffect(() => {
-    // Only fetch programs if the user is authenticated and an admin
-    if (!isLoading && currentUser && userRole === 'admin') {
+    // Only fetch programs if the user is authenticated and has programs permission
+    if (!isLoading && currentUser && (userRole === 'admin' || hasPermission('programs'))) {
       // Set up real-time listener for admin programs
       setLoading(true);
       
@@ -94,7 +94,7 @@ export default function AdminProgramsPage() {
       
       return () => unsubscribe();
     }
-  }, [currentUser, userRole, isLoading, router]);
+  }, [currentUser, userRole, hasPermission, isLoading, router]);
 
   const handleDeleteClick = (programId: string) => {
     setDeleteConfirmation(programId);
@@ -147,6 +147,7 @@ export default function AdminProgramsPage() {
         durationWeeks: 12, // Default value
         price: typeof staticProgram.price === 'string' ? parseFloat(staticProgram.price) : staticProgram.price,
         status: 'published' as const,
+        languages: ['en' as const], // Default language
         createdAt: serverTimestamp(),
         updatedAt: serverTimestamp(),
         enrollments: 0,

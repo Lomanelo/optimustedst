@@ -7,6 +7,7 @@ import ClientLayout from '../components/ClientLayout';
 import { Filter, ChevronDown, ChevronUp, X } from 'lucide-react';
 import { accreditations as accreditationsData } from '../../src/data/optimus-data';
 import programService, { Program as ServiceProgram } from '../../src/services/programService';
+import { useCMS } from '../contexts/cms-context';
 
 // Filter options
 const programTypeOptions = ['MBA', 'PHD'];
@@ -52,6 +53,7 @@ interface PageProps {
 function ProgramsContent({ searchParams }: { searchParams: Record<string, string | string[] | undefined> }) {
   const router = useRouter();
   const queryParams = useSearchParams();
+  const { getContent } = useCMS();
   const [allPrograms, setAllPrograms] = useState<Program[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -200,12 +202,12 @@ function ProgramsContent({ searchParams }: { searchParams: Record<string, string
     <ClientLayout>
       <div className="container mx-auto px-4 py-8">
         <div className="mb-8 text-center">
-          <h1 className="text-4xl font-bold text-primary mb-4">Our Programs</h1>
+          <h1 className="text-4xl font-bold text-primary mb-4">{getContent('programs_page_title')}</h1>
           <p className="text-xl text-gray-600 mb-2">
-            Discover our comprehensive range of educational programs designed for tomorrow's leaders.
+            {getContent('programs_page_subtitle')}
           </p>
           <p className="text-lg text-accent font-medium">
-            Get certified in a year – fully online
+            {getContent('program_overview_certification')}
           </p>
         </div>
 
@@ -216,7 +218,7 @@ function ProgramsContent({ searchParams }: { searchParams: Record<string, string
               <div className="flex items-center justify-between mb-4">
                 <h2 className="text-lg font-semibold text-primary flex items-center">
                   <Filter className="w-5 h-5 mr-2" />
-                  Filters
+                  {getContent('programs_filters_title')}
                 </h2>
                 {(selectedProgramTypes.length > 0 || selectedSpecialities.length > 0 || 
                   selectedStudyTimes.length > 0) && (
@@ -225,7 +227,7 @@ function ProgramsContent({ searchParams }: { searchParams: Record<string, string
                     className="text-sm text-red-600 hover:text-red-800 flex items-center"
                   >
                     <X className="w-4 h-4 mr-1" />
-                    Clear All
+                    {getContent('programs_clear_all')}
                   </button>
                 )}
               </div>
@@ -236,7 +238,7 @@ function ProgramsContent({ searchParams }: { searchParams: Record<string, string
                   onClick={() => toggleFilter('programType')}
                   className="w-full flex items-center justify-between p-2 text-left font-medium text-primary hover:bg-gray-50 rounded"
                 >
-                  Program Type
+                  {getContent('programs_program_type')}
                   {openFilters.programType ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
                 </button>
                 {openFilters.programType && (
@@ -262,7 +264,7 @@ function ProgramsContent({ searchParams }: { searchParams: Record<string, string
                   onClick={() => toggleFilter('speciality')}
                   className="w-full flex items-center justify-between p-2 text-left font-medium text-primary hover:bg-gray-50 rounded"
                 >
-                  Speciality
+                  {getContent('programs_speciality')}
                   {openFilters.speciality ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
                 </button>
                 {openFilters.speciality && (
@@ -288,7 +290,7 @@ function ProgramsContent({ searchParams }: { searchParams: Record<string, string
                   onClick={() => toggleFilter('studyTime')}
                   className="w-full flex items-center justify-between p-2 text-left font-medium text-primary hover:bg-gray-50 rounded"
                 >
-                  Study time
+                  {getContent('programs_study_time')}
                   {openFilters.studyTime ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
                 </button>
                 {openFilters.studyTime && (
@@ -316,18 +318,18 @@ function ProgramsContent({ searchParams }: { searchParams: Record<string, string
           <div className="lg:w-3/4">
             <div className="mb-4 flex items-center justify-between">
               <p className="text-gray-600">
-                Showing {filteredPrograms.length} of {allPrograms.length} programs
+                {getContent('programs_showing_count').replace('{count}', filteredPrograms.length.toString()).replace('{total}', allPrograms.length.toString())}
               </p>
             </div>
 
             {filteredPrograms.length === 0 ? (
               <div className="text-center py-12">
-                <p className="text-gray-500 text-lg">No programs match your current filters.</p>
+                <p className="text-gray-500 text-lg">{getContent('programs_no_results')}</p>
                 <button
                   onClick={clearAllFilters}
                   className="mt-4 bg-accent text-white px-6 py-2 rounded-md hover:bg-accent-dark transition-colors"
                 >
-                  Clear Filters
+                  {getContent('programs_clear_filters')}
                 </button>
               </div>
             ) : (
@@ -391,7 +393,7 @@ function ProgramsContent({ searchParams }: { searchParams: Record<string, string
                           href={`/programs/${program.id}`}
                           className="bg-primary text-white px-4 py-2 rounded-md hover:bg-primary-dark transition-colors text-sm font-medium"
                         >
-                          Learn More
+                          {getContent('programs_learn_more')}
                         </Link>
                       </div>
                     </div>
