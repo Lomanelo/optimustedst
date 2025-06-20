@@ -2,6 +2,9 @@
 
 import { useState } from 'react';
 
+// Force dynamic rendering for this page
+export const dynamic = 'force-dynamic';
+
 export default function ApiTestPage() {
   const [testResult, setTestResult] = useState<string>('');
   const [isLoading, setIsLoading] = useState(false);

@@ -1,6 +1,9 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Suspense } from 'react';
+
+// Force dynamic rendering for this page
+export const dynamic = 'force-dynamic';
 import { useSearchParams } from 'next/navigation';
 import ClientLayout from '../../components/ClientLayout';
 import { CreditCard, Shield, CheckCircle, ArrowLeft } from 'lucide-react';
@@ -22,7 +25,24 @@ interface EnrollmentDetails {
   totalAmount: number;
 }
 
-export default function EnrollmentPaymentPage() {
+// Loading component
+function PaymentLoading() {
+  return (
+    <ClientLayout>
+      <div className="pt-20">
+        <div className="container mx-auto px-4 py-8">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary mx-auto"></div>
+            <p className="mt-4 text-gray-600">Loading payment details...</p>
+          </div>
+        </div>
+      </div>
+    </ClientLayout>
+  );
+}
+
+// Component that uses useSearchParams
+function PaymentContent() {
   const searchParams = useSearchParams();
   const enrollmentId = searchParams.get('enrollmentId');
   
@@ -49,19 +69,23 @@ export default function EnrollmentPaymentPage() {
   }, [enrollmentId]);
 
   useEffect(() => {
-    // Load Moyasar script
-    const script = document.createElement('script');
-    script.src = 'https://cdn.moyasar.com/mpf/1.14.0/moyasar.js';
-    script.async = true;
-    document.head.appendChild(script);
+    // Load Moyasar script only in browser
+    if (typeof window !== 'undefined') {
+      const script = document.createElement('script');
+      script.src = 'https://cdn.moyasar.com/mpf/1.14.0/moyasar.js';
+      script.async = true;
+      document.head.appendChild(script);
 
-    return () => {
-      document.head.removeChild(script);
-    };
+      return () => {
+        if (document.head.contains(script)) {
+          document.head.removeChild(script);
+        }
+      };
+    }
   }, []);
 
   const handlePayment = async () => {
-    if (!enrollmentDetails || !window.Moyasar) {
+    if (!enrollmentDetails || typeof window === 'undefined' || !window.Moyasar) {
       alert('Payment system not ready. Please refresh the page.');
       return;
     }
@@ -268,7 +292,7 @@ export default function EnrollmentPaymentPage() {
 
                 {/* Back Button */}
                 <button
-                  onClick={() => window.history.back()}
+                  onClick={() => typeof window !== 'undefined' && window.history.back()}
                   className="w-full mt-4 flex items-center justify-center px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
                 >
                   <ArrowLeft className="mr-2 h-4 w-4" />
@@ -280,5 +304,14 @@ export default function EnrollmentPaymentPage() {
         </div>
       </div>
     </ClientLayout>
+  );
+}
+
+// Main page component with Suspense boundary
+export default function EnrollmentPaymentPage() {
+  return (
+    <Suspense fallback={<PaymentLoading />}>
+      <PaymentContent />
+    </Suspense>
   );
 } 

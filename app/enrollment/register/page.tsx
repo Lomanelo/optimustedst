@@ -1,7 +1,10 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
-import { useSearchParams } from 'next/navigation';
+import React, { useState, useEffect, Suspense } from 'react';
+
+// Force dynamic rendering for this page
+export const dynamic = 'force-dynamic';
+import { useSearchParams, useRouter } from 'next/navigation';
 import ClientLayout from '../../components/ClientLayout';
 import programService, { Program } from '../../../src/services/programService';
 import { User, Calendar, CreditCard, ArrowRight, ArrowLeft } from 'lucide-react';
@@ -16,7 +19,24 @@ interface EnrollmentFormData {
   countryCode: string;
 }
 
-export default function EnrollmentRegisterPage() {
+// Loading component
+function RegisterLoading() {
+  return (
+    <ClientLayout>
+      <div className="pt-20">
+        <div className="container mx-auto px-4 py-8">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary mx-auto"></div>
+            <p className="mt-4 text-gray-600">Loading enrollment form...</p>
+          </div>
+        </div>
+      </div>
+    </ClientLayout>
+  );
+}
+
+// Component that uses useSearchParams
+function RegisterContent() {
   const searchParams = useSearchParams();
   const programId = searchParams.get('programId');
   const price = searchParams.get('price');
@@ -456,5 +476,14 @@ export default function EnrollmentRegisterPage() {
         </div>
       </div>
     </ClientLayout>
+  );
+}
+
+// Main page component with Suspense boundary
+export default function EnrollmentRegisterPage() {
+  return (
+    <Suspense fallback={<RegisterLoading />}>
+      <RegisterContent />
+    </Suspense>
   );
 } 

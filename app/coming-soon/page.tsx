@@ -1,6 +1,9 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+
+// Force dynamic rendering for this page
+export const dynamic = 'force-dynamic';
 import { Facebook, Instagram, Twitter, Linkedin, MessageCircle, Music, CheckCircle, Globe } from 'lucide-react';
 import { doc, getDoc } from 'firebase/firestore';
 import { db } from '../../src/firebase/firebase';
