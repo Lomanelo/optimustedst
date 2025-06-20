@@ -32,7 +32,7 @@ B. Online Payment Integration
 Secure payment for registration via Moyasar / Tap / PayTabs (KSA-compliant), Stripe or PayPal fallback
 
 C. Learning Platform Ready (Future-Ready LMS)
-LMS Plugin Compatible (LearnDash / TutorLMS)
+LMS Plugin Compatible (LearnDash / TutorLMS
 
 Backend program upload capability (videos, quizzes, certificates)
 
