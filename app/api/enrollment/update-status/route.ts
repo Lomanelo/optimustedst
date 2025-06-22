@@ -1,4 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { db } from '../../../../src/firebase/firebase';
+import { doc, updateDoc, getDoc } from 'firebase/firestore';
 
 interface UpdateStatusData {
   enrollmentId: string;
@@ -29,7 +31,28 @@ export async function POST(request: NextRequest) {
 
     console.log('Updating enrollment status:', updateRecord);
 
-    // Update in Google Sheets or database
+    // Update in Firestore
+    try {
+      const enrollmentRef = doc(db, 'enrollments', enrollmentId);
+      const enrollmentDoc = await getDoc(enrollmentRef);
+      
+      if (enrollmentDoc.exists()) {
+        await updateDoc(enrollmentRef, {
+          status,
+          paymentId,
+          paymentDetails,
+          updatedAt: new Date().toISOString()
+        });
+        console.log('Enrollment status updated in Firestore');
+      } else {
+        console.warn('Enrollment not found in Firestore:', enrollmentId);
+      }
+    } catch (firestoreError) {
+      console.error('Error updating Firestore:', firestoreError);
+      // Continue with other updates even if Firestore fails
+    }
+
+    // Also update in Google Sheets for backup
     try {
       const sheetsResponse = await fetch('https://script.google.com/macros/s/AKfycbw34SQTApLrfOF4mvjNqCljQSj1HeopLHwh-Oz47gYEVCoRfgUIIQ-Ae0X06lYsYJWI/exec', {
         method: 'POST',

@@ -27,20 +27,35 @@ export default function EnrollmentSuccessPage({ params }: PageProps) {
   const [enrollmentDetails, setEnrollmentDetails] = useState<EnrollmentDetails | null>(null);
   const [loading, setLoading] = useState(true);
 
-  // Mock data for demo - in production, fetch from API
+  // Fetch real enrollment data from API
   useEffect(() => {
-    const mockEnrollmentDetails: EnrollmentDetails = {
-      enrollmentId,
-      firstName: 'Student',
-      lastName: 'Name',
-      email: 'student@example.com',
-      programTitle: 'Sample Program',
-      totalAmount: 5250,
-      enrollmentDate: new Date().toISOString()
+    const fetchEnrollmentDetails = async () => {
+      try {
+        const response = await fetch(`/api/enrollment/${enrollmentId}`);
+        
+        if (!response.ok) {
+          throw new Error('Failed to fetch enrollment details');
+        }
+
+        const data = await response.json();
+        setEnrollmentDetails({
+          enrollmentId: data.enrollmentId,
+          firstName: data.firstName,
+          lastName: data.lastName,
+          email: data.email,
+          programTitle: data.programTitle,
+          totalAmount: data.totalAmount,
+          enrollmentDate: data.createdAt || new Date().toISOString()
+        });
+      } catch (err) {
+        console.error('Error fetching enrollment details:', err);
+        setEnrollmentDetails(null);
+      } finally {
+        setLoading(false);
+      }
     };
-    
-    setEnrollmentDetails(mockEnrollmentDetails);
-    setLoading(false);
+
+    fetchEnrollmentDetails();
   }, [enrollmentId]);
 
   const downloadReceipt = () => {

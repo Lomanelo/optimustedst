@@ -51,21 +51,34 @@ function PaymentContent() {
   const [paymentLoading, setPaymentLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Mock data for demo - in production, fetch from API
+  // Fetch real enrollment data from API
   useEffect(() => {
-    const mockEnrollmentDetails: EnrollmentDetails = {
-      enrollmentId: enrollmentId || '',
-      firstName: 'Student',
-      lastName: 'Name',
-      email: 'student@example.com',
-      programTitle: 'Sample Program',
-      basePrice: 5000,
-      vatAmount: 250,
-      totalAmount: 5250
+    const fetchEnrollmentDetails = async () => {
+      if (!enrollmentId) {
+        setError('Enrollment ID is missing');
+        setLoading(false);
+        return;
+      }
+
+      try {
+        const response = await fetch(`/api/enrollment/${enrollmentId}`);
+        
+        if (!response.ok) {
+          throw new Error('Failed to fetch enrollment details');
+        }
+
+        const data = await response.json();
+        setEnrollmentDetails(data);
+        setError(null);
+      } catch (err) {
+        console.error('Error fetching enrollment details:', err);
+        setError('Failed to load enrollment details. Please try again.');
+      } finally {
+        setLoading(false);
+      }
     };
-    
-    setEnrollmentDetails(mockEnrollmentDetails);
-    setLoading(false);
+
+    fetchEnrollmentDetails();
   }, [enrollmentId]);
 
   useEffect(() => {
@@ -156,14 +169,18 @@ function PaymentContent() {
     );
   }
 
-  if (!enrollmentId || !enrollmentDetails) {
+  if (error || (!enrollmentId || !enrollmentDetails)) {
     return (
       <ClientLayout>
         <div className="pt-20">
           <div className="container mx-auto px-4 py-8">
             <div className="text-center">
-              <h1 className="text-2xl font-bold text-red-600 mb-4">Invalid Enrollment</h1>
-              <p className="text-gray-600">The enrollment details could not be found.</p>
+              <h1 className="text-2xl font-bold text-red-600 mb-4">
+                {error ? 'Error Loading Enrollment' : 'Invalid Enrollment'}
+              </h1>
+              <p className="text-gray-600">
+                {error || 'The enrollment details could not be found.'}
+              </p>
               <a href="/programs" className="mt-4 inline-block bg-primary text-white px-6 py-2 rounded-md hover:bg-primary-dark transition-colors">
                 Browse Programs
               </a>
@@ -227,12 +244,12 @@ function PaymentContent() {
                   {/* Supported Payment Methods */}
                   <div className="mt-6 pt-6 border-t">
                     <p className="text-sm text-gray-600 text-center mb-4">Supported Payment Methods:</p>
-                    <div className="flex justify-center items-center space-x-4">
-                      <img src="/visa-logo.png" alt="Visa" className="h-8" />
-                      <img src="/mastercard-logo.png" alt="Mastercard" className="h-8" />
-                      <img src="/mada-logo.png" alt="Mada" className="h-8" />
-                      <img src="/apple-pay-logo.png" alt="Apple Pay" className="h-8" />
-                      <img src="/stc-pay-logo.png" alt="STC Pay" className="h-8" />
+                    <div className="flex justify-center items-center space-x-4 flex-wrap">
+                      <div className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-medium">Visa</div>
+                      <div className="bg-red-100 text-red-800 px-3 py-1 rounded-full text-sm font-medium">Mastercard</div>
+                      <div className="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-medium">Mada</div>
+                      <div className="bg-gray-100 text-gray-800 px-3 py-1 rounded-full text-sm font-medium">Apple Pay</div>
+                      <div className="bg-purple-100 text-purple-800 px-3 py-1 rounded-full text-sm font-medium">STC Pay</div>
                     </div>
                   </div>
                 </div>

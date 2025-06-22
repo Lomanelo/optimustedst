@@ -7,7 +7,7 @@ import { useAuth } from '../../../../contexts/auth-context';
 import { doc, getDoc, updateDoc, serverTimestamp } from 'firebase/firestore';
 import { db } from '../../../../../src/firebase/firebase';
 import { uploadImageAsDataUrl } from '../../../../../src/services/storageService';
-import { Save, ArrowLeft, AlertCircle, ImagePlus, Check } from 'lucide-react';
+import { Save, ArrowLeft, AlertCircle, ImagePlus, Check, Globe, Languages } from 'lucide-react';
 
 interface Program {
   id: string;
@@ -35,7 +35,9 @@ export default function EditProgramPage({ params }: { params: Promise<{ id: stri
   const { currentUser, userRole, isLoading } = useAuth();
   const router = useRouter();
   const [program, setProgram] = useState<Program | null>(null);
+  // Bilingual form data (matching create page structure)
   const [formData, setFormData] = useState({
+    // English fields
     title: '',
     description: '',
     shortDescription: '',
@@ -47,8 +49,20 @@ export default function EditProgramPage({ params }: { params: Promise<{ id: stri
     accreditations: [] as string[],
     requirements: '',
     benefits: '',
-    status: 'draft'
+    status: 'draft',
+    // Arabic fields
+    title_ar: '',
+    description_ar: '',
+    shortDescription_ar: '',
+    category_ar: '',
+    programType_ar: '',
+    speciality_ar: '',
+    studyTime_ar: '',
+    requirements_ar: '',
+    benefits_ar: ''
   });
+
+  const [activeLanguage, setActiveLanguage] = useState<'en' | 'ar'>('en');
   
   const [thumbnailFile, setThumbnailFile] = useState<File | null>(null);
   const [thumbnailPreview, setThumbnailPreview] = useState<string>('');
@@ -73,20 +87,31 @@ export default function EditProgramPage({ params }: { params: Promise<{ id: stri
         const programData = { id: programDoc.id, ...programDoc.data() } as Program;
         setProgram(programData);
         
-        // Initialize form data
+        // Initialize form data (bilingual)
         setFormData({
+          // English fields
           title: programData.title || '',
           description: programData.description || '',
           shortDescription: programData.shortDescription || '',
-          category: programData.category || programData.speciality || '',
-          programType: programData.programType || '',
-          speciality: programData.speciality || programData.category || '',
-          studyTime: programData.studyTime || '',
+          category: programData.category || '',
+          programType: programData.type || programData.level || '',
+          speciality: programData.specialization || programData.speciality || '',
+          studyTime: programData.duration || programData.studyTime || '',
           price: typeof programData.price === 'number' ? programData.price.toString() : programData.price || '',
-          accreditations: programData.accreditations || (programData.accreditation ? [programData.accreditation] : []),
-          requirements: programData.requirements || '',
-          benefits: programData.benefits || '',
-          status: programData.status || 'draft'
+          accreditations: programData.accreditations || [],
+          requirements: Array.isArray(programData.requirements) ? programData.requirements.join('\n') : programData.requirements || '',
+          benefits: Array.isArray(programData.whatYouWillLearn) ? programData.whatYouWillLearn.join('\n') : programData.benefits || '',
+          status: programData.status || 'draft',
+          // Arabic fields
+          title_ar: programData.title_ar || '',
+          description_ar: programData.description_ar || '',
+          shortDescription_ar: programData.shortDescription_ar || '',
+          category_ar: programData.category_ar || '',
+          programType_ar: programData.type_ar || '',
+          speciality_ar: programData.specialization_ar || '',
+          studyTime_ar: programData.duration_ar || '',
+          requirements_ar: Array.isArray(programData.requirements_ar) ? programData.requirements_ar.join('\n') : programData.requirements_ar || '',
+          benefits_ar: Array.isArray(programData.whatYouWillLearn_ar) ? programData.whatYouWillLearn_ar.join('\n') : programData.benefits_ar || ''
         });
         
         // Set thumbnail preview if available
@@ -155,6 +180,38 @@ export default function EditProgramPage({ params }: { params: Promise<{ id: stri
     }
   };
 
+  // Helper functions for bilingual support (matching create page)
+  const getCurrentFields = () => {
+    if (activeLanguage === 'ar') {
+      return {
+        title: formData.title_ar,
+        description: formData.description_ar,
+        shortDescription: formData.shortDescription_ar,
+        category: formData.category_ar,
+        programType: formData.programType_ar,
+        speciality: formData.speciality_ar,
+        studyTime: formData.studyTime_ar,
+        requirements: formData.requirements_ar,
+        benefits: formData.benefits_ar
+      };
+    }
+    return {
+      title: formData.title,
+      description: formData.description,
+      shortDescription: formData.shortDescription,
+      category: formData.category,
+      programType: formData.programType,
+      speciality: formData.speciality,
+      studyTime: formData.studyTime,
+      requirements: formData.requirements,
+      benefits: formData.benefits
+    };
+  };
+
+  const getFieldName = (field: string) => {
+    return activeLanguage === 'ar' ? `${field}_ar` : field;
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
@@ -179,21 +236,39 @@ export default function EditProgramPage({ params }: { params: Promise<{ id: stri
         thumbnailUrl = await uploadThumbnail();
       }
       
-      // Prepare program data
+      // Prepare program data (matching create page structure)
+      const numericPrice = typeof formData.price === 'string' 
+        ? parseFloat(formData.price.replace(/[^0-9.]/g, '')) 
+        : formData.price;
+
       const programData = {
+        // English fields
         title: formData.title,
         description: formData.description,
         shortDescription: formData.shortDescription,
         category: formData.category,
-        speciality: formData.speciality,
-        programType: formData.programType,
-        studyTime: formData.studyTime,
-        price: parseFloat(formData.price),
-        accreditations: formData.accreditations,
-        requirements: formData.requirements,
-        benefits: formData.benefits,
-        thumbnail: thumbnailUrl,
+        level: formData.programType,
+        type: formData.programType,
+        specialization: formData.speciality,
+        duration: formData.studyTime,
+        price: isNaN(numericPrice) ? 0 : numericPrice,
+        requirements: formData.requirements ? [formData.requirements] : [],
+        whatYouWillLearn: formData.benefits ? [formData.benefits] : [],
         status: formData.status,
+        // Arabic fields
+        title_ar: formData.title_ar,
+        description_ar: formData.description_ar,
+        shortDescription_ar: formData.shortDescription_ar,
+        category_ar: formData.category_ar,
+        type_ar: formData.programType_ar,
+        specialization_ar: formData.speciality_ar,
+        duration_ar: formData.studyTime_ar,
+        requirements_ar: formData.requirements_ar ? [formData.requirements_ar] : [],
+        whatYouWillLearn_ar: formData.benefits_ar ? [formData.benefits_ar] : [],
+        // Common fields
+        languages: ['en', 'ar'] as ('en' | 'ar')[],
+        durationWeeks: 12, // Default value
+        thumbnail: thumbnailUrl,
         updatedAt: serverTimestamp()
       };
       
@@ -237,303 +312,325 @@ export default function EditProgramPage({ params }: { params: Promise<{ id: stri
         </div>
       </div>
 
-      {/* Error message */}
-      {error && (
-        <div className="mb-6 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
-          <div className="flex items-center">
-            <AlertCircle size={16} className="mr-2" />
-            <span>{error}</span>
-          </div>
-        </div>
-      )}
 
-      {/* Success message */}
-      {success && (
-        <div className="mb-6 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative" role="alert">
-          <div className="flex items-center">
-            <Check size={16} className="mr-2" />
-            <span>{success}</span>
-          </div>
-        </div>
-      )}
 
-      {program && (
-        <form onSubmit={handleSubmit} className="bg-white shadow-md rounded-lg p-6 mb-8">
-          {/* Program Details */}
-          <div className="mb-6">
-            <h2 className="text-lg font-medium text-gray-900 mb-4">Program Details</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {/* Title */}
-              <div className="col-span-2">
-                <label htmlFor="title" className="block text-sm font-medium text-gray-700 mb-1">
-                  Program Title *
-                </label>
-                <input
-                  type="text"
-                  id="title"
-                  name="title"
-                  value={formData.title}
-                  onChange={handleChange}
-                  required
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary"
-                  placeholder="e.g. MBA in Business Administration"
-                />
-              </div>
-              
-              {/* Program Type */}
-              <div>
-                <label htmlFor="programType" className="block text-sm font-medium text-gray-700 mb-1">
-                  Program Type
-                </label>
-                <select
-                  id="programType"
-                  name="programType"
-                  value={formData.programType}
-                  onChange={handleChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary"
-                >
-                  <option value="">Select Type</option>
-                  <option value="MBA">MBA</option>
-                  <option value="PHD">PHD</option>
-                  <option value="Certificate">Certificate</option>
-                  <option value="Diploma">Diploma</option>
-                </select>
-              </div>
-              
-              {/* Category/Speciality */}
-              <div>
-                <label htmlFor="speciality" className="block text-sm font-medium text-gray-700 mb-1">
-                  Speciality
-                </label>
-                <select
-                  id="speciality"
-                  name="speciality"
-                  value={formData.speciality}
-                  onChange={handleChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary"
-                >
-                  <option value="">Select speciality</option>
-                  <option value="Digital Transformation">Digital Transformation</option>
-                  <option value="Strategic Management">Strategic Management</option>
-                  <option value="Healthcare Management">Healthcare Management</option>
-                  <option value="Project Management">Project Management</option>
-                  <option value="Accounting & Finance Management">Accounting & Finance Management</option>
-                  <option value="Marketing Management">Marketing Management</option>
-                  <option value="Logistics & Supply Chain Management">Logistics & Supply Chain Management</option>
-                  <option value="Human Resources Management">Human Resources Management</option>
-                  <option value="Quality Management">Quality Management</option>
-                  <option value="Accounting & Finance">Accounting & Finance</option>
-                  <option value="Entrepreneurship & Innovation">Entrepreneurship & Innovation</option>
-                  <option value="International Business Management">International Business Management</option>
-                  <option value="Sports Management">Sports Management</option>
-                  <option value="Hospitality & Events Management">Hospitality & Events Management</option>
-                </select>
-              </div>
-              
-              {/* Study Time */}
-              <div>
-                <label htmlFor="studyTime" className="block text-sm font-medium text-gray-700 mb-1">
-                  Study Time/Duration
-                </label>
-                <select
-                  id="studyTime"
-                  name="studyTime"
-                  value={formData.studyTime}
-                  onChange={handleChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary"
-                >
-                  <option value="">Select study time</option>
-                  <option value="30 hours">30 hours</option>
-                  <option value="50 hours">50 hours</option>
-                  <option value="60 hours">60 hours</option>
-                  <option value="80 hours">80 hours</option>
-                  <option value="100 hours">100 hours</option>
-                  <option value="120 hours">120 hours</option>
-                  <option value="150 hours">150 hours</option>
-                  <option value="200 hours">200 hours</option>
-                  <option value="3 months">3 months</option>
-                  <option value="6 months">6 months</option>
-                  <option value="9 months">9 months</option>
-                  <option value="12 months">12 months</option>
-                  <option value="18 months">18 months</option>
-                  <option value="24 months">24 months</option>
-                </select>
-              </div>
-              
-              {/* Price */}
-              <div>
-                <label htmlFor="price" className="block text-sm font-medium text-gray-700 mb-1">
-                  Price (SAR)
-                </label>
-                <input
-                  type="number"
-                  id="price"
-                  name="price"
-                  value={formData.price}
-                  onChange={handleChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary"
-                  placeholder="e.g. 10000"
-                />
-              </div>
-              
-              {/* Status */}
-              <div>
-                <label htmlFor="status" className="block text-sm font-medium text-gray-700 mb-1">
-                  Status
-                </label>
-                <select
-                  id="status"
-                  name="status"
-                  value={formData.status}
-                  onChange={handleChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary"
-                >
-                  <option value="draft">Draft</option>
-                  <option value="published">Published</option>
-                </select>
-              </div>
-              
-              {/* Thumbnail */}
-              <div className="col-span-2">
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Thumbnail Image
-                </label>
-                <div className="flex items-center space-x-4">
-                  {thumbnailPreview && (
-                    <div className="relative w-24 h-24 border rounded-md overflow-hidden">
-                      <img 
-                        src={thumbnailPreview} 
-                        alt="Thumbnail preview" 
-                        className="w-full h-full object-cover"
-                      />
-                    </div>
-                  )}
-                  <label className="cursor-pointer bg-white py-2 px-3 border border-gray-300 rounded-md shadow-sm text-sm leading-4 font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary">
-                    <span className="flex items-center">
-                      <ImagePlus size={16} className="mr-2" />
-                      {thumbnailPreview ? 'Change Image' : 'Upload Image'}
-                    </span>
-                    <input 
-                      type="file" 
-                      className="hidden" 
+      <div className="bg-white shadow overflow-hidden sm:rounded-lg p-6">
+        {error && (
+          <div className="mb-4 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
+            <span className="block sm:inline">{error}</span>
+          </div>
+        )}
+
+        {success && (
+          <div className="mb-6 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative" role="alert">
+            <div className="flex">
+              <Check size={20} className="mr-2" />
+              <span>{success}</span>
+            </div>
+          </div>
+        )}
+
+        {/* Language Tabs */}
+        <div className="flex space-x-1 mb-6 bg-gray-100 p-1 rounded-lg">
+          <button
+            type="button"
+            onClick={() => setActiveLanguage('en')}
+            className={`flex-1 flex items-center justify-center px-3 py-2 rounded-md text-sm font-medium transition-colors ${activeLanguage === 'en' 
+              ? 'bg-white text-gray-900 shadow-sm' 
+              : 'text-gray-500 hover:text-gray-700'
+            }`}
+          >
+            <Globe size={16} className="mr-2" />
+            English
+          </button>
+          <button
+            type="button"
+            onClick={() => setActiveLanguage('ar')}
+            className={`flex-1 flex items-center justify-center px-3 py-2 rounded-md text-sm font-medium transition-colors ${activeLanguage === 'ar' 
+              ? 'bg-white text-gray-900 shadow-sm' 
+              : 'text-gray-500 hover:text-gray-700'
+            }`}
+          >
+            <Languages size={16} className="mr-2" />
+            العربية
+          </button>
+        </div>
+        
+        <form onSubmit={handleSubmit} className="space-y-6" dir={activeLanguage === 'ar' ? 'rtl' : 'ltr'}>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <label htmlFor={getFieldName('title')} className="block text-sm font-medium text-gray-700">
+                {activeLanguage === 'en' ? 'Program Title *' : 'عنوان البرنامج *'}
+              </label>
+              <input
+                type="text"
+                name={getFieldName('title')}
+                id={getFieldName('title')}
+                required
+                value={getCurrentFields().title}
+                onChange={handleChange}
+                className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary focus:border-primary sm:text-sm"
+                placeholder={activeLanguage === 'en' ? 'e.g. Master of Business Administration' : 'مثال: ماجستير إدارة الأعمال'}
+              />
+            </div>
+
+            <div>
+              <label htmlFor={getFieldName('category')} className="block text-sm font-medium text-gray-700">
+                {activeLanguage === 'en' ? 'Category *' : 'الفئة *'}
+              </label>
+              <select
+                id={getFieldName('category')}
+                name={getFieldName('category')}
+                required
+                value={getCurrentFields().category}
+                onChange={handleChange}
+                className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary focus:border-primary sm:text-sm"
+              >
+                <option value="">{activeLanguage === 'en' ? 'Select a category' : 'اختر فئة'}</option>
+                <option value={activeLanguage === 'en' ? 'Business' : 'الأعمال'}>
+                  {activeLanguage === 'en' ? 'Business' : 'الأعمال'}
+                </option>
+                <option value={activeLanguage === 'en' ? 'Technology' : 'التكنولوجيا'}>
+                  {activeLanguage === 'en' ? 'Technology' : 'التكنولوجيا'}
+                </option>
+                <option value={activeLanguage === 'en' ? 'Healthcare' : 'الرعاية الصحية'}>
+                  {activeLanguage === 'en' ? 'Healthcare' : 'الرعاية الصحية'}
+                </option>
+                <option value={activeLanguage === 'en' ? 'Education' : 'التعليم'}>
+                  {activeLanguage === 'en' ? 'Education' : 'التعليم'}
+                </option>
+                <option value={activeLanguage === 'en' ? 'Arts' : 'الفنون'}>
+                  {activeLanguage === 'en' ? 'Arts & Humanities' : 'الفنون والعلوم الإنسانية'}
+                </option>
+              </select>
+            </div>
+          </div>
+
+          <div>
+            <label htmlFor={getFieldName('shortDescription')} className="block text-sm font-medium text-gray-700">
+              {activeLanguage === 'en' ? 'Short Description *' : 'وصف مختصر *'}
+            </label>
+            <textarea
+              id={getFieldName('shortDescription')}
+              name={getFieldName('shortDescription')}
+              rows={2}
+              required
+              value={getCurrentFields().shortDescription}
+              onChange={handleChange}
+              className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary focus:border-primary sm:text-sm"
+              placeholder={activeLanguage === 'en' ? 'A brief summary of the program (displayed in listings)' : 'ملخص مختصر للبرنامج (يظهر في القوائم)'}
+            />
+          </div>
+
+          <div>
+            <label htmlFor={getFieldName('description')} className="block text-sm font-medium text-gray-700">
+              {activeLanguage === 'en' ? 'Full Description *' : 'الوصف الكامل *'}
+            </label>
+            <textarea
+              id={getFieldName('description')}
+              name={getFieldName('description')}
+              rows={6}
+              required
+              value={getCurrentFields().description}
+              onChange={handleChange}
+              className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary focus:border-primary sm:text-sm"
+              placeholder={activeLanguage === 'en' ? 'Provide a detailed description of the program' : 'قدم وصفاً مفصلاً للبرنامج'}
+            />
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <label htmlFor={getFieldName('programType')} className="block text-sm font-medium text-gray-700">
+                {activeLanguage === 'en' ? 'Program Type *' : 'نوع البرنامج *'}
+              </label>
+              <select
+                id={getFieldName('programType')}
+                name={getFieldName('programType')}
+                required
+                value={getCurrentFields().programType}
+                onChange={handleChange}
+                className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary focus:border-primary sm:text-sm"
+              >
+                <option value="">{activeLanguage === 'en' ? 'Select program type' : 'اختر نوع البرنامج'}</option>
+                <option value={activeLanguage === 'en' ? 'MBA' : 'ماجستير إدارة أعمال'}>
+                  {activeLanguage === 'en' ? 'MBA' : 'ماجستير إدارة أعمال'}
+                </option>
+                <option value={activeLanguage === 'en' ? 'PHD' : 'دكتوراه'}>
+                  {activeLanguage === 'en' ? 'PHD' : 'دكتوراه'}
+                </option>
+              </select>
+            </div>
+
+            <div>
+              <label htmlFor={getFieldName('speciality')} className="block text-sm font-medium text-gray-700">
+                {activeLanguage === 'en' ? 'Speciality *' : 'التخصص *'}
+              </label>
+              <select
+                id={getFieldName('speciality')}
+                name={getFieldName('speciality')}
+                required
+                value={getCurrentFields().speciality}
+                onChange={handleChange}
+                className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary focus:border-primary sm:text-sm"
+              >
+                <option value="">{activeLanguage === 'en' ? 'Select speciality' : 'اختر التخصص'}</option>
+                <option value={activeLanguage === 'en' ? 'Digital Transformation' : 'التحول الرقمي'}>
+                  {activeLanguage === 'en' ? 'Digital Transformation' : 'التحول الرقمي'}
+                </option>
+                <option value={activeLanguage === 'en' ? 'Strategic Management' : 'الإدارة الاستراتيجية'}>
+                  {activeLanguage === 'en' ? 'Strategic Management' : 'الإدارة الاستراتيجية'}
+                </option>
+                <option value={activeLanguage === 'en' ? 'Healthcare Management' : 'إدارة الرعاية الصحية'}>
+                  {activeLanguage === 'en' ? 'Healthcare Management' : 'إدارة الرعاية الصحية'}
+                </option>
+                <option value={activeLanguage === 'en' ? 'Project Management' : 'إدارة المشاريع'}>
+                  {activeLanguage === 'en' ? 'Project Management' : 'إدارة المشاريع'}
+                </option>
+              </select>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <label htmlFor={getFieldName('studyTime')} className="block text-sm font-medium text-gray-700">
+                {activeLanguage === 'en' ? 'Duration *' : 'المدة *'}
+              </label>
+              <input
+                type="text"
+                name={getFieldName('studyTime')}
+                id={getFieldName('studyTime')}
+                required
+                value={getCurrentFields().studyTime}
+                onChange={handleChange}
+                className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary focus:border-primary sm:text-sm"
+                placeholder={activeLanguage === 'en' ? 'e.g. 12 months' : 'مثال: 12 شهر'}
+              />
+            </div>
+
+            <div>
+              <label htmlFor="price" className="block text-sm font-medium text-gray-700">
+                {activeLanguage === 'en' ? 'Price (SAR) *' : 'السعر (ريال سعودي) *'}
+              </label>
+              <input
+                type="text"
+                name="price"
+                id="price"
+                required
+                value={formData.price}
+                onChange={handleChange}
+                className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary focus:border-primary sm:text-sm"
+                placeholder={activeLanguage === 'en' ? 'e.g. 25000' : 'مثال: 25000'}
+              />
+            </div>
+          </div>
+
+          <div>
+            <label htmlFor={getFieldName('requirements')} className="block text-sm font-medium text-gray-700">
+              {activeLanguage === 'en' ? 'Requirements' : 'المتطلبات'}
+            </label>
+            <textarea
+              id={getFieldName('requirements')}
+              name={getFieldName('requirements')}
+              rows={4}
+              value={getCurrentFields().requirements}
+              onChange={handleChange}
+              className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary focus:border-primary sm:text-sm"
+              placeholder={activeLanguage === 'en' ? 'Prerequisites or requirements for enrollment' : 'المتطلبات الأساسية أو متطلبات التسجيل'}
+            />
+          </div>
+
+          <div>
+            <label htmlFor={getFieldName('benefits')} className="block text-sm font-medium text-gray-700">
+              {activeLanguage === 'en' ? 'Benefits' : 'الفوائد'}
+            </label>
+            <textarea
+              id={getFieldName('benefits')}
+              name={getFieldName('benefits')}
+              rows={4}
+              value={getCurrentFields().benefits}
+              onChange={handleChange}
+              className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary focus:border-primary sm:text-sm"
+              placeholder={activeLanguage === 'en' ? 'What students will gain from this program' : 'ما سيحصل عليه الطلاب من هذا البرنامج'}
+            />
+          </div>
+
+          {/* Program Thumbnail */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              {activeLanguage === 'en' ? 'Program Thumbnail' : 'صورة البرنامج'}
+            </label>
+            <div className="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-md">
+              <div className="space-y-1 text-center">
+                {thumbnailPreview ? (
+                  <div className="relative">
+                    <img src={thumbnailPreview} alt="Preview" className="mx-auto h-32 w-auto rounded-md" />
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setThumbnailPreview('');
+                        setThumbnailFile(null);
+                      }}
+                      className="absolute top-0 right-0 -mt-2 -mr-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs"
+                    >
+                      ×
+                    </button>
+                  </div>
+                ) : (
+                  <ImagePlus className="mx-auto h-12 w-12 text-gray-400" />
+                )}
+                <div className="flex text-sm text-gray-600">
+                  <label
+                    htmlFor="thumbnail-upload"
+                    className="relative cursor-pointer bg-white rounded-md font-medium text-primary hover:text-primary-dark focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-primary"
+                  >
+                    <span>{activeLanguage === 'en' ? 'Upload a file' : 'رفع ملف'}</span>
+                    <input
+                      id="thumbnail-upload"
+                      name="thumbnail-upload"
+                      type="file"
                       accept="image/*"
                       onChange={handleThumbnailChange}
+                      className="sr-only"
                     />
                   </label>
+                  <p className="pl-1">{activeLanguage === 'en' ? 'or drag and drop' : 'أو اسحب وأفلت'}</p>
                 </div>
-                <p className="mt-1 text-sm text-gray-500">
-                  Maximum file size: 100KB. Recommended dimensions: 300x200px.
+                <p className="text-xs text-gray-500">
+                  {activeLanguage === 'en' ? 'PNG, JPG, GIF up to 10MB' : 'PNG, JPG, GIF حتى 10MB'}
                 </p>
-              </div>
-              
-              {/* Short Description */}
-              <div className="col-span-2">
-                <label htmlFor="shortDescription" className="block text-sm font-medium text-gray-700 mb-1">
-                  Short Description
-                </label>
-                <textarea
-                  id="shortDescription"
-                  name="shortDescription"
-                  value={formData.shortDescription}
-                  onChange={handleChange}
-                  rows={2}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary"
-                  placeholder="Brief summary of the program (appears in listings)"
-                />
-              </div>
-              
-              {/* Full Description */}
-              <div className="col-span-2">
-                <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-1">
-                  Full Description
-                </label>
-                <textarea
-                  id="description"
-                  name="description"
-                  value={formData.description}
-                  onChange={handleChange}
-                  rows={6}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary"
-                  placeholder="Detailed description of the program"
-                />
-              </div>
-              
-              {/* Accreditations */}
-              <div className="col-span-2">
-                <label className="block text-sm font-medium text-gray-700 mb-3">
-                  Accreditations
-                </label>
-                <div className="space-y-2">
-                  {['QUALIFI', 'ATHE', 'ACBSP', 'Bedfordshire', 'Plymouth'].map((accreditation) => (
-                    <label key={accreditation} className="flex items-center">
-                      <input
-                        type="checkbox"
-                        checked={formData.accreditations.includes(accreditation)}
-                        onChange={() => handleAccreditationToggle(accreditation)}
-                        className="rounded border-gray-300 text-primary focus:ring-primary focus:ring-offset-0"
-                      />
-                      <span className="ml-2 text-sm text-gray-700">{accreditation}</span>
-                    </label>
-                  ))}
-                </div>
-              </div>
-              
-              {/* Requirements */}
-              <div className="col-span-2">
-                <label htmlFor="requirements" className="block text-sm font-medium text-gray-700 mb-1">
-                  Requirements
-                </label>
-                <textarea
-                  id="requirements"
-                  name="requirements"
-                  value={formData.requirements}
-                  onChange={handleChange}
-                  rows={3}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary"
-                  placeholder="Prerequisites and requirements for the program"
-                />
-              </div>
-              
-              {/* Benefits */}
-              <div className="col-span-2">
-                <label htmlFor="benefits" className="block text-sm font-medium text-gray-700 mb-1">
-                  Benefits
-                </label>
-                <textarea
-                  id="benefits"
-                  name="benefits"
-                  value={formData.benefits}
-                  onChange={handleChange}
-                  rows={3}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary"
-                  placeholder="Key benefits and outcomes of the program"
-                />
               </div>
             </div>
           </div>
-          
-          {/* Submit Button */}
-          <div className="flex justify-end">
+
+          <div className="flex justify-end space-x-3">
+            <Link
+              href="/admin/programs"
+              className="bg-white py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
+            >
+              {activeLanguage === 'en' ? 'Cancel' : 'إلغاء'}
+            </Link>
             <button
               type="submit"
               disabled={loading}
-              className="inline-flex items-center px-4 py-2 bg-primary text-white font-medium rounded-md shadow-sm hover:bg-primary-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary disabled:opacity-50 disabled:cursor-not-allowed"
+              className="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-primary hover:bg-primary-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {loading ? (
                 <>
-                  <div className="animate-spin rounded-full h-4 w-4 border-t-2 border-b-2 border-white mr-2"></div>
-                  Saving...
+                  <div className="animate-spin -ml-1 mr-3 h-5 w-5 text-white">
+                    <div className="border-2 border-white border-t-transparent rounded-full h-5 w-5"></div>
+                  </div>
+                  {activeLanguage === 'en' ? 'Updating...' : 'جاري التحديث...'}
                 </>
               ) : (
                 <>
                   <Save size={16} className="mr-2" />
-                  Save Program
+                  {activeLanguage === 'en' ? 'Update Program' : 'تحديث البرنامج'}
                 </>
               )}
             </button>
           </div>
         </form>
-      )}
+      </div>
     </div>
   );
 } 

@@ -19,6 +19,16 @@ interface EnrollmentFormData {
   countryCode: string;
 }
 
+interface FormErrors {
+  firstName?: string;
+  lastName?: string;
+  dateOfBirth?: string;
+  sex?: string;
+  email?: string;
+  phone?: string;
+  countryCode?: string;
+}
+
 // Loading component
 function RegisterLoading() {
   return (
@@ -39,7 +49,7 @@ function RegisterLoading() {
 function RegisterContent() {
   const searchParams = useSearchParams();
   const programId = searchParams.get('programId');
-  const price = searchParams.get('price');
+  const price = searchParams.get('price'); // This will be optional now, we'll use database price
   
   const [program, setProgram] = useState<Program | null>(null);
   const [loading, setLoading] = useState(true);
@@ -53,7 +63,7 @@ function RegisterContent() {
     phone: '',
     countryCode: '+966'
   });
-  const [errors, setErrors] = useState<Partial<EnrollmentFormData>>({});
+  const [errors, setErrors] = useState<FormErrors>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
@@ -81,13 +91,13 @@ function RegisterContent() {
     setFormData(prev => ({ ...prev, [name]: value }));
     
     // Clear error when user types
-    if (errors[name as keyof EnrollmentFormData]) {
+    if (errors[name as keyof FormErrors]) {
       setErrors(prev => ({ ...prev, [name]: undefined }));
     }
   };
 
   const validateStep1 = (): boolean => {
-    const newErrors: Partial<EnrollmentFormData> = {};
+    const newErrors: FormErrors = {};
     let isValid = true;
 
     if (!formData.firstName.trim()) {
@@ -127,7 +137,7 @@ function RegisterContent() {
   };
 
   const validateStep2 = (): boolean => {
-    const newErrors: Partial<EnrollmentFormData> = {};
+    const newErrors: FormErrors = {};
     let isValid = true;
 
     if (!formData.email.trim()) {
