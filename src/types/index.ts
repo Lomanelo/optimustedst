@@ -1,10 +1,28 @@
 export interface Program {
   id: string;
   title: string;
+  title_ar?: string;
   description: string;
+  description_ar?: string;
+  shortDescription?: string;
+  shortDescription_ar?: string;
   level: 'bachelor' | 'mba' | 'dba';
   duration: string;
+  duration_ar?: string;
   format: string[];
+  category?: string;
+  category_ar?: string;
+  specialization?: string;
+  specialization_ar?: string;
+  price?: number;
+  requirements?: string[];
+  requirements_ar?: string[];
+  whatYouWillLearn?: string[];
+  whatYouWillLearn_ar?: string[];
+  languages?: ('en' | 'ar')[];
+  status?: 'published' | 'draft';
+  createdAt?: any;
+  updatedAt?: any;
 }
 
 
