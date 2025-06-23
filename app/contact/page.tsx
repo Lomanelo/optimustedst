@@ -3,6 +3,7 @@
 import React from 'react';
 import ClientLayout from '../components/ClientLayout';
 import ContactForm from '../../src/components/ContactForm';
+import ErrorBoundary from '../../src/components/ErrorBoundary';
 import { useContact } from '../contexts/contact-context';
 import { useCMS } from '../contexts/cms-context';
 import { MapPin, Phone, Mail, Clock } from 'lucide-react';
@@ -11,9 +12,16 @@ export default function ContactPage() {
   const { contactInfo } = useContact();
   const { getContent } = useCMS();
 
+  // Debug logging to catch potential issues
+  React.useEffect(() => {
+    console.log('Contact Info:', contactInfo);
+    console.log('Operating Hours:', contactInfo.operatingHours);
+  }, [contactInfo]);
+
   return (
     <ClientLayout>
-      <div className="pt-20 pb-16 bg-gray-50">
+      <ErrorBoundary>
+        <div className="pt-20 pb-16 bg-gray-50">
         <div className="container mx-auto px-4 py-8">
           <div className="text-center mb-12">
             <h1 className="text-4xl font-bold text-primary mb-4 uppercase tracking-wide">Contact Us</h1>
@@ -85,15 +93,27 @@ export default function ContactPage() {
                 <div className="space-y-2 text-sm">
                   <div className="flex justify-between">
                     <span className="font-medium">Monday - Friday:</span>
-                    <span className="text-gray-600">{contactInfo.operatingHours?.mondayToFriday || '9:00 AM - 6:00 PM'}</span>
+                    <span className="text-gray-600">
+                      {typeof contactInfo.operatingHours?.mondayToFriday === 'string' 
+                        ? contactInfo.operatingHours.mondayToFriday 
+                        : '9:00 AM - 6:00 PM'}
+                    </span>
                   </div>
                   <div className="flex justify-between">
                     <span className="font-medium">Saturday:</span>
-                    <span className="text-gray-600">{contactInfo.operatingHours?.saturday || '10:00 AM - 2:00 PM'}</span>
+                    <span className="text-gray-600">
+                      {typeof contactInfo.operatingHours?.saturday === 'string' 
+                        ? contactInfo.operatingHours.saturday 
+                        : '10:00 AM - 2:00 PM'}
+                    </span>
                   </div>
                   <div className="flex justify-between">
                     <span className="font-medium">Sunday:</span>
-                    <span className="text-gray-600">{contactInfo.operatingHours?.sunday || 'Closed'}</span>
+                    <span className="text-gray-600">
+                      {typeof contactInfo.operatingHours?.sunday === 'string' 
+                        ? contactInfo.operatingHours.sunday 
+                        : 'Closed'}
+                    </span>
                   </div>
                 </div>
               </div>
@@ -101,6 +121,7 @@ export default function ContactPage() {
           </div>
         </div>
       </div>
+      </ErrorBoundary>
     </ClientLayout>
   );
 } 

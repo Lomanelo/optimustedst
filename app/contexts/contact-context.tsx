@@ -23,7 +23,23 @@ export const ContactProvider: React.FC<ContactProviderProps> = ({ children }) =>
   useEffect(() => {
     // Listen to real-time updates
     const unsubscribe = contactService.listenToContactInfo((newContactInfo) => {
-      setContactInfo(newContactInfo);
+      // Ensure operatingHours is properly structured
+      const safeContactInfo = {
+        ...newContactInfo,
+        operatingHours: {
+          mondayToFriday: typeof newContactInfo.operatingHours?.mondayToFriday === 'string' 
+            ? newContactInfo.operatingHours.mondayToFriday 
+            : '9:00 AM - 6:00 PM',
+          saturday: typeof newContactInfo.operatingHours?.saturday === 'string' 
+            ? newContactInfo.operatingHours.saturday 
+            : '10:00 AM - 2:00 PM',
+          sunday: typeof newContactInfo.operatingHours?.sunday === 'string' 
+            ? newContactInfo.operatingHours.sunday 
+            : 'Closed'
+        }
+      };
+      
+      setContactInfo(safeContactInfo);
       setLoading(false);
     });
 

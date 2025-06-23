@@ -111,7 +111,15 @@ export const CMSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       return key; // Return the key as fallback
     }
     
-    return lang === 'ar' ? item.content_ar : item.content_en;
+    const contentValue = lang === 'ar' ? item.content_ar : item.content_en;
+    
+    // Ensure we return a string, not an object
+    if (typeof contentValue === 'object') {
+      console.error(`CMS content for key "${key}" is an object, expected string:`, contentValue);
+      return key; // Return the key as fallback
+    }
+    
+    return contentValue || key;
   };
 
   // Update content (admin only)
