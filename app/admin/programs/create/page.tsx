@@ -8,6 +8,7 @@ import { collection, addDoc, serverTimestamp, doc, updateDoc } from 'firebase/fi
 import { db } from '../../../../src/firebase/firebase';
 import { uploadImageAsDataUrl } from '../../../../src/services/storageService';
 import { Calendar, DollarSign, Clock, Award, ImagePlus, Plus, Edit, Trash2, BookOpen, Play, FileText, HelpCircle, Clipboard, Save, ArrowLeft, AlertCircle, Check, Globe, Languages } from 'lucide-react';
+import { allAccreditationsAndPartnerships } from '../../../../src/data/optimus-data';
 
 export default function CreateProgramPage() {
   const { currentUser, userRole, isLoading } = useAuth();
@@ -659,6 +660,38 @@ export default function CreateProgramPage() {
               className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary focus:border-primary sm:text-sm"
               placeholder={activeLanguage === 'en' ? 'What students will gain from this program' : 'ما سيحصل عليه الطلاب من هذا البرنامج'}
             />
+          </div>
+
+          {/* Accreditations */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-3">
+              {activeLanguage === 'en' ? 'Accreditations & Partnerships' : 'الاعتمادات والشراكات'}
+            </label>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+              {allAccreditationsAndPartnerships.map((item) => (
+                <div key={item.id} className="flex items-center">
+                  <input
+                    id={`accreditation-${item.id}`}
+                    name="accreditations"
+                    type="checkbox"
+                    checked={formData.accreditations.includes(item.name)}
+                    onChange={() => handleAccreditationToggle(item.name)}
+                    className="h-4 w-4 text-primary focus:ring-primary border-gray-300 rounded"
+                  />
+                  <label htmlFor={`accreditation-${item.id}`} className="ml-2 block text-sm text-gray-700 flex items-center">
+                    <img 
+                      src={item.logo} 
+                      alt={item.name}
+                      className="w-5 h-5 object-contain mr-2"
+                    />
+                    {item.name}
+                    <span className="ml-1 text-xs text-gray-500">
+                      ({item.type === 'accreditation' ? (activeLanguage === 'en' ? 'Accreditation' : 'اعتماد') : (activeLanguage === 'en' ? 'Partnership' : 'شراكة')})
+                    </span>
+                  </label>
+                </div>
+              ))}
+            </div>
           </div>
 
           {/* Thumbnail Upload */}

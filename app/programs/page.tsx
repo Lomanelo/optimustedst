@@ -8,7 +8,7 @@ import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import ClientLayout from '../components/ClientLayout';
 import { Filter, ChevronDown, ChevronUp, X } from 'lucide-react';
-import { accreditations as accreditationsData } from '../../src/data/optimus-data';
+import { allAccreditationsAndPartnerships } from '../../src/data/optimus-data';
 import programService, { Program as ServiceProgram } from '../../src/services/programService';
 import { useCMS } from '../contexts/cms-context';
 

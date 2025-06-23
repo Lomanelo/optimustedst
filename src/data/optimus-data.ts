@@ -3,9 +3,8 @@ export const companyInfo = {
   tagline: "For Next Leaders",
   description: [
     "We are an educational facilitator that provides Bachelor's degrees, MBA, and DBA programs for UAE and Middle East students.",
-    "Has ATHE and Qualifi Accreditations, Partner to The University of Plymouth, UK.",
-    "Academic partner to McKinsey Business University, US.",
-    "Has Membership with ACBSP (Accreditation Council for Business Schools and Programs).",
+    "Has ATHE, QUALIFI, EDUQUA, IACBE, QS, and ACBSP Accreditations.",
+    "Academic partnerships with University of Plymouth (UK), University of Bedfordshire (UK), VERN University (Croatia), and IBAS (Switzerland).",
     "Our goal is to help our students to be directed to the right progression routes that fit their professional and career needs."
   ],
   contact: {
@@ -31,33 +30,79 @@ export const accreditations = [
     id: "qualifi",
     name: "QUALIFI",
     logo: "/grabbedPhotos/partners/QUALIFI.png",
+    type: "accreditation",
     description: "Qualifi is a leading 21st century Awarding Organisation founded to meet the developing education and training needs of learners and employers from the UK and around the globe serving the needs of learners and employers in the UK and worldwide every year."
   },
   {
     id: "athe",
     name: "ATHE",
     logo: "/grabbedPhotos/partners/ATHE.png",
+    type: "accreditation",
     description: "ATHE is a global awarding organization regulated by Ofqual and other UK and international regulators. We work with 250 recognized centers in over 50 countries to complement our strong brand presence in the UK."
   },
   {
     id: "acbsp",
     name: "ACBSP",
     logo: "/grabbedPhotos/partners/ACBSP.png",
+    type: "accreditation",
     description: "Founded in 1988, the Accreditation Council for Business Schools and Programs (ACBSP) is a global business education accrediting body and the first organization to offer accreditation to all levels of collegiate business educational degree programs from associate to doctoral."
   },
+  {
+    id: "eduqua",
+    name: "EDUQUA",
+    logo: "/EDUQUA.jpg",
+    type: "accreditation",
+    description: "EDUQUA is the Swiss quality certification for educational institutions, ensuring high standards in continuing education and training throughout Switzerland."
+  },
+  {
+    id: "iacbe",
+    name: "IACBE",
+    logo: "/IACBE.png",
+    type: "accreditation",
+    description: "The International Accreditation Council for Business Education (IACBE) is a specialized accrediting body for business education worldwide, focused on outcomes assessment and continuous improvement."
+  },
+  {
+    id: "qs",
+    name: "QS",
+    logo: "/QS.png",
+    type: "accreditation",
+    description: "QS (Quacquarelli Symonds) is a global higher education analyst, known for QS World University Rankings and providing insights into university performance worldwide."
+  }
+];
+
+export const partnerships = [
   {
     id: "bedfordshire",
     name: "University of Bedfordshire",
     logo: "/grabbedPhotos/partners/University of Bedfordshire.png",
+    type: "partnership",
     description: "A Vibrant, ambitious academic community celebrating diversity and the transformative power of education. We are the University of Bedfordshire."
   },
   {
     id: "plymouth",
     name: "University of Plymouth",
     logo: "/grabbedPhotos/partners/University of Plymouth.png",
+    type: "partnership",
     description: "A public research university primarily located in Plymouth, England, with its main campus situated there. However, its reach extends beyond the city, with additional campuses and partner colleges scattered across South West England."
+  },
+  {
+    id: "vern",
+    name: "VERN University",
+    logo: "/VERN.jpg",
+    type: "partnership",
+    description: "VERN University is a modern private university in Croatia, focused on applied sciences and providing quality higher education with international standards."
+  },
+  {
+    id: "ibas",
+    name: "IBAS",
+    logo: "/IBAS.jpg",
+    type: "partnership",
+    description: "International Business Academy of Switzerland (IBAS) is a prestigious institution offering world-class business education with a focus on international business practices."
   }
 ];
+
+// Combined for easy access
+export const allAccreditationsAndPartnerships = [...accreditations, ...partnerships];
 
 export const professionalCertificates = [
   {
@@ -516,6 +561,8 @@ export const allPrograms = [
 export default {
   companyInfo,
   accreditations,
+  partnerships,
+  allAccreditationsAndPartnerships,
   professionalCertificates,
   qualifiDiplomas,
   atheDiplomas,

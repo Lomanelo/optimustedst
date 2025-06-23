@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { companyInfo, accreditations, faculty } from '../data/optimus-data';
+import { companyInfo, accreditations, partnerships, faculty } from '../data/optimus-data';
 import { useCMS } from '../../app/contexts/cms-context';
 import { Award, Clock, Users } from 'lucide-react';
 import { motion } from 'framer-motion';
@@ -209,19 +209,43 @@ const AboutUs: React.FC = () => {
         <div className="mb-24 rtl-component">
           <h3 className="text-2xl font-bold text-primary mb-14 text-center">{getContent('about_accreditations_title')}</h3>
           <p className="text-center text-gray-600 mb-10">{getContent('about_accreditations_subtitle')}</p>
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-10 max-w-6xl mx-auto">
-            {accreditations.map((accreditation) => (
-              <div key={accreditation.id} className="group bg-white p-8 rounded-2xl shadow-lg flex items-center justify-center h-40 md:h-48 relative hover:shadow-xl transition-all duration-300">
-                <img 
-                  src={accreditation.logo} 
-                  alt={accreditation.name} 
-                  className="max-h-28 md:max-h-36 max-w-full transition-transform duration-300 group-hover:scale-110"
-                />
-                <div className="absolute opacity-0 group-hover:opacity-100 bg-white/95 p-3 rounded shadow-lg transition-all duration-300 -bottom-1 left-0 right-0 transform translate-y-full group-hover:translate-y-0 z-10 text-xs text-gray-700">
-                  {accreditation.description}
+          
+          {/* Accreditations */}
+          <div className="mb-16">
+            <h4 className="text-xl font-semibold text-primary mb-6 text-center">Accreditations</h4>
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-8 max-w-6xl mx-auto">
+              {accreditations.map((accreditation) => (
+                <div key={accreditation.id} className="group bg-white p-6 rounded-2xl shadow-lg flex items-center justify-center h-32 md:h-36 relative hover:shadow-xl transition-all duration-300">
+                  <img 
+                    src={accreditation.logo} 
+                    alt={accreditation.name} 
+                    className="max-h-20 md:max-h-24 max-w-full transition-transform duration-300 group-hover:scale-110"
+                  />
+                  <div className="absolute opacity-0 group-hover:opacity-100 bg-white/95 p-3 rounded shadow-lg transition-all duration-300 -bottom-1 left-0 right-0 transform translate-y-full group-hover:translate-y-0 z-10 text-xs text-gray-700">
+                    {accreditation.description}
+                  </div>
                 </div>
-              </div>
-            ))}
+              ))}
+            </div>
+          </div>
+
+          {/* Partnerships */}
+          <div>
+            <h4 className="text-xl font-semibold text-primary mb-6 text-center">Academic Partnerships</h4>
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-8 max-w-5xl mx-auto">
+              {partnerships.map((partnership) => (
+                <div key={partnership.id} className="group bg-white p-6 rounded-2xl shadow-lg flex items-center justify-center h-32 md:h-36 relative hover:shadow-xl transition-all duration-300">
+                  <img 
+                    src={partnership.logo} 
+                    alt={partnership.name} 
+                    className="max-h-20 md:max-h-24 max-w-full transition-transform duration-300 group-hover:scale-110"
+                  />
+                  <div className="absolute opacity-0 group-hover:opacity-100 bg-white/95 p-3 rounded shadow-lg transition-all duration-300 -bottom-1 left-0 right-0 transform translate-y-full group-hover:translate-y-0 z-10 text-xs text-gray-700">
+                    {partnership.description}
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
         
