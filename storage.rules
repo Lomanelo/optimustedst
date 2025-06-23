@@ -16,16 +16,18 @@ service firebase.storage {
       allow write: if request.auth != null && request.auth.uid == userId;
     }
     
-    // Allow admins to upload program thumbnails and files
+    // Allow users with programs permission to upload program thumbnails and files
     match /programs/{fileName} {
       allow write: if request.auth != null && 
-                   firestore.get(/databases/(default)/documents/users/$(request.auth.uid)).data.role == 'admin';
+                   (firestore.get(/databases/(default)/documents/users/$(request.auth.uid)).data.role == 'admin' ||
+                    firestore.get(/databases/(default)/documents/users/$(request.auth.uid)).data.permissions.programs == true);
     }
     
-    // Allow admins to upload program thumbnails (legacy path)
+    // Allow users with programs permission to upload program thumbnails (legacy path)
     match /program_thumbnails/{fileName} {
       allow write: if request.auth != null && 
-                   firestore.get(/databases/(default)/documents/users/$(request.auth.uid)).data.role == 'admin';
+                   (firestore.get(/databases/(default)/documents/users/$(request.auth.uid)).data.role == 'admin' ||
+                    firestore.get(/databases/(default)/documents/users/$(request.auth.uid)).data.permissions.programs == true);
     }
     
     // Allow admins to upload blog cover images

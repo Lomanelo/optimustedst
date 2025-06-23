@@ -33,7 +33,7 @@ interface Program {
 export default function EditProgramPage({ params }: { params: Promise<{ id: string }> }) {
   const resolvedParams = use(params);
   const { id: programId } = resolvedParams;
-  const { currentUser, userRole, isLoading } = useAuth();
+  const { currentUser, userRole, hasPermission, isLoading } = useAuth();
   const router = useRouter();
   const [program, setProgram] = useState<Program | null>(null);
   // Bilingual form data (matching create page structure)
@@ -73,11 +73,11 @@ export default function EditProgramPage({ params }: { params: Promise<{ id: stri
   const [success, setSuccess] = useState('');
 
   useEffect(() => {
-    // Fetch program data if user is authenticated and an admin
-    if (!isLoading && currentUser && userRole === 'admin' && programId) {
+    // Fetch program data if user is authenticated and has programs permission
+    if (!isLoading && currentUser && (userRole === 'admin' || hasPermission('programs')) && programId) {
       fetchProgram(programId);
     }
-  }, [currentUser, userRole, isLoading, router, programId]);
+  }, [currentUser, userRole, hasPermission, isLoading, router, programId]);
 
   const fetchProgram = async (programId: string) => {
     try {

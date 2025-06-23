@@ -11,7 +11,7 @@ import { Calendar, DollarSign, Clock, Award, ImagePlus, Plus, Edit, Trash2, Book
 import { allAccreditationsAndPartnerships } from '../../../../src/data/optimus-data';
 
 export default function CreateProgramPage() {
-  const { currentUser, userRole, isLoading } = useAuth();
+  const { currentUser, userRole, hasPermission, isLoading } = useAuth();
   const router = useRouter();
   
   // Bilingual form data
@@ -102,8 +102,8 @@ export default function CreateProgramPage() {
       return;
     }
 
-    // If user is not an admin, redirect to admin login
-    if (!isLoading && currentUser && userRole !== 'admin') {
+    // If user doesn't have programs permission, redirect to admin login
+    if (!isLoading && currentUser && userRole !== 'admin' && !hasPermission('programs')) {
       router.push('/admin/login');
     }
 
