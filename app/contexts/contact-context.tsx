@@ -1,20 +1,19 @@
 'use client';
 
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import contactService, { ContactInfo, DEFAULT_CONTACT_INFO } from '../../src/services/contactService';
+import contactService, { ContactInfo, DEFAULT_CONTACT_INFO, DayHours } from '../../src/services/contactService';
 
 interface ContactContextType {
   contactInfo: ContactInfo;
-  loading: boolean;
   updateContactInfo: (contactInfo: Partial<ContactInfo>, updatedBy?: string) => Promise<void>;
-  getWhatsAppUrl: (message?: string) => string;
+  loading: boolean;
 }
-
-const ContactContext = createContext<ContactContextType | undefined>(undefined);
 
 interface ContactProviderProps {
   children: ReactNode;
 }
+
+export const ContactContext = createContext<ContactContextType | undefined>(undefined);
 
 export const ContactProvider: React.FC<ContactProviderProps> = ({ children }) => {
   const [contactInfo, setContactInfo] = useState<ContactInfo>(DEFAULT_CONTACT_INFO);
@@ -22,21 +21,38 @@ export const ContactProvider: React.FC<ContactProviderProps> = ({ children }) =>
 
   useEffect(() => {
     // Listen to real-time updates
-    const unsubscribe = contactService.listenToContactInfo((newContactInfo) => {
-      // Ensure operatingHours is properly structured
+    const unsubscribe = contactService.listenToContactInfo((newContactInfo: ContactInfo) => {
+      // Ensure operatingHours is properly structured with migration support
+      const migrateOperatingHours = (hours: any) => {
+        // If it's the old format, migrate it
+        if (hours && typeof hours.mondayToFriday === 'string') {
+          return {
+            monday: { isOpen: true, openTime: '09:00', closeTime: '18:00' },
+            tuesday: { isOpen: true, openTime: '09:00', closeTime: '18:00' },
+            wednesday: { isOpen: true, openTime: '09:00', closeTime: '18:00' },
+            thursday: { isOpen: true, openTime: '09:00', closeTime: '18:00' },
+            friday: { isOpen: true, openTime: '09:00', closeTime: '18:00' },
+            saturday: { isOpen: true, openTime: '10:00', closeTime: '14:00' },
+            sunday: { isOpen: false, openTime: '09:00', closeTime: '18:00' }
+          };
+        }
+        
+        // If it's already in the new format, ensure all days are present
+        const defaultDay: DayHours = { isOpen: false, openTime: '09:00', closeTime: '18:00' };
+        return {
+          monday: hours?.monday || defaultDay,
+          tuesday: hours?.tuesday || defaultDay,
+          wednesday: hours?.wednesday || defaultDay,
+          thursday: hours?.thursday || defaultDay,
+          friday: hours?.friday || defaultDay,
+          saturday: hours?.saturday || defaultDay,
+          sunday: hours?.sunday || defaultDay
+        };
+      };
+
       const safeContactInfo = {
         ...newContactInfo,
-        operatingHours: {
-          mondayToFriday: typeof newContactInfo.operatingHours?.mondayToFriday === 'string' 
-            ? newContactInfo.operatingHours.mondayToFriday 
-            : '9:00 AM - 6:00 PM',
-          saturday: typeof newContactInfo.operatingHours?.saturday === 'string' 
-            ? newContactInfo.operatingHours.saturday 
-            : '10:00 AM - 2:00 PM',
-          sunday: typeof newContactInfo.operatingHours?.sunday === 'string' 
-            ? newContactInfo.operatingHours.sunday 
-            : 'Closed'
-        }
+        operatingHours: migrateOperatingHours(newContactInfo.operatingHours)
       };
       
       setContactInfo(safeContactInfo);
@@ -57,23 +73,12 @@ export const ContactProvider: React.FC<ContactProviderProps> = ({ children }) =>
     }
   };
 
-  const getWhatsAppUrl = (message?: string): string => {
-    const defaultMessage = 'Hello! I would like to know more about your programs.';
-    const encodedMessage = encodeURIComponent(message || defaultMessage);
-    // Remove any non-numeric characters from phone number for WhatsApp
-    const cleanPhoneNumber = contactInfo.phoneNumber.replace(/[^\d]/g, '');
-    return `https://wa.me/${cleanPhoneNumber}?text=${encodedMessage}`;
-  };
-
-  const value: ContactContextType = {
-    contactInfo,
-    loading,
-    updateContactInfo,
-    getWhatsAppUrl
-  };
-
   return (
-    <ContactContext.Provider value={value}>
+    <ContactContext.Provider value={{
+      contactInfo,
+      updateContactInfo,
+      loading
+    }}>
       {children}
     </ContactContext.Provider>
   );
@@ -81,7 +86,7 @@ export const ContactProvider: React.FC<ContactProviderProps> = ({ children }) =>
 
 export const useContact = (): ContactContextType => {
   const context = useContext(ContactContext);
-  if (context === undefined) {
+  if (!context) {
     throw new Error('useContact must be used within a ContactProvider');
   }
   return context;

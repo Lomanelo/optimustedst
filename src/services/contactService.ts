@@ -7,10 +7,20 @@ import {
 } from 'firebase/firestore';
 import { db } from '../firebase/firebase';
 
+export interface DayHours {
+  isOpen: boolean;
+  openTime: string;
+  closeTime: string;
+}
+
 export interface OperatingHours {
-  mondayToFriday: string;
-  saturday: string;
-  sunday: string;
+  monday: DayHours;
+  tuesday: DayHours;
+  wednesday: DayHours;
+  thursday: DayHours;
+  friday: DayHours;
+  saturday: DayHours;
+  sunday: DayHours;
 }
 
 export interface ContactInfo {
@@ -35,9 +45,13 @@ export const DEFAULT_CONTACT_INFO: ContactInfo = {
   generalInquiriesEmail: 'info@optimusksa.com',
   address: 'Riyadh, Saudi Arabia',
   operatingHours: {
-    mondayToFriday: '9:00 AM - 6:00 PM',
-    saturday: '10:00 AM - 2:00 PM',
-    sunday: 'Closed'
+    monday: { isOpen: true, openTime: '09:00', closeTime: '18:00' },
+    tuesday: { isOpen: true, openTime: '09:00', closeTime: '18:00' },
+    wednesday: { isOpen: true, openTime: '09:00', closeTime: '18:00' },
+    thursday: { isOpen: true, openTime: '09:00', closeTime: '18:00' },
+    friday: { isOpen: true, openTime: '09:00', closeTime: '18:00' },
+    saturday: { isOpen: true, openTime: '10:00', closeTime: '14:00' },
+    sunday: { isOpen: false, openTime: '09:00', closeTime: '18:00' }
   }
 };
 
