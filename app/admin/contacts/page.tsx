@@ -15,7 +15,8 @@ import {
   Users,
   HelpCircle,
   Briefcase,
-  MessageSquare
+  MessageSquare,
+  Clock
 } from 'lucide-react';
 
 export default function AdminContactsPage() {
@@ -28,7 +29,12 @@ export default function AdminContactsPage() {
     supportEmail: '',
     admissionsEmail: '',
     generalInquiriesEmail: '',
-    address: ''
+    address: '',
+    operatingHours: {
+      mondayToFriday: '',
+      saturday: '',
+      sunday: ''
+    }
   });
   const [saving, setSaving] = useState(false);
   const [success, setSuccess] = useState('');
@@ -42,10 +48,23 @@ export default function AdminContactsPage() {
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
-    }));
+    
+    // Handle nested operating hours fields
+    if (name.startsWith('operatingHours.')) {
+      const field = name.split('.')[1];
+      setFormData(prev => ({
+        ...prev,
+        operatingHours: {
+          ...prev.operatingHours,
+          [field]: value
+        }
+      }));
+    } else {
+      setFormData(prev => ({
+        ...prev,
+        [name]: value
+      }));
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -125,6 +144,30 @@ export default function AdminContactsPage() {
     }
   ];
 
+  const operatingHoursFields = [
+    {
+      name: 'operatingHours.mondayToFriday',
+      label: 'Monday - Friday',
+      type: 'text',
+      placeholder: '9:00 AM - 6:00 PM',
+      description: 'Business hours for weekdays'
+    },
+    {
+      name: 'operatingHours.saturday',
+      label: 'Saturday',
+      type: 'text',
+      placeholder: '10:00 AM - 2:00 PM',
+      description: 'Business hours for Saturday'
+    },
+    {
+      name: 'operatingHours.sunday',
+      label: 'Sunday',
+      type: 'text',
+      placeholder: 'Closed',
+      description: 'Business hours for Sunday'
+    }
+  ];
+
   if (loading) {
     return (
       <div className="p-6">
@@ -140,7 +183,7 @@ export default function AdminContactsPage() {
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-primary mb-2">Contacts & Emails Management</h1>
         <p className="text-gray-600">
-          Manage all contact information and email addresses used throughout the website. 
+          Manage all contact information, email addresses, and operating hours used throughout the website. 
           Changes here will automatically update the footer, WhatsApp button, contact page, and other components.
         </p>
       </div>
@@ -204,6 +247,42 @@ export default function AdminContactsPage() {
           })}
         </div>
 
+        {/* Operating Hours Section */}
+        <div className="bg-white rounded-lg border border-gray-200 p-6">
+          <div className="flex items-center mb-6">
+            <div className="bg-primary/10 p-2 rounded-lg mr-3">
+              <Clock className="text-primary" size={20} />
+            </div>
+            <div>
+              <h2 className="text-lg font-semibold text-gray-900">Operating Hours</h2>
+              <p className="text-sm text-gray-500">Business hours displayed on the contact page</p>
+            </div>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {operatingHoursFields.map((field) => {
+              const fieldKey = field.name.split('.')[1] as keyof typeof formData.operatingHours;
+              return (
+                <div key={field.name}>
+                  <label htmlFor={field.name} className="block text-sm font-medium text-gray-700 mb-2">
+                    {field.label}
+                  </label>
+                  <input
+                    type={field.type}
+                    id={field.name}
+                    name={field.name}
+                    value={formData.operatingHours[fieldKey] || ''}
+                    onChange={handleInputChange}
+                    placeholder={field.placeholder}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary transition-colors"
+                  />
+                  <p className="text-xs text-gray-500 mt-1">{field.description}</p>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+
         {/* Save Button */}
         <div className="flex justify-end pt-6 border-t border-gray-200">
           <button
@@ -257,6 +336,24 @@ export default function AdminContactsPage() {
           <div className="md:col-span-2">
             <span className="font-medium text-gray-700">Address:</span>
             <span className="ml-2 text-gray-900">{contactInfo.address}</span>
+          </div>
+        </div>
+        
+        <div className="mt-6 pt-4 border-t border-gray-200">
+          <h4 className="text-md font-semibold text-gray-900 mb-3">Operating Hours</h4>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+            <div>
+              <span className="font-medium text-gray-700">Monday - Friday:</span>
+              <span className="ml-2 text-gray-900">{contactInfo.operatingHours?.mondayToFriday || 'Not set'}</span>
+            </div>
+            <div>
+              <span className="font-medium text-gray-700">Saturday:</span>
+              <span className="ml-2 text-gray-900">{contactInfo.operatingHours?.saturday || 'Not set'}</span>
+            </div>
+            <div>
+              <span className="font-medium text-gray-700">Sunday:</span>
+              <span className="ml-2 text-gray-900">{contactInfo.operatingHours?.sunday || 'Not set'}</span>
+            </div>
           </div>
         </div>
       </div>

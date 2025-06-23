@@ -7,6 +7,12 @@ import {
 } from 'firebase/firestore';
 import { db } from '../firebase/firebase';
 
+export interface OperatingHours {
+  mondayToFriday: string;
+  saturday: string;
+  sunday: string;
+}
+
 export interface ContactInfo {
   phoneNumber: string;
   ceoEmail: string;
@@ -15,6 +21,7 @@ export interface ContactInfo {
   admissionsEmail: string;
   generalInquiriesEmail: string;
   address: string;
+  operatingHours: OperatingHours;
   lastUpdated?: any;
   updatedBy?: string;
 }
@@ -26,7 +33,12 @@ export const DEFAULT_CONTACT_INFO: ContactInfo = {
   supportEmail: 'support@optimusksa.com',
   admissionsEmail: 'admissions@optimusksa.com',
   generalInquiriesEmail: 'info@optimusksa.com',
-  address: 'Riyadh, Saudi Arabia'
+  address: 'Riyadh, Saudi Arabia',
+  operatingHours: {
+    mondayToFriday: '9:00 AM - 6:00 PM',
+    saturday: '10:00 AM - 2:00 PM',
+    sunday: 'Closed'
+  }
 };
 
 class ContactService {
