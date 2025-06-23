@@ -6,7 +6,6 @@ interface ContactFormData {
   email: string;
   phone: string;
   inquiryType: string;
-  program: string;
   message: string;
 }
 
@@ -46,7 +45,7 @@ export async function POST(request: NextRequest) {
   try {
     const body: ContactFormData = await request.json();
     
-    const { name, email, phone, inquiryType, program, message } = body;
+    const { name, email, phone, inquiryType, message } = body;
 
     // Validate required fields
     if (!name || !email || !inquiryType || !message) {
@@ -81,7 +80,6 @@ export async function POST(request: NextRequest) {
         email,
         phone,
         inquiryType,
-        program,
         message,
         timestamp: new Date().toISOString()
       });
@@ -141,10 +139,6 @@ export async function POST(request: NextRequest) {
                 <td style="padding: 8px; font-weight: bold; border-bottom: 1px solid #ddd;">Inquiry Type:</td>
                 <td style="padding: 8px; border-bottom: 1px solid #ddd;">${inquiryType.charAt(0).toUpperCase() + inquiryType.slice(1)}</td>
               </tr>
-              <tr>
-                <td style="padding: 8px; font-weight: bold; border-bottom: 1px solid #ddd;">Program Interest:</td>
-                <td style="padding: 8px; border-bottom: 1px solid #ddd;">${program || 'Not specified'}</td>
-              </tr>
             </table>
             
             <h3 style="color: #2B1F4F; margin-top: 20px;">Message:</h3>
@@ -179,7 +173,6 @@ export async function POST(request: NextRequest) {
             <div style="background-color: #f9f9f9; padding: 15px; border-left: 4px solid #058C42; margin: 20px 0;">
               <h3 style="color: #2B1F4F; margin-top: 0;">Your Inquiry Summary:</h3>
               <p><strong>Inquiry Type:</strong> ${inquiryType.charAt(0).toUpperCase() + inquiryType.slice(1)}</p>
-              <p><strong>Program Interest:</strong> ${program || 'Not specified'}</p>
               <p><strong>Message:</strong> ${message}</p>
             </div>
             

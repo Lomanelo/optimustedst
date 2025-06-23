@@ -7,7 +7,6 @@ interface FormData {
   email: string;
   phone: string;
   inquiryType: string;
-  program: string;
   message: string;
 }
 
@@ -19,7 +18,6 @@ const ContactForm: React.FC = () => {
     email: '',
     phone: '',
     inquiryType: '',
-    program: '',
     message: ''
   });
 
@@ -30,7 +28,7 @@ const ContactForm: React.FC = () => {
   const inquiryTypes = [
     { value: 'general', label: 'General Inquiry' },
     { value: 'admissions', label: 'Admissions & Enrollment' },
-    { value: 'support', label: 'Student Support' },
+    { value: 'support', label: 'Tech Support' },
     { value: 'marketing', label: 'Partnerships & Marketing' },
     { value: 'executive', label: 'Executive Contact' }
   ];
@@ -70,7 +68,6 @@ const ContactForm: React.FC = () => {
         email: '',
         phone: '',
         inquiryType: '',
-        program: '',
         message: ''
       });
 
@@ -191,24 +188,7 @@ const ContactForm: React.FC = () => {
           </div>
         </div>
 
-        <div className="mb-6">
-          <label htmlFor="program" className="block text-gray-700 font-medium mb-2">
-            {getContent('contact_select_program') || 'Program of Interest'}
-          </label>
-          <select
-            id="program"
-            name="program"
-            value={formData.program}
-            onChange={handleChange}
-            className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-accent focus:border-transparent"
-          >
-            <option value="">{getContent('contact_select_program') || 'Select a program (optional)'}</option>
-            <option value="bachelor">{getContent('programs_bachelor_title') || 'Bachelor Programs'}</option>
-            <option value="mba">{getContent('programs_mba_title') || 'MBA Programs'}</option>
-            <option value="dba">{getContent('programs_doctorate_title') || 'Doctorate Programs'}</option>
-            <option value="other">{getContent('contact_program_other') || 'Other Programs'}</option>
-          </select>
-        </div>
+
         
         <div className="mb-6">
           <label htmlFor="message" className="block text-gray-700 font-medium mb-2">

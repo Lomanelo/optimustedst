@@ -10,7 +10,7 @@ Based on the inquiry type selected, emails are automatically routed to:
 
 - **General Inquiry** → `info@optimusksa.com`
 - **Admissions & Enrollment** → `admissions@optimusksa.com`
-- **Student Support** → `support@optimusksa.com`
+- **Tech Support** → `support@optimusksa.com`
 - **Partnerships & Marketing** → `marketing@optimusksa.com`
 - **Executive Contact** → `ceo@optimusksa.com`
 
@@ -150,5 +150,4 @@ For testing purposes, you can use services like:
 - **Email** (required): User's email address
 - **Phone** (optional): User's phone number
 - **Inquiry Type** (required): Determines email routing
-- **Program Interest** (optional): Specific program inquiry
 - **Message** (required): User's detailed message
