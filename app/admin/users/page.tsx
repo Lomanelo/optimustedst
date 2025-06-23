@@ -369,54 +369,37 @@ export default function AdminUsersPage() {
                 {/* Expanded Content - Permissions */}
                 {expandedUser === user.uid && (
                   <div className="mt-4 pt-4 border-t border-gray-200">
-                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                      {/* Role Selection */}
-                      <div>
-                        <h4 className="text-sm font-medium text-gray-900 mb-3">Role</h4>
-                        <select
-                          value={user.role}
-                          onChange={(e) => handleRoleChange(user.uid, e.target.value as any)}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-primary"
-                          disabled={savingChanges === user.uid || !canEditUser(user)}
-                        >
-                          <option value="student">Student</option>
-                          <option value="moderator">Moderator</option>
-                          <option value="admin">Admin</option>
-                        </select>
-                      </div>
-
-                      {/* Permissions Grid */}
-                      <div>
-                        <h4 className="text-sm font-medium text-gray-900 mb-3">Permissions</h4>
-                        <div className="grid grid-cols-2 gap-3">
-                          {Object.entries(user.permissions).map(([permission, hasAccess]) => {
-                            const permissionLabels: Record<string, string> = {
-                              dashboard: 'Dashboard',
-                              programs: 'Programs',
-                              blog: 'Blog',
-                              cms: 'CMS Content',
-                              contacts: 'Contacts',
-                              users: 'User Management',
-                              settings: 'Settings',
-                              terms: 'Terms & Privacy'
-                            };
-                            
-                            const permissionLabel = permissionLabels[permission] || permission;
-                            
-                            return (
-                              <label key={permission} className="flex items-center">
-                                <input
-                                  type="checkbox"
-                                  checked={hasAccess}
-                                  onChange={(e) => handlePermissionToggle(user.uid, permission as keyof UserPermissions, e.target.checked)}
-                                  disabled={savingChanges === user.uid || !canEditUser(user)}
-                                  className="rounded border-gray-300 text-primary focus:ring-primary"
-                                />
-                                <span className="ml-2 text-sm text-gray-700">{permissionLabel}</span>
-                              </label>
-                            );
-                          })}
-                        </div>
+                    {/* Permissions Grid */}
+                    <div>
+                      <h4 className="text-sm font-medium text-gray-900 mb-3">Permissions</h4>
+                      <div className="grid grid-cols-2 gap-3">
+                        {Object.entries(user.permissions).map(([permission, hasAccess]) => {
+                          const permissionLabels: Record<string, string> = {
+                            dashboard: 'Dashboard',
+                            programs: 'Programs',
+                            blog: 'Blog',
+                            cms: 'CMS Content',
+                            contacts: 'Contacts',
+                            users: 'User Management',
+                            settings: 'Settings',
+                            terms: 'Terms & Privacy'
+                          };
+                          
+                          const permissionLabel = permissionLabels[permission] || permission;
+                          
+                          return (
+                            <label key={permission} className="flex items-center">
+                              <input
+                                type="checkbox"
+                                checked={hasAccess}
+                                onChange={(e) => handlePermissionToggle(user.uid, permission as keyof UserPermissions, e.target.checked)}
+                                disabled={savingChanges === user.uid || !canEditUser(user)}
+                                className="rounded border-gray-300 text-primary focus:ring-primary"
+                              />
+                              <span className="ml-2 text-sm text-gray-700">{permissionLabel}</span>
+                            </label>
+                          );
+                        })}
                       </div>
                     </div>
 
