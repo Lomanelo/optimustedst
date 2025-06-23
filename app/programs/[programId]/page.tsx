@@ -3,7 +3,7 @@
 import React, { useState, useEffect, use } from 'react';
 import ClientLayout from '../../components/ClientLayout';
 import programService, { Program } from '../../../src/services/programService';
-import { Award, Clock, DollarSign, BookOpen, CheckCircle } from 'lucide-react';
+import { Award, Clock, DollarSign, BookOpen, CheckCircle, Download, FileText } from 'lucide-react';
 
 interface PageProps {
   params: Promise<{
@@ -305,29 +305,41 @@ export default function ProgramDetailPage({ params }: PageProps) {
               </div>
 
               {/* Download Brochure */}
-              <div className="bg-primary/5 rounded-lg p-6">
-                <h2 className="text-xl font-bold text-primary mb-4">Download Program Brochure</h2>
-                <p className="text-gray-600 mb-4">Get detailed information about this program in our comprehensive brochure.</p>
-                <button 
-                  className="w-full bg-primary hover:bg-primary-dark text-white font-bold py-2 px-4 rounded-md transition-colors duration-300 flex items-center justify-center"
-                >
-                  <svg 
-                    xmlns="http://www.w3.org/2000/svg" 
-                    className="h-5 w-5 mr-2" 
-                    fill="none" 
-                    viewBox="0 0 24 24" 
-                    stroke="currentColor"
-                  >
-                    <path 
-                      strokeLinecap="round" 
-                      strokeLinejoin="round" 
-                      strokeWidth={2} 
-                      d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" 
-                    />
-                  </svg>
-                  Download Brochure
-                </button>
-              </div>
+              {(((program as any).brochure_en) || ((program as any).brochure_ar)) && (
+                <div className="bg-primary/5 rounded-lg p-6">
+                  <h2 className="text-xl font-bold text-primary mb-4 flex items-center">
+                    <FileText size={24} className="mr-2" />
+                    Download Program Brochure
+                  </h2>
+                  <p className="text-gray-600 mb-4">Get detailed information about this program in our comprehensive brochure.</p>
+                  
+                  <div className="space-y-3">
+                    {(program as any).brochure_en && (
+                      <a
+                        href={(program as any).brochure_en}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="w-full bg-primary hover:bg-primary-dark text-white font-bold py-3 px-4 rounded-md transition-colors duration-300 flex items-center justify-center"
+                      >
+                        <Download size={20} className="mr-2" />
+                        📄 Download English Brochure
+                      </a>
+                    )}
+                    
+                    {(program as any).brochure_ar && (
+                      <a
+                        href={(program as any).brochure_ar}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="w-full bg-accent hover:bg-accent-dark text-white font-bold py-3 px-4 rounded-md transition-colors duration-300 flex items-center justify-center"
+                      >
+                        <Download size={20} className="mr-2" />
+                        📄 تحميل الكتيب العربي
+                      </a>
+                    )}
+                  </div>
+                </div>
+              )}
 
               {/* Enroll Now */}
               <div className="bg-accent/5 rounded-lg p-6">

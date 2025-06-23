@@ -38,6 +38,8 @@ export interface Program {
   durationHours?: number;
   price: number;
   thumbnail?: string;
+  brochure_en?: string;
+  brochure_ar?: string;
   requirements?: string[];
   requirements_ar?: string[];
   whatYouWillLearn?: string[];
@@ -91,6 +93,8 @@ export interface CreateProgramData {
   durationHours?: number;
   price: number;
   thumbnail?: File | string;
+  brochure_en?: File | string;
+  brochure_ar?: File | string;
   requirements?: string[];
   requirements_ar?: string[];
   whatYouWillLearn?: string[];

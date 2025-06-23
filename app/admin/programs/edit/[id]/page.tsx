@@ -7,7 +7,7 @@ import { useAuth } from '../../../../contexts/auth-context';
 import { doc, getDoc, updateDoc, serverTimestamp } from 'firebase/firestore';
 import { db } from '../../../../../src/firebase/firebase';
 import { uploadImageAsDataUrl } from '../../../../../src/services/storageService';
-import { Save, ArrowLeft, AlertCircle, ImagePlus, Check, Globe, Languages } from 'lucide-react';
+import { Save, ArrowLeft, AlertCircle, ImagePlus, Check, Globe, Languages, Upload, X, FileText } from 'lucide-react';
 import { allAccreditationsAndPartnerships } from '../../../../../src/data/optimus-data';
 
 interface Program {
@@ -67,6 +67,10 @@ export default function EditProgramPage({ params }: { params: Promise<{ id: stri
   
   const [thumbnailFile, setThumbnailFile] = useState<File | null>(null);
   const [thumbnailPreview, setThumbnailPreview] = useState<string>('');
+  const [brochureEnFile, setBrochureEnFile] = useState<File | null>(null);
+  const [brochureArFile, setBrochureArFile] = useState<File | null>(null);
+  const [existingBrochureEn, setExistingBrochureEn] = useState<string>('');
+  const [existingBrochureAr, setExistingBrochureAr] = useState<string>('');
   const [loading, setLoading] = useState(false);
   const [pageLoading, setPageLoading] = useState(true);
   const [error, setError] = useState('');
@@ -119,6 +123,12 @@ export default function EditProgramPage({ params }: { params: Promise<{ id: stri
         if (programData.thumbnail) {
           setThumbnailPreview(programData.thumbnail);
         }
+        if (programData.brochure_en) {
+          setExistingBrochureEn(programData.brochure_en);
+        }
+        if (programData.brochure_ar) {
+          setExistingBrochureAr(programData.brochure_ar);
+        }
       } else {
         setError('Program not found');
         setTimeout(() => router.push('/admin/programs'), 2000);
@@ -167,6 +177,42 @@ export default function EditProgramPage({ params }: { params: Promise<{ id: stri
         }
       };
       reader.readAsDataURL(file);
+    }
+  };
+
+  const handleBrochureEnChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      if (file.size > 20 * 1024 * 1024) {
+        setError('Brochure file must be less than 20MB');
+        return;
+      }
+
+      if (file.type !== 'application/pdf') {
+        setError('Please select a PDF file for the brochure');
+        return;
+      }
+
+      setBrochureEnFile(file);
+      setError('');
+    }
+  };
+
+  const handleBrochureArChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      if (file.size > 20 * 1024 * 1024) {
+        setError('Brochure file must be less than 20MB');
+        return;
+      }
+
+      if (file.type !== 'application/pdf') {
+        setError('Please select a PDF file for the brochure');
+        return;
+      }
+
+      setBrochureArFile(file);
+      setError('');
     }
   };
 
@@ -231,10 +277,20 @@ export default function EditProgramPage({ params }: { params: Promise<{ id: stri
         return;
       }
       
-      // Upload thumbnail if changed
+      // Upload files if changed
       let thumbnailUrl = program.thumbnail || '';
       if (thumbnailFile) {
         thumbnailUrl = await uploadThumbnail();
+      }
+
+      let brochureEnUrl = existingBrochureEn;
+      if (brochureEnFile) {
+        brochureEnUrl = await uploadImageAsDataUrl(brochureEnFile);
+      }
+
+      let brochureArUrl = existingBrochureAr;
+      if (brochureArFile) {
+        brochureArUrl = await uploadImageAsDataUrl(brochureArFile);
       }
       
       // Prepare program data (matching create page structure)
@@ -270,6 +326,8 @@ export default function EditProgramPage({ params }: { params: Promise<{ id: stri
         languages: ['en', 'ar'] as ('en' | 'ar')[],
         durationWeeks: 12, // Default value
         thumbnail: thumbnailUrl,
+        brochure_en: brochureEnUrl,
+        brochure_ar: brochureArUrl,
         updatedAt: serverTimestamp()
       };
       
@@ -664,6 +722,131 @@ export default function EditProgramPage({ params }: { params: Promise<{ id: stri
                 <p className="text-xs text-gray-500">
                   {activeLanguage === 'en' ? 'PNG, JPG, GIF up to 10MB' : 'PNG, JPG, GIF حتى 10MB'}
                 </p>
+              </div>
+            </div>
+          </div>
+
+          {/* Brochure Upload */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-3">
+              {activeLanguage === 'en' ? 'Program Brochures (Optional)' : 'كتيبات البرنامج (اختياري)'}
+            </label>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {/* English Brochure */}
+              <div>
+                <label htmlFor="brochure-en" className="block text-sm font-medium text-gray-600 mb-2">
+                  {activeLanguage === 'en' ? '📄 English Brochure' : '📄 الكتيب الإنجليزي'}
+                </label>
+                <div className="border-2 border-gray-300 border-dashed rounded-md p-4">
+                  {brochureEnFile ? (
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center">
+                        <FileText size={20} className="text-red-500 mr-2" />
+                        <span className="text-sm text-gray-700">{brochureEnFile.name}</span>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => setBrochureEnFile(null)}
+                        className="text-red-500 hover:text-red-700"
+                      >
+                        <X size={16} />
+                      </button>
+                    </div>
+                  ) : existingBrochureEn ? (
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center">
+                        <FileText size={20} className="text-green-500 mr-2" />
+                        <span className="text-sm text-gray-700">{activeLanguage === 'en' ? 'Current brochure uploaded' : 'الكتيب الحالي مرفوع'}</span>
+                      </div>
+                      <a 
+                        href={existingBrochureEn} 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="text-primary hover:text-primary-dark text-sm"
+                      >
+                        {activeLanguage === 'en' ? 'View' : 'عرض'}
+                      </a>
+                    </div>
+                  ) : (
+                    <div className="text-center">
+                      <Upload size={24} className="mx-auto text-gray-400 mb-2" />
+                      <label
+                        htmlFor="brochure-en"
+                        className="cursor-pointer text-primary hover:text-primary-dark text-sm font-medium"
+                      >
+                        {activeLanguage === 'en' ? 'Upload English PDF' : 'ارفع ملف PDF إنجليزي'}
+                        <input
+                          id="brochure-en"
+                          name="brochure-en"
+                          type="file"
+                          className="sr-only"
+                          accept=".pdf"
+                          onChange={handleBrochureEnChange}
+                        />
+                      </label>
+                      <p className="text-xs text-gray-500 mt-1">PDF up to 20MB</p>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Arabic Brochure */}
+              <div>
+                <label htmlFor="brochure-ar" className="block text-sm font-medium text-gray-600 mb-2">
+                  {activeLanguage === 'en' ? '📄 Arabic Brochure' : '📄 الكتيب العربي'}
+                </label>
+                <div className="border-2 border-gray-300 border-dashed rounded-md p-4">
+                  {brochureArFile ? (
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center">
+                        <FileText size={20} className="text-red-500 mr-2" />
+                        <span className="text-sm text-gray-700">{brochureArFile.name}</span>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => setBrochureArFile(null)}
+                        className="text-red-500 hover:text-red-700"
+                      >
+                        <X size={16} />
+                      </button>
+                    </div>
+                  ) : existingBrochureAr ? (
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center">
+                        <FileText size={20} className="text-green-500 mr-2" />
+                        <span className="text-sm text-gray-700">{activeLanguage === 'en' ? 'Current brochure uploaded' : 'الكتيب الحالي مرفوع'}</span>
+                      </div>
+                      <a 
+                        href={existingBrochureAr} 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="text-primary hover:text-primary-dark text-sm"
+                      >
+                        {activeLanguage === 'en' ? 'View' : 'عرض'}
+                      </a>
+                    </div>
+                  ) : (
+                    <div className="text-center">
+                      <Upload size={24} className="mx-auto text-gray-400 mb-2" />
+                      <label
+                        htmlFor="brochure-ar"
+                        className="cursor-pointer text-primary hover:text-primary-dark text-sm font-medium"
+                      >
+                        {activeLanguage === 'en' ? 'Upload Arabic PDF' : 'ارفع ملف PDF عربي'}
+                        <input
+                          id="brochure-ar"
+                          name="brochure-ar"
+                          type="file"
+                          className="sr-only"
+                          accept=".pdf"
+                          onChange={handleBrochureArChange}
+                        />
+                      </label>
+                      <p className="text-xs text-gray-500 mt-1">PDF up to 20MB</p>
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
           </div>

@@ -7,7 +7,7 @@ import { useAuth } from '../../../contexts/auth-context';
 import { collection, addDoc, serverTimestamp, doc, updateDoc } from 'firebase/firestore';
 import { db } from '../../../../src/firebase/firebase';
 import { uploadImageAsDataUrl } from '../../../../src/services/storageService';
-import { Calendar, DollarSign, Clock, Award, ImagePlus, Plus, Edit, Trash2, BookOpen, Play, FileText, HelpCircle, Clipboard, Save, ArrowLeft, AlertCircle, Check, Globe, Languages } from 'lucide-react';
+import { Calendar, DollarSign, Clock, Award, ImagePlus, Plus, Edit, Trash2, BookOpen, Play, FileText, HelpCircle, Clipboard, Save, ArrowLeft, AlertCircle, Check, Globe, Languages, Upload, X } from 'lucide-react';
 import { allAccreditationsAndPartnerships } from '../../../../src/data/optimus-data';
 
 export default function CreateProgramPage() {
@@ -89,6 +89,8 @@ export default function CreateProgramPage() {
   const [showLessonForm, setShowLessonForm] = useState<string | null>(null);
   const [thumbnailFile, setThumbnailFile] = useState<File | null>(null);
   const [thumbnailPreview, setThumbnailPreview] = useState<string>('');
+  const [brochureEnFile, setBrochureEnFile] = useState<File | null>(null);
+  const [brochureArFile, setBrochureArFile] = useState<File | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
@@ -281,6 +283,46 @@ export default function CreateProgramPage() {
     }
   };
 
+  const handleBrochureEnChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      // Validate file size (20MB limit for brochures)
+      if (file.size > 20 * 1024 * 1024) {
+        setError('Brochure file must be less than 20MB');
+        return;
+      }
+
+      // Validate file type (PDF only)
+      if (file.type !== 'application/pdf') {
+        setError('Please select a PDF file for the brochure');
+        return;
+      }
+
+      setBrochureEnFile(file);
+      setError('');
+    }
+  };
+
+  const handleBrochureArChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      // Validate file size (20MB limit for brochures)
+      if (file.size > 20 * 1024 * 1024) {
+        setError('Brochure file must be less than 20MB');
+        return;
+      }
+
+      // Validate file type (PDF only)
+      if (file.type !== 'application/pdf') {
+        setError('Please select a PDF file for the brochure');
+        return;
+      }
+
+      setBrochureArFile(file);
+      setError('');
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
@@ -334,13 +376,15 @@ export default function CreateProgramPage() {
 
       const docRef = await addDoc(collection(db, 'programs'), programData);
       
+      // Upload files
+      const updateData: any = {};
+      
+      // Upload thumbnail
       if (thumbnailFile) {
         try {
           if (thumbnailFile.size <= 100 * 1024) {
             const dataUrl = await uploadImageAsDataUrl(thumbnailFile);
-            await updateDoc(doc(db, 'programs', docRef.id), {
-              thumbnail: dataUrl
-            });
+            updateData.thumbnail = dataUrl;
           } else {
             setError('Note: Image was too large. Program created with placeholder image.');
           }
@@ -348,6 +392,33 @@ export default function CreateProgramPage() {
           console.error('Error uploading thumbnail:', uploadError);
           setError('Program created, but failed to upload image. You can edit the program to add an image later.');
         }
+      }
+
+      // Upload English brochure
+      if (brochureEnFile) {
+        try {
+          const brochureEnUrl = await uploadImageAsDataUrl(brochureEnFile);
+          updateData.brochure_en = brochureEnUrl;
+        } catch (uploadError) {
+          console.error('Error uploading English brochure:', uploadError);
+          setError('Program created, but failed to upload English brochure.');
+        }
+      }
+
+      // Upload Arabic brochure
+      if (brochureArFile) {
+        try {
+          const brochureArUrl = await uploadImageAsDataUrl(brochureArFile);
+          updateData.brochure_ar = brochureArUrl;
+        } catch (uploadError) {
+          console.error('Error uploading Arabic brochure:', uploadError);
+          setError('Program created, but failed to upload Arabic brochure.');
+        }
+      }
+
+      // Update document with uploaded files
+      if (Object.keys(updateData).length > 0) {
+        await updateDoc(doc(db, 'programs', docRef.id), updateData);
       }
       
       setSuccess(`Program "${formData.title}" created successfully!`);
@@ -779,6 +850,101 @@ export default function CreateProgramPage() {
                     </p>
                   </>
                 )}
+              </div>
+            </div>
+          </div>
+
+          {/* Brochure Upload */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-3">
+              {activeLanguage === 'en' ? 'Program Brochures (Optional)' : 'كتيبات البرنامج (اختياري)'}
+            </label>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {/* English Brochure */}
+              <div>
+                <label htmlFor="brochure-en" className="block text-sm font-medium text-gray-600 mb-2">
+                  {activeLanguage === 'en' ? '📄 English Brochure' : '📄 الكتيب الإنجليزي'}
+                </label>
+                <div className="border-2 border-gray-300 border-dashed rounded-md p-4">
+                  {brochureEnFile ? (
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center">
+                        <FileText size={20} className="text-red-500 mr-2" />
+                        <span className="text-sm text-gray-700">{brochureEnFile.name}</span>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => setBrochureEnFile(null)}
+                        className="text-red-500 hover:text-red-700"
+                      >
+                        <X size={16} />
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="text-center">
+                      <Upload size={24} className="mx-auto text-gray-400 mb-2" />
+                      <label
+                        htmlFor="brochure-en"
+                        className="cursor-pointer text-primary hover:text-primary-dark text-sm font-medium"
+                      >
+                        {activeLanguage === 'en' ? 'Upload English PDF' : 'ارفع ملف PDF إنجليزي'}
+                        <input
+                          id="brochure-en"
+                          name="brochure-en"
+                          type="file"
+                          className="sr-only"
+                          accept=".pdf"
+                          onChange={handleBrochureEnChange}
+                        />
+                      </label>
+                      <p className="text-xs text-gray-500 mt-1">PDF up to 20MB</p>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Arabic Brochure */}
+              <div>
+                <label htmlFor="brochure-ar" className="block text-sm font-medium text-gray-600 mb-2">
+                  {activeLanguage === 'en' ? '📄 Arabic Brochure' : '📄 الكتيب العربي'}
+                </label>
+                <div className="border-2 border-gray-300 border-dashed rounded-md p-4">
+                  {brochureArFile ? (
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center">
+                        <FileText size={20} className="text-red-500 mr-2" />
+                        <span className="text-sm text-gray-700">{brochureArFile.name}</span>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => setBrochureArFile(null)}
+                        className="text-red-500 hover:text-red-700"
+                      >
+                        <X size={16} />
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="text-center">
+                      <Upload size={24} className="mx-auto text-gray-400 mb-2" />
+                      <label
+                        htmlFor="brochure-ar"
+                        className="cursor-pointer text-primary hover:text-primary-dark text-sm font-medium"
+                      >
+                        {activeLanguage === 'en' ? 'Upload Arabic PDF' : 'ارفع ملف PDF عربي'}
+                        <input
+                          id="brochure-ar"
+                          name="brochure-ar"
+                          type="file"
+                          className="sr-only"
+                          accept=".pdf"
+                          onChange={handleBrochureArChange}
+                        />
+                      </label>
+                      <p className="text-xs text-gray-500 mt-1">PDF up to 20MB</p>
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
           </div>
