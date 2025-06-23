@@ -29,7 +29,7 @@ export default function AdminLayout({
 
   // Memoize the permission check to prevent unnecessary re-renders
   const hasAnyAdminPermission = useMemo(() => {
-    return ['dashboard', 'programs', 'blog', 'cms', 'contacts', 'users', 'settings']
+    return ['dashboard', 'programs', 'blog', 'cms', 'contacts', 'users', 'settings', 'terms']
       .some(permission => userPermissions[permission as keyof typeof userPermissions] || false);
   }, [userPermissions]);
 
@@ -78,6 +78,7 @@ export default function AdminLayout({
     { href: '/admin/blog', label: 'Blog', icon: FileText, permission: 'blog' as const },
     { href: '/admin/cms', label: 'CMS (Text Content)', icon: FileText, permission: 'cms' as const },
     { href: '/admin/contacts', label: 'Contacts & Emails', icon: Mail, permission: 'contacts' as const },
+    { href: '/admin/terms', label: 'Terms & Privacy', icon: BookOpen, permission: 'terms' as const },
     { href: '/admin/users', label: 'Users', icon: Users, permission: 'users' as const },
     { href: '/admin/settings', label: 'Social Media Links', icon: ExternalLink, permission: 'settings' as const },
   ].filter(item => hasPermission(item.permission) || userRole === 'admin');

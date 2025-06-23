@@ -9,7 +9,8 @@ import {
   getDocs,
   where,
   serverTimestamp,
-  limit
+  limit,
+  writeBatch
 } from 'firebase/firestore';
 import { db } from '../firebase/firebase';
 
@@ -21,6 +22,7 @@ export interface UserPermissions {
   contacts: boolean;
   users: boolean;
   settings: boolean;
+  terms: boolean;
 }
 
 export interface UserData {
@@ -43,6 +45,7 @@ export const DEFAULT_PERMISSIONS: UserPermissions = {
   contacts: false,
   users: false,
   settings: false,
+  terms: false,
 };
 
 export const ADMIN_PERMISSIONS: UserPermissions = {
@@ -53,9 +56,20 @@ export const ADMIN_PERMISSIONS: UserPermissions = {
   contacts: true,
   users: true,
   settings: true,
+  terms: true,
 };
 
 class UserService {
+  /**
+   * Merge user permissions with default permissions to ensure all fields exist
+   */
+  private mergePermissions(userPermissions: any): UserPermissions {
+    return {
+      ...DEFAULT_PERMISSIONS,
+      ...userPermissions
+    };
+  }
+
   /**
    * Get all users for admin management
    */
@@ -73,7 +87,7 @@ class UserService {
           email: data.email || '',
           displayName: data.displayName || '',
           role: data.role || 'student',
-          permissions: data.permissions || DEFAULT_PERMISSIONS,
+          permissions: this.mergePermissions(data.permissions),
           isActive: data.isActive !== false, // Default to true if not set
           createdAt: data.createdAt,
           updatedAt: data.updatedAt,
@@ -103,7 +117,7 @@ class UserService {
           email: data.email || '',
           displayName: data.displayName || '',
           role: data.role || 'student',
-          permissions: data.permissions || DEFAULT_PERMISSIONS,
+          permissions: this.mergePermissions(data.permissions),
           isActive: data.isActive !== false,
           createdAt: data.createdAt,
           updatedAt: data.updatedAt,
@@ -205,6 +219,57 @@ class UserService {
     } catch (error) {
       console.error('Error checking permission:', error);
       return false;
+    }
+  }
+
+  /**
+   * Migrate all users to ensure they have complete permission structure
+   * This is useful when new permissions are added
+   */
+  async migrateUserPermissions(): Promise<{ updated: number; errors: number }> {
+    try {
+      const usersRef = collection(db, 'users');
+      const querySnapshot = await getDocs(usersRef);
+      
+      let updated = 0;
+      let errors = 0;
+      
+      const batch = writeBatch(db);
+      
+      querySnapshot.forEach((userDoc) => {
+        try {
+          const data = userDoc.data();
+          const currentPermissions = data.permissions || {};
+          const mergedPermissions = this.mergePermissions(currentPermissions);
+          
+          // Check if permissions need updating
+          const needsUpdate = Object.keys(DEFAULT_PERMISSIONS).some(
+            key => !(key in currentPermissions)
+          );
+          
+          if (needsUpdate) {
+            const userDocRef = doc(db, 'users', userDoc.id);
+            batch.update(userDocRef, {
+              permissions: mergedPermissions,
+              updatedAt: serverTimestamp()
+            });
+            updated++;
+          }
+        } catch (error) {
+          console.error(`Error processing user ${userDoc.id}:`, error);
+          errors++;
+        }
+      });
+      
+      if (updated > 0) {
+        await batch.commit();
+        console.log(`Successfully migrated ${updated} users with updated permissions`);
+      }
+      
+      return { updated, errors };
+    } catch (error) {
+      console.error('Error migrating user permissions:', error);
+      throw error;
     }
   }
 

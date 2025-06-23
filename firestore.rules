@@ -99,6 +99,24 @@ service cloud.firestore {
       allow create, update, delete: if hasPermission('cms'); // Users with cms permission can modify CMS content
     }
     
+    // Legal Documents collection - allow reading active documents for all users, writing for users with terms permission
+    match /legal_documents/{documentId} {
+      // Allow all users to read active (published) legal documents
+      allow read: if resource.data.isActive == true;
+      // Allow users with terms permission to read all documents (including drafts)
+      allow read: if hasPermission('terms');
+      // Allow users with terms permission to create, update, and delete legal documents
+      allow create, update, delete: if hasPermission('terms');
+      // Allow users with terms permission to list all legal documents (for admin dashboard)
+      allow list: if hasPermission('terms');
+    }
+    
+    // Legal Document Versions collection - only users with terms permission can access
+    match /legal_document_versions/{versionId} {
+      allow read, create, update, delete: if hasPermission('terms');
+      allow list: if hasPermission('terms');
+    }
+    
     // Default deny
     match /{document=**} {
       allow read, write: if false;

@@ -16,7 +16,7 @@ export default function ApiTestPage() {
   const testEnrollmentAPI = async () => {
     setLoading(true);
     const enrollmentId = '3ad25fcf-529c-429d-acb2-5130d9771039';
-    
+
     try {
       // Test 1: Basic connection test
       console.log('Testing basic API connection...');
@@ -71,7 +71,7 @@ export default function ApiTestPage() {
   return (
     <div className="container mx-auto px-4 py-8">
       <h1 className="text-3xl font-bold mb-8">API Testing Page</h1>
-      
+        
       <div className="space-y-4 mb-8">
         <button
           onClick={testEnrollmentAPI}
@@ -88,13 +88,13 @@ export default function ApiTestPage() {
           Test Firebase Connection
         </button>
         
-        <button
+          <button
           onClick={clearResults}
           className="bg-red-500 text-white px-6 py-2 rounded hover:bg-red-600 ml-4"
-        >
+          >
           Clear Results
-        </button>
-      </div>
+          </button>
+        </div>
 
       <div className="space-y-4">
         <h2 className="text-2xl font-bold">Test Results:</h2>
@@ -107,8 +107,8 @@ export default function ApiTestPage() {
               <p className="text-sm text-gray-600 mb-2">{result.timestamp}</p>
               <pre className="bg-white p-2 rounded text-sm overflow-auto">
                 {JSON.stringify(result.result, null, 2)}
-              </pre>
-            </div>
+            </pre>
+          </div>
           ))
         )}
       </div>

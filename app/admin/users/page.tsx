@@ -32,16 +32,17 @@ export default function AdminUsersPage() {
   const [error, setError] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
   const [roleFilter, setRoleFilter] = useState('all');
-  const [statusFilter, setStatusFilter] = useState('all');
-  const [editingUser, setEditingUser] = useState<string | null>(null);
+
+  const [expandedUser, setExpandedUser] = useState<string | null>(null);
   const [savingChanges, setSavingChanges] = useState<string | null>(null);
-  const [pendingChanges, setPendingChanges] = useState<{[userId: string]: Partial<UserData>}>({});
   const [stats, setStats] = useState({
     totalUsers: 0,
     adminUsers: 0,
     activeUsers: 0,
     newUsersThisMonth: 0
   });
+  const [migrating, setMigrating] = useState(false);
+  const [migrationResult, setMigrationResult] = useState<{updated: number; errors: number} | null>(null);
 
   // Redirect if no access to users management
   useEffect(() => {
@@ -94,122 +95,58 @@ export default function AdminUsersPage() {
       filtered = filtered.filter(user => user.role === roleFilter);
     }
 
-    // Status filter
-    if (statusFilter !== 'all') {
-      const isActive = statusFilter === 'active';
-      filtered = filtered.filter(user => user.isActive === isActive);
-    }
-
     setFilteredUsers(filtered);
-  }, [users, searchTerm, roleFilter, statusFilter]);
+  }, [users, searchTerm, roleFilter]);
 
-  const handleRoleChange = (userId: string, newRole: 'admin' | 'student' | 'moderator') => {
+  const handleRoleChange = async (userId: string, newRole: 'admin' | 'student' | 'moderator') => {
     const user = users.find(u => u.uid === userId);
     if (!user || !canEditUser(user)) {
       console.warn('Attempted to edit protected admin account');
       return;
     }
 
-    // Update pending changes instead of saving immediately
-    setPendingChanges(prev => ({
-      ...prev,
-      [userId]: {
-        ...prev[userId],
-        role: newRole
-      }
-    }));
-    
-    // Update local state for immediate UI feedback
-    setUsers(prev => prev.map(user => 
-      user.uid === userId 
-        ? { ...user, role: newRole }
-        : user
-    ));
-  };
-
-  const handlePermissionToggle = (userId: string, permission: keyof UserPermissions, value: boolean) => {
-    const user = users.find(u => u.uid === userId);
-    if (!user || !canEditUser(user)) {
-      console.warn('Attempted to edit protected admin account');
-      return;
-    }
-
-    const updatedPermissions = { ...user.permissions, [permission]: value };
-    
-    // Update pending changes instead of saving immediately
-    setPendingChanges(prev => ({
-      ...prev,
-      [userId]: {
-        ...prev[userId],
-        permissions: updatedPermissions
-      }
-    }));
-    
-    // Update local state for immediate UI feedback
-    setUsers(prev => prev.map(u => 
-      u.uid === userId 
-        ? { ...u, permissions: updatedPermissions }
-        : u
-    ));
-  };
-
-  const handleSaveChanges = async (userId: string) => {
     try {
       setSavingChanges(userId);
-      const changes = pendingChanges[userId];
-      if (!changes) return;
-
-      // Save role if changed
-      if (changes.role) {
-        await userService.updateUserRole(userId, changes.role);
-      }
-
-      // Save permissions if changed
-      if (changes.permissions) {
-        await userService.updateUserPermissions(userId, changes.permissions);
-      }
-
-      // Clear pending changes for this user
-      setPendingChanges(prev => {
-        const newChanges = { ...prev };
-        delete newChanges[userId];
-        return newChanges;
-      });
-
-      setEditingUser(null);
+      await userService.updateUserRole(userId, newRole);
+      
+      // Update local state for immediate UI feedback
+      setUsers(prev => prev.map(user => 
+        user.uid === userId 
+          ? { ...user, role: newRole }
+          : user
+      ));
     } catch (err) {
-      console.error('Error saving changes:', err);
-      setError('Failed to save changes');
+      console.error('Error updating role:', err);
+      setError('Failed to update user role');
     } finally {
       setSavingChanges(null);
     }
   };
 
-  const handleCancelChanges = (userId: string) => {
-    // Revert local changes
-    const originalUser = users.find(u => u.uid === userId);
-    if (originalUser && pendingChanges[userId]) {
-      // Reload user data to revert changes
-      const loadData = async () => {
-        try {
-          const usersData = await userService.getAllUsers();
-          setUsers(usersData);
-          setFilteredUsers(usersData);
-        } catch (err) {
-          console.error('Error reloading users:', err);
-        }
-      };
-      loadData();
+  const handlePermissionToggle = async (userId: string, permission: keyof UserPermissions, value: boolean) => {
+    const user = users.find(u => u.uid === userId);
+    if (!user || !canEditUser(user)) {
+      console.warn('Attempted to edit protected admin account');
+      return;
     }
 
-    // Clear pending changes for this user
-    setPendingChanges(prev => {
-      const newChanges = { ...prev };
-      delete newChanges[userId];
-      return newChanges;
-    });
-
-    setEditingUser(null);
+    try {
+      setSavingChanges(userId);
+      const updatedPermissions = { ...user.permissions, [permission]: value };
+      await userService.updateUserPermissions(userId, updatedPermissions);
+      
+      // Update local state for immediate UI feedback
+      setUsers(prev => prev.map(u => 
+        u.uid === userId 
+          ? { ...u, permissions: updatedPermissions }
+          : u
+      ));
+    } catch (err) {
+      console.error('Error updating permission:', err);
+      setError('Failed to update user permission');
+    } finally {
+      setSavingChanges(null);
+    }
   };
 
   const handleStatusToggle = async (userId: string, isActive: boolean) => {
@@ -274,6 +211,25 @@ export default function AdminUsersPage() {
     return userRole === 'admin' || hasPermission('users');
   };
 
+  const handleMigratePermissions = async () => {
+    try {
+      setMigrating(true);
+      setMigrationResult(null);
+      const result = await userService.migrateUserPermissions();
+      setMigrationResult(result);
+      
+      // Reload users to see the changes
+      const usersData = await userService.getAllUsers();
+      setUsers(usersData);
+      setFilteredUsers(usersData);
+    } catch (err) {
+      console.error('Error migrating permissions:', err);
+      setError('Failed to migrate user permissions');
+    } finally {
+      setMigrating(false);
+    }
+  };
+
   if (isLoading || loading) {
     return (
       <div className="flex justify-center items-center p-8">
@@ -296,9 +252,6 @@ export default function AdminUsersPage() {
               <Users className="mr-3" size={28} />
               User Management
             </h1>
-            <p className="text-gray-600 mt-1">
-              {userRole === 'admin' ? 'Manage user roles and permissions' : 'View user information (read-only)'}
-            </p>
           </div>
         </div>
       </div>
@@ -325,52 +278,15 @@ export default function AdminUsersPage() {
         </div>
       )}
 
-      {/* Stats Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-        <div className="bg-white p-6 rounded-lg shadow-md border-l-4 border-blue-500">
-          <div className="flex justify-between items-center">
-            <div>
-              <p className="text-sm font-medium text-gray-500">Total Users</p>
-              <p className="text-3xl font-bold text-gray-900 mt-1">{stats.totalUsers}</p>
-            </div>
-            <Users className="w-8 h-8 text-blue-500" />
-          </div>
-        </div>
 
-        <div className="bg-white p-6 rounded-lg shadow-md border-l-4 border-red-500">
-          <div className="flex justify-between items-center">
-            <div>
-              <p className="text-sm font-medium text-gray-500">Admin Users</p>
-              <p className="text-3xl font-bold text-gray-900 mt-1">{stats.adminUsers}</p>
-            </div>
-            <Shield className="w-8 h-8 text-red-500" />
-          </div>
-        </div>
 
-        <div className="bg-white p-6 rounded-lg shadow-md border-l-4 border-green-500">
-          <div className="flex justify-between items-center">
-            <div>
-              <p className="text-sm font-medium text-gray-500">Active Users</p>
-              <p className="text-3xl font-bold text-gray-900 mt-1">{stats.activeUsers}</p>
-            </div>
-            <UserCheck className="w-8 h-8 text-green-500" />
-          </div>
-        </div>
 
-        <div className="bg-white p-6 rounded-lg shadow-md border-l-4 border-purple-500">
-          <div className="flex justify-between items-center">
-            <div>
-              <p className="text-sm font-medium text-gray-500">New This Month</p>
-              <p className="text-3xl font-bold text-gray-900 mt-1">{stats.newUsersThisMonth}</p>
-            </div>
-            <Calendar className="w-8 h-8 text-purple-500" />
-          </div>
-        </div>
-      </div>
+
+
 
       {/* Filters */}
       <div className="bg-white rounded-lg shadow-md p-6 mb-6">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {/* Search */}
           <div className="relative">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
@@ -396,195 +312,124 @@ export default function AdminUsersPage() {
               <option value="student">Student</option>
             </select>
           </div>
-
-          {/* Status Filter */}
-          <div>
-            <select
-              value={statusFilter}
-              onChange={(e) => setStatusFilter(e.target.value)}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
-            >
-              <option value="all">All Status</option>
-              <option value="active">Active</option>
-              <option value="inactive">Inactive</option>
-            </select>
-          </div>
         </div>
       </div>
 
-      {/* Users Table */}
+      {/* Users List */}
       <div className="bg-white rounded-lg shadow-md overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gray-50">
-              <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  User
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Role
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Status
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Permissions
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Last Login
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Actions
-                </th>
-              </tr>
-            </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
-              {filteredUsers.map((user) => (
-                <tr key={user.uid} className={`hover:bg-gray-50 ${pendingChanges[user.uid] ? 'bg-yellow-50 border-l-4 border-yellow-400' : ''}`}>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="flex items-center">
-                      <div className="w-10 h-10 bg-primary/10 rounded-full flex items-center justify-center">
-                        <User size={20} className="text-primary" />
-                      </div>
-                      <div className="ml-4">
-                        <div className="text-sm font-medium text-gray-900">
-                          {user.displayName || 'No name'}
-                        </div>
-                        <div className="text-sm text-gray-500">{user.email}</div>
-                      </div>
+        {filteredUsers.length === 0 ? (
+          <div className="text-center py-8">
+            <Users size={48} className="mx-auto text-gray-400 mb-4" />
+            <p className="text-gray-500">No users found matching your criteria</p>
+          </div>
+        ) : (
+          <div className="divide-y divide-gray-200">
+            {filteredUsers.map((user) => (
+              <div key={user.uid} className="p-6">
+                {/* User Header - Clickable */}
+                <div 
+                  className="flex items-center justify-between cursor-pointer hover:bg-gray-50 -m-6 p-6"
+                  onClick={() => setExpandedUser(expandedUser === user.uid ? null : user.uid)}
+                >
+                  <div className="flex items-center">
+                    <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center">
+                      <User size={24} className="text-primary" />
                     </div>
-                  </td>
-                  
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    {editingUser === user.uid && canEditUser(user) ? (
-                      <select
-                        value={user.role}
-                        onChange={(e) => handleRoleChange(user.uid, e.target.value as any)}
-                        className="px-3 py-1 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-primary"
-                        disabled={savingChanges === user.uid}
-                      >
-                        <option value="student">Student</option>
-                        <option value="moderator">Moderator</option>
-                        <option value="admin">Admin</option>
-                      </select>
-                    ) : (
-                      <div className="flex items-center">
+                    <div className="ml-4">
+                      <div className="text-lg font-medium text-gray-900">
+                        {user.displayName || 'No name'}
+                      </div>
+                      <div className="text-sm text-gray-500">{user.email}</div>
+                      <div className="flex items-center mt-1">
                         <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getRoleBadgeColor(user.role)}`}>
                           {user.role.charAt(0).toUpperCase() + user.role.slice(1)}
                         </span>
                         {isUserAdmin(user) && userRole !== 'admin' && (
-                          <div title="Admin account - protected">
-                            <Shield size={14} className="ml-2 text-red-500" />
+                          <div title="Admin account - protected" className="ml-2">
+                            <Shield size={14} className="text-red-500" />
                           </div>
                         )}
+                        <span className="ml-2 text-xs text-gray-500">
+                          Last login: {formatDate(user.lastLogin)}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div className="flex items-center">
+                    {savingChanges === user.uid && (
+                      <div className="animate-spin rounded-full h-5 w-5 border-t-2 border-b-2 border-primary mr-3"></div>
+                    )}
+                    <div className={`transform transition-transform ${expandedUser === user.uid ? 'rotate-180' : ''}`}>
+                      ▼
+                    </div>
+                  </div>
+                </div>
+
+                {/* Expanded Content - Permissions */}
+                {expandedUser === user.uid && (
+                  <div className="mt-4 pt-4 border-t border-gray-200">
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                      {/* Role Selection */}
+                      <div>
+                        <h4 className="text-sm font-medium text-gray-900 mb-3">Role</h4>
+                        <select
+                          value={user.role}
+                          onChange={(e) => handleRoleChange(user.uid, e.target.value as any)}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-primary"
+                          disabled={savingChanges === user.uid || !canEditUser(user)}
+                        >
+                          <option value="student">Student</option>
+                          <option value="moderator">Moderator</option>
+                          <option value="admin">Admin</option>
+                        </select>
+                      </div>
+
+                      {/* Permissions Grid */}
+                      <div>
+                        <h4 className="text-sm font-medium text-gray-900 mb-3">Permissions</h4>
+                        <div className="grid grid-cols-2 gap-3">
+                          {Object.entries(user.permissions).map(([permission, hasAccess]) => {
+                            const permissionLabels: Record<string, string> = {
+                              dashboard: 'Dashboard',
+                              programs: 'Programs',
+                              blog: 'Blog',
+                              cms: 'CMS Content',
+                              contacts: 'Contacts',
+                              users: 'User Management',
+                              settings: 'Settings',
+                              terms: 'Terms & Privacy'
+                            };
+                            
+                            const permissionLabel = permissionLabels[permission] || permission;
+                            
+                            return (
+                              <label key={permission} className="flex items-center">
+                                <input
+                                  type="checkbox"
+                                  checked={hasAccess}
+                                  onChange={(e) => handlePermissionToggle(user.uid, permission as keyof UserPermissions, e.target.checked)}
+                                  disabled={savingChanges === user.uid || !canEditUser(user)}
+                                  className="rounded border-gray-300 text-primary focus:ring-primary"
+                                />
+                                <span className="ml-2 text-sm text-gray-700">{permissionLabel}</span>
+                              </label>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    </div>
+
+                    {!canEditUser(user) && (
+                      <div className="mt-4 p-3 bg-red-50 border border-red-200 rounded text-sm text-red-700 flex items-center">
+                        <Shield className="mr-2" size={16} />
+                        Admin account - protected from changes
                       </div>
                     )}
-                  </td>
-                  
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <button
-                      onClick={() => handleStatusToggle(user.uid, !user.isActive)}
-                      disabled={savingChanges === user.uid || !canEditUser(user)}
-                      className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium ${
-                        user.isActive 
-                          ? 'bg-green-100 text-green-800 hover:bg-green-200' 
-                          : 'bg-red-100 text-red-800 hover:bg-red-200'
-                      } transition-colors disabled:opacity-50 ${
-                        !canEditUser(user) ? 'cursor-not-allowed' : ''
-                      }`}
-                    >
-                      {user.isActive ? <UserCheck size={14} className="mr-1" /> : <UserX size={14} className="mr-1" />}
-                      {user.isActive ? 'Active' : 'Inactive'}
-                    </button>
-                  </td>
-                  
-                  <td className="px-6 py-4">
-                    <div className="flex flex-wrap gap-1">
-                      {Object.entries(user.permissions).map(([permission, hasAccess]) => (
-                        <button
-                          key={permission}
-                          onClick={() => handlePermissionToggle(user.uid, permission as keyof UserPermissions, !hasAccess)}
-                          disabled={savingChanges === user.uid || !canEditUser(user)}
-                          className={`px-2 py-1 text-xs rounded transition-colors disabled:opacity-50 ${
-                            hasAccess 
-                              ? 'bg-green-100 text-green-800 hover:bg-green-200' 
-                              : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                          } ${
-                            !canEditUser(user) ? 'cursor-not-allowed' : ''
-                          }`}
-                          title={canEditUser(user) ? `Toggle ${permission} access` : 'Admin account - protected'}
-                        >
-                          {permission}
-                        </button>
-                      ))}
-                    </div>
-                  </td>
-                  
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    {formatDate(user.lastLogin)}
-                  </td>
-                  
-                  <td className="px-6 py-4 whitespace-nowrap text-sm">
-                    <div className="flex items-center space-x-2">
-                      {editingUser === user.uid ? (
-                        <>
-                          {pendingChanges[user.uid] && (
-                            <>
-                              <button
-                                onClick={() => handleSaveChanges(user.uid)}
-                                className="text-green-600 hover:text-green-800 flex items-center"
-                                disabled={savingChanges === user.uid}
-                                title="Save changes"
-                              >
-                                <Save size={16} />
-                              </button>
-                              <button
-                                onClick={() => handleCancelChanges(user.uid)}
-                                className="text-red-600 hover:text-red-800 flex items-center"
-                                disabled={savingChanges === user.uid}
-                                title="Cancel changes"
-                              >
-                                <X size={16} />
-                              </button>
-                            </>
-                          )}
-                          {!pendingChanges[user.uid] && (
-                            <button
-                              onClick={() => setEditingUser(null)}
-                              className="text-gray-600 hover:text-gray-800"
-                              disabled={savingChanges === user.uid}
-                              title="Done editing"
-                            >
-                              <Check size={16} />
-                            </button>
-                          )}
-                        </>
-                      ) : (
-                        <button
-                          onClick={() => setEditingUser(user.uid)}
-                          className={`${canEditUser(user) ? 'text-primary hover:text-primary-dark' : 'text-gray-400 cursor-not-allowed'}`}
-                          disabled={savingChanges === user.uid || !canEditUser(user)}
-                          title={canEditUser(user) ? "Edit user" : "Admin account - protected"}
-                        >
-                          <Settings size={16} />
-                        </button>
-                      )}
-                      
-                      {savingChanges === user.uid && (
-                        <div className="animate-spin rounded-full h-4 w-4 border-t-2 border-b-2 border-primary"></div>
-                      )}
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-        
-        {filteredUsers.length === 0 && (
-          <div className="text-center py-8">
-            <Users size={48} className="mx-auto text-gray-400 mb-4" />
-            <p className="text-gray-500">No users found matching your criteria</p>
+                  </div>
+                )}
+              </div>
+            ))}
           </div>
         )}
       </div>
