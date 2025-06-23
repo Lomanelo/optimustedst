@@ -306,12 +306,12 @@ export default function ProgramDetailPage({ params }: PageProps) {
 
               {/* Download Brochure */}
               {(((program as any).brochure_en) || ((program as any).brochure_ar)) && (
-                <div className="bg-primary/5 rounded-lg p-6">
+              <div className="bg-primary/5 rounded-lg p-6">
                   <h2 className="text-xl font-bold text-primary mb-4 flex items-center">
                     <FileText size={24} className="mr-2" />
                     Download Program Brochure
                   </h2>
-                  <p className="text-gray-600 mb-4">Get detailed information about this program in our comprehensive brochure.</p>
+                <p className="text-gray-600 mb-4">Get detailed information about this program in our comprehensive brochure.</p>
                   
                   <div className="space-y-3">
                     {(program as any).brochure_en && (
@@ -320,7 +320,7 @@ export default function ProgramDetailPage({ params }: PageProps) {
                         target="_blank"
                         rel="noopener noreferrer"
                         className="w-full bg-primary hover:bg-primary-dark text-white font-bold py-3 px-4 rounded-md transition-colors duration-300 flex items-center justify-center"
-                      >
+                >
                         <Download size={20} className="mr-2" />
                         📄 Download English Brochure
                       </a>
@@ -338,7 +338,7 @@ export default function ProgramDetailPage({ params }: PageProps) {
                       </a>
                     )}
                   </div>
-                </div>
+              </div>
               )}
 
               {/* Enroll Now */}

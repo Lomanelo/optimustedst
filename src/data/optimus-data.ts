@@ -3,8 +3,8 @@ export const companyInfo = {
   tagline: "For Next Leaders",
   description: [
     "We are an educational facilitator that provides Bachelor's degrees, MBA, and DBA programs for UAE and Middle East students.",
-    "Has ATHE, QUALIFI, EDUQUA, IACBE, QS, and ACBSP Accreditations.",
-    "Academic partnerships with University of Plymouth (UK), University of Bedfordshire (UK), VERN University (Croatia), and IBAS (Switzerland).",
+    "Has VERN and IBAS Accreditations.",
+    "Academic partnerships with ATHE, ACBSP, EDUQUA, QS, IACBE, and The Swiss Private School Register.",
     "Our goal is to help our students to be directed to the right progression routes that fit their professional and career needs."
   ],
   contact: {
@@ -27,77 +27,63 @@ export const companyInfo = {
 
 export const accreditations = [
   {
-    id: "qualifi",
-    name: "QUALIFI",
-    logo: "/grabbedPhotos/partners/QUALIFI.png",
-    type: "accreditation",
-    description: "Qualifi is a leading 21st century Awarding Organisation founded to meet the developing education and training needs of learners and employers from the UK and around the globe serving the needs of learners and employers in the UK and worldwide every year."
-  },
-  {
-    id: "athe",
-    name: "ATHE",
-    logo: "/grabbedPhotos/partners/ATHE.png",
-    type: "accreditation",
-    description: "ATHE is a global awarding organization regulated by Ofqual and other UK and international regulators. We work with 250 recognized centers in over 50 countries to complement our strong brand presence in the UK."
-  },
-  {
-    id: "acbsp",
-    name: "ACBSP",
-    logo: "/grabbedPhotos/partners/ACBSP.png",
-    type: "accreditation",
-    description: "Founded in 1988, the Accreditation Council for Business Schools and Programs (ACBSP) is a global business education accrediting body and the first organization to offer accreditation to all levels of collegiate business educational degree programs from associate to doctoral."
-  },
-  {
-    id: "eduqua",
-    name: "EDUQUA",
-    logo: "/EDUQUA.jpg",
-    type: "accreditation",
-    description: "EDUQUA is the Swiss quality certification for educational institutions, ensuring high standards in continuing education and training throughout Switzerland."
-  },
-  {
-    id: "iacbe",
-    name: "IACBE",
-    logo: "/IACBE.png",
-    type: "accreditation",
-    description: "The International Accreditation Council for Business Education (IACBE) is a specialized accrediting body for business education worldwide, focused on outcomes assessment and continuous improvement."
-  },
-  {
-    id: "qs",
-    name: "QS",
-    logo: "/QS.png",
-    type: "accreditation",
-    description: "QS (Quacquarelli Symonds) is a global higher education analyst, known for QS World University Rankings and providing insights into university performance worldwide."
-  }
-];
-
-export const partnerships = [
-  {
-    id: "bedfordshire",
-    name: "University of Bedfordshire",
-    logo: "/grabbedPhotos/partners/University of Bedfordshire.png",
-    type: "partnership",
-    description: "A Vibrant, ambitious academic community celebrating diversity and the transformative power of education. We are the University of Bedfordshire."
-  },
-  {
-    id: "plymouth",
-    name: "University of Plymouth",
-    logo: "/grabbedPhotos/partners/University of Plymouth.png",
-    type: "partnership",
-    description: "A public research university primarily located in Plymouth, England, with its main campus situated there. However, its reach extends beyond the city, with additional campuses and partner colleges scattered across South West England."
-  },
-  {
     id: "vern",
-    name: "VERN University",
+    name: "VERN",
     logo: "/VERN.jpg",
-    type: "partnership",
+    type: "accreditation",
     description: "VERN University is a modern private university in Croatia, focused on applied sciences and providing quality higher education with international standards."
   },
   {
     id: "ibas",
     name: "IBAS",
     logo: "/IBAS.jpg",
-    type: "partnership",
+    type: "accreditation",
     description: "International Business Academy of Switzerland (IBAS) is a prestigious institution offering world-class business education with a focus on international business practices."
+  }
+];
+
+export const partnerships = [
+  {
+    id: "athe",
+    name: "ATHE",
+    logo: "/grabbedPhotos/partners/ATHE.png",
+    type: "partnership",
+    description: "ATHE is a global awarding organization regulated by Ofqual and other UK and international regulators. We work with 250 recognized centers in over 50 countries to complement our strong brand presence in the UK."
+  },
+  {
+    id: "acbsp",
+    name: "ACBSP",
+    logo: "/grabbedPhotos/partners/ACBSP.png",
+    type: "partnership",
+    description: "Founded in 1988, the Accreditation Council for Business Schools and Programs (ACBSP) is a global business education accrediting body and the first organization to offer accreditation to all levels of collegiate business educational degree programs from associate to doctoral."
+  },
+  {
+    id: "eduqua",
+    name: "EDUQUA",
+    logo: "/EDUQUA.jpg",
+    type: "partnership",
+    description: "EDUQUA is the Swiss quality certification for educational institutions, ensuring high standards in continuing education and training throughout Switzerland."
+  },
+  {
+    id: "qs",
+    name: "QS",
+    logo: "/QS.png",
+    type: "partnership",
+    description: "QS (Quacquarelli Symonds) is a global higher education analyst, known for QS World University Rankings and providing insights into university performance worldwide."
+  },
+  {
+    id: "iacbe",
+    name: "IACBE",
+    logo: "/IACBE.png",
+    type: "partnership",
+    description: "The International Accreditation Council for Business Education (IACBE) is a specialized accrediting body for business education worldwide, focused on outcomes assessment and continuous improvement."
+  },
+  {
+    id: "swiss-private-school-register",
+    name: "The Swiss Private School Register",
+    logo: "/Privateshculregister.png",
+    type: "partnership",
+    description: "The Swiss Private School Register is the official registry for private educational institutions in Switzerland, ensuring quality standards and regulatory compliance."
   }
 ];
 
@@ -233,7 +219,7 @@ export const qualifiDiplomas = [
     description: "Comprehensive program covering fundamental aspects of business management for entry to mid-level professionals.",
     descriptionAr: "برنامج شامل يغطي الجوانب الأساسية لإدارة الأعمال للمهنيين من المستوى المبتدئ إلى المتوسط.",
     icon: "academic-cap",
-    accreditations: ["QUALIFI"],
+    accreditations: ["VERN"],
     modules: []
   },
   {
@@ -249,7 +235,7 @@ export const qualifiDiplomas = [
     description: "Advanced program developing critical thinking and management skills for mid-level professionals.",
     descriptionAr: "برنامج متقدم لتطوير التفكير النقدي ومهارات الإدارة للمهنيين من المستوى المتوسط.",
     icon: "academic-cap",
-    accreditations: ["QUALIFI"],
+    accreditations: ["VERN"],
     modules: []
   },
   {
@@ -265,7 +251,7 @@ export const qualifiDiplomas = [
     description: "High-level program designed to develop strategic management and leadership capabilities.",
     descriptionAr: "برنامج متقدم لتطوير الإدارة الإستراتيجية ومهارات القيادة للمهنيين من المستوى المتقدم.",
     icon: "academic-cap",
-    accreditations: ["QUALIFI"],
+    accreditations: ["VERN"],
     modules: []
   },
   {
@@ -281,7 +267,7 @@ export const qualifiDiplomas = [
     description: "Advanced financial management program with pathway to Master's degree completion.",
     descriptionAr: "برنامج تمويل مالي متقدم مع مسار لإكمال درجة الماجستير.",
     icon: "briefcase",
-    accreditations: ["QUALIFI", "University of Northampton"],
+    accreditations: ["VERN", "IBAS"],
     modules: []
   },
   {
@@ -297,7 +283,7 @@ export const qualifiDiplomas = [
     description: "Advanced human resources management program with pathway to Master's degree completion.",
     descriptionAr: "برنامج إدارة الموارد البشرية المتقدم مع مسار لإكمال درجة الماجستير.",
     icon: "briefcase",
-    accreditations: ["QUALIFI", "University of Northampton"],
+    accreditations: ["VERN", "IBAS"],
     modules: []
   },
   {
@@ -313,7 +299,7 @@ export const qualifiDiplomas = [
     description: "Comprehensive executive MBA program with pathway to Master's degree completion.",
     descriptionAr: "برنامج الماجستير التنفيذي المتكامل مع مسار لإكمال درجة الماجستير.",
     icon: "briefcase",
-    accreditations: ["QUALIFI", "University of Northampton"],
+    accreditations: ["VERN", "IBAS"],
     modules: []
   },
   {
@@ -329,7 +315,7 @@ export const qualifiDiplomas = [
     description: "Advanced strategic management program with pathway to Master's degree completion.",
     descriptionAr: "برنامج إدارة الإستراتيجية المتقدم مع مسار لإكمال درجة الماجستير.",
     icon: "briefcase",
-    accreditations: ["QUALIFI", "University of Northampton"],
+    accreditations: ["VERN", "IBAS"],
     modules: []
   }
 ];
@@ -348,7 +334,7 @@ export const atheDiplomas = [
     description: "Foundation program in business management principles and practices.",
     descriptionAr: "برنامج أساسي في مبادئ وممارسات إدارة الأعمال.",
     icon: "academic-cap",
-    accreditations: ["ATHE"],
+    accreditations: ["VERN"],
     modules: []
   },
   {
@@ -364,7 +350,7 @@ export const atheDiplomas = [
     description: "Intermediate program developing business management and leadership capabilities.",
     descriptionAr: "برنامج متوسط لتطوير مهارات إدارة الأعمال ومهارات القيادة.",
     icon: "academic-cap",
-    accreditations: ["ATHE"],
+    accreditations: ["VERN"],
     modules: []
   },
   {
@@ -380,7 +366,7 @@ export const atheDiplomas = [
     description: "Advanced program focusing on strategic management and organizational leadership.",
     descriptionAr: "برنامج متقدم يركز على الإدارة الإستراتيجية والرؤية التنظيمية للمهنيين من المستوى المتقدم.",
     icon: "academic-cap",
-    accreditations: ["ATHE"],
+    accreditations: ["VERN"],
     modules: []
   },
   {
@@ -396,7 +382,7 @@ export const atheDiplomas = [
     description: "Advanced strategic management program with university top-up option.",
     descriptionAr: "برنامج إدارة الإستراتيجية المتقدم مع خيار إضافة علوية للجامعة.",
     icon: "briefcase",
-    accreditations: ["ATHE", "University of Plymouth"],
+    accreditations: ["VERN", "IBAS"],
     modules: []
   },
   {
@@ -412,7 +398,7 @@ export const atheDiplomas = [
     description: "Comprehensive executive management program with university top-up option.",
     descriptionAr: "برنامج إدارة الإدارة التنفيذية المتكامل مع خيار إضافة علوية للجامعة.",
     icon: "briefcase",
-    accreditations: ["ATHE", "University of Plymouth"],
+    accreditations: ["VERN", "IBAS"],
     modules: []
   },
   {
@@ -428,7 +414,7 @@ export const atheDiplomas = [
     description: "Advanced human resources management program with university top-up option.",
     descriptionAr: "برنامج إدارة الموارد البشرية المتقدم مع خيار إضافة علوية للجامعة.",
     icon: "briefcase",
-    accreditations: ["ATHE", "University of Plymouth"],
+    accreditations: ["VERN", "IBAS"],
     modules: []
   },
   {
@@ -444,7 +430,7 @@ export const atheDiplomas = [
     description: "Advanced financial management program with university top-up option.",
     descriptionAr: "برنامج تمويل مالي متقدم مع خيار إضافة علوية للجامعة.",
     icon: "briefcase",
-    accreditations: ["ATHE", "University of Plymouth"],
+    accreditations: ["VERN", "IBAS"],
     modules: []
   }
 ];

@@ -271,14 +271,14 @@ export default function CreateProgramPage() {
         return;
       }
 
-      setThumbnailFile(file);
-      
+        setThumbnailFile(file);
+        
       // Create preview
-      const reader = new FileReader();
+        const reader = new FileReader();
       reader.onload = (e) => {
         setThumbnailPreview(e.target?.result as string);
-      };
-      reader.readAsDataURL(file);
+        };
+        reader.readAsDataURL(file);
       setError('');
     }
   };
@@ -291,7 +291,7 @@ export default function CreateProgramPage() {
         setError('Brochure file must be less than 20MB');
         return;
       }
-
+      
       // Validate file type (PDF only)
       if (file.type !== 'application/pdf') {
         setError('Please select a PDF file for the brochure');
@@ -508,7 +508,7 @@ export default function CreateProgramPage() {
             <span className="block sm:inline">{error}</span>
           </div>
         )}
-
+        
         {/* Language Tabs */}
         <div className="flex space-x-1 mb-6 bg-gray-100 p-1 rounded-lg">
           <button
@@ -734,57 +734,57 @@ export default function CreateProgramPage() {
           </div>
 
           {/* Accreditations & Partnerships */}
-          <div>
+                  <div>
             <label className="block text-sm font-medium text-gray-700 mb-4">
               {activeLanguage === 'en' ? 'Accreditations & Partnerships' : 'الاعتمادات والشراكات'}
             </label>
             
-            {/* Partnerships First - Priority */}
+            {/* Accreditations First - PRIORITY */}
             <div className="mb-6">
-              <h4 className="text-sm font-semibold text-primary mb-3">
-                {activeLanguage === 'en' ? '🏛️ Academic Partnerships (Priority)' : '🏛️ الشراكات الأكاديمية (أولوية)'}
+              <h4 className="text-lg font-bold text-primary mb-4">
+                {activeLanguage === 'en' ? '🏆 Accreditations (PRIORITY)' : '🏆 الاعتمادات (أولوية)'}
               </h4>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-3 p-4 bg-primary/5 rounded-lg border border-primary/20">
-                {allAccreditationsAndPartnerships.filter(item => item.type === 'partnership').map((item) => (
-                  <div key={item.id} className="flex items-center bg-white p-3 rounded-lg shadow-sm">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-6 bg-primary/10 rounded-xl border-2 border-primary/30">
+                {allAccreditationsAndPartnerships.filter(item => item.type === 'accreditation').map((item) => (
+                  <div key={item.id} className="flex items-center bg-white p-4 rounded-lg shadow-md border-2 border-primary/20">
                     <input
                       id={`accreditation-${item.id}`}
                       name="accreditations"
                       type="checkbox"
                       checked={formData.accreditations.includes(item.name)}
                       onChange={() => handleAccreditationToggle(item.name)}
-                      className="h-4 w-4 text-primary focus:ring-primary border-gray-300 rounded"
+                      className="h-5 w-5 text-primary focus:ring-primary border-gray-300 rounded"
                     />
-                    <label htmlFor={`accreditation-${item.id}`} className="ml-3 block text-sm text-gray-700 flex items-center font-medium">
+                    <label htmlFor={`accreditation-${item.id}`} className="ml-4 block text-sm text-gray-700 flex items-center font-bold">
                       <img 
                         src={item.logo} 
                         alt={item.name}
-                        className="w-6 h-6 object-contain mr-3"
+                        className="w-8 h-8 object-contain mr-4"
                       />
                       {item.name}
                     </label>
                   </div>
                 ))}
-              </div>
-            </div>
+                  </div>
+                </div>
 
-            {/* Accreditations */}
-            <div>
+            {/* Academic Partnerships */}
+                  <div>
               <h4 className="text-sm font-semibold text-gray-600 mb-3">
-                {activeLanguage === 'en' ? '📜 Accreditations' : '📜 الاعتمادات'}
+                {activeLanguage === 'en' ? '🏛️ Academic Partnerships' : '🏛️ الشراكات الأكاديمية'}
               </h4>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-                {allAccreditationsAndPartnerships.filter(item => item.type === 'accreditation').map((item) => (
-                  <div key={item.id} className="flex items-center p-2 rounded">
+                {allAccreditationsAndPartnerships.filter(item => item.type === 'partnership').map((item) => (
+                  <div key={item.id} className="flex items-center p-3 rounded bg-gray-50">
                     <input
-                      id={`accreditation-${item.id}`}
+                      id={`partnership-${item.id}`}
                       name="accreditations"
                       type="checkbox"
                       checked={formData.accreditations.includes(item.name)}
                       onChange={() => handleAccreditationToggle(item.name)}
                       className="h-4 w-4 text-primary focus:ring-primary border-gray-300 rounded"
                     />
-                    <label htmlFor={`accreditation-${item.id}`} className="ml-2 block text-sm text-gray-700 flex items-center">
+                    <label htmlFor={`partnership-${item.id}`} className="ml-2 block text-sm text-gray-700 flex items-center">
                       <img 
                         src={item.logo} 
                         alt={item.name}
@@ -794,12 +794,12 @@ export default function CreateProgramPage() {
                     </label>
                   </div>
                 ))}
+                  </div>
+                </div>
               </div>
-            </div>
-          </div>
 
           {/* Thumbnail Upload */}
-          <div>
+                    <div>
             <label htmlFor="thumbnail" className="block text-sm font-medium text-gray-700">
               {activeLanguage === 'en' ? 'Program Thumbnail' : 'صورة البرنامج'}
             </label>
@@ -812,8 +812,8 @@ export default function CreateProgramPage() {
                       alt="Preview"
                       className="mx-auto h-32 w-32 object-cover rounded-md"
                     />
-                    <button
-                      type="button"
+                      <button
+                        type="button"
                       onClick={() => {
                         setThumbnailFile(null);
                         setThumbnailPreview('');
@@ -821,8 +821,8 @@ export default function CreateProgramPage() {
                       className="absolute top-0 right-0 -mt-2 -mr-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600"
                     >
                       <Trash2 size={14} />
-                    </button>
-                  </div>
+                      </button>
+                    </div>
                 ) : (
                   <>
                     <ImagePlus size={48} className="mx-auto h-12 w-12 text-gray-400" />
@@ -832,7 +832,7 @@ export default function CreateProgramPage() {
                         className="relative cursor-pointer bg-white rounded-md font-medium text-primary hover:text-primary-dark focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-primary"
                       >
                         <span>{activeLanguage === 'en' ? 'Upload a file' : 'ارفع ملف'}</span>
-                        <input
+                          <input
                           id="thumbnail"
                           name="thumbnail"
                           type="file"
@@ -844,25 +844,25 @@ export default function CreateProgramPage() {
                       <p className={activeLanguage === 'ar' ? 'mr-1' : 'ml-1'}>
                         {activeLanguage === 'en' ? 'or drag and drop' : 'أو اسحب وأفلت'}
                       </p>
-                    </div>
+                        </div>
                     <p className="text-xs text-gray-500">
                       {activeLanguage === 'en' ? 'PNG, JPG, GIF up to 10MB' : 'PNG, JPG, GIF حتى 10 ميجابايت'}
                     </p>
                   </>
                 )}
-              </div>
-            </div>
-          </div>
+                        </div>
+                        </div>
+                      </div>
 
           {/* Brochure Upload */}
-          <div>
+                        <div>
             <label className="block text-sm font-medium text-gray-700 mb-3">
               {activeLanguage === 'en' ? 'Program Brochures (Optional)' : 'كتيبات البرنامج (اختياري)'}
             </label>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {/* English Brochure */}
-              <div>
+                        <div>
                 <label htmlFor="brochure-en" className="block text-sm font-medium text-gray-600 mb-2">
                   {activeLanguage === 'en' ? '📄 English Brochure' : '📄 الكتيب الإنجليزي'}
                 </label>
@@ -872,14 +872,14 @@ export default function CreateProgramPage() {
                       <div className="flex items-center">
                         <FileText size={20} className="text-red-500 mr-2" />
                         <span className="text-sm text-gray-700">{brochureEnFile.name}</span>
-                      </div>
-                      <button
-                        type="button"
+                        </div>
+                        <button
+                          type="button"
                         onClick={() => setBrochureEnFile(null)}
                         className="text-red-500 hover:text-red-700"
-                      >
+                        >
                         <X size={16} />
-                      </button>
+                        </button>
                     </div>
                   ) : (
                     <div className="text-center">
@@ -905,7 +905,7 @@ export default function CreateProgramPage() {
               </div>
 
               {/* Arabic Brochure */}
-              <div>
+                              <div>
                 <label htmlFor="brochure-ar" className="block text-sm font-medium text-gray-600 mb-2">
                   {activeLanguage === 'en' ? '📄 Arabic Brochure' : '📄 الكتيب العربي'}
                 </label>
@@ -915,15 +915,15 @@ export default function CreateProgramPage() {
                       <div className="flex items-center">
                         <FileText size={20} className="text-red-500 mr-2" />
                         <span className="text-sm text-gray-700">{brochureArFile.name}</span>
-                      </div>
-                      <button
-                        type="button"
+                                </div>
+                              <button
+                                type="button"
                         onClick={() => setBrochureArFile(null)}
                         className="text-red-500 hover:text-red-700"
                       >
                         <X size={16} />
-                      </button>
-                    </div>
+                              </button>
+                            </div>
                   ) : (
                     <div className="text-center">
                       <Upload size={24} className="mx-auto text-gray-400 mb-2" />
@@ -932,21 +932,21 @@ export default function CreateProgramPage() {
                         className="cursor-pointer text-primary hover:text-primary-dark text-sm font-medium"
                       >
                         {activeLanguage === 'en' ? 'Upload Arabic PDF' : 'ارفع ملف PDF عربي'}
-                        <input
+              <input
                           id="brochure-ar"
                           name="brochure-ar"
-                          type="file"
+                type="file"
                           className="sr-only"
                           accept=".pdf"
                           onChange={handleBrochureArChange}
                         />
-                      </label>
+              </label>
                       <p className="text-xs text-gray-500 mt-1">PDF up to 20MB</p>
-                    </div>
-                  )}
-                </div>
-              </div>
             </div>
+                  )}
+              </div>
+              </div>
+          </div>
           </div>
 
           <div className="flex justify-end space-x-3">

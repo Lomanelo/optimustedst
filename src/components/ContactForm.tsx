@@ -63,13 +63,13 @@ const ContactForm: React.FC = () => {
       }
 
       setIsSubmitted(true);
-      setFormData({
-        name: '',
-        email: '',
-        phone: '',
+    setFormData({
+      name: '',
+      email: '',
+      phone: '',
         inquiryType: '',
-        message: ''
-      });
+      message: ''
+    });
 
       // Reset success state after 5 seconds
       setTimeout(() => {

@@ -225,6 +225,33 @@
       "support": "الدعم"
     }
   },
+  "accreditations": {
+    "title": "الاعتمادات والشراكات",
+    "subtitle": "برامجنا معترف بها من قبل المؤسسات التعليمية الرائدة والهيئات الصناعية في جميع أنحاء العالم.",
+    "main_title": "الاعتمادات",
+    "main_subtitle": "معترف بها رسمياً ومعتمدة من قبل الهيئات الدولية الرائدة",
+    "partnerships_title": "الشراكات الأكاديمية",
+    "partnerships_subtitle": "التعاون مع المؤسسات المرموقة لتقديم تعليم استثنائي"
+  },
+  "auth": {
+    "createAccount": "إنشاء حساب",
+    "fullName": "الاسم الكامل",
+    "fullNamePlaceholder": "أدخل اسمك الكامل",
+    "email": "البريد الإلكتروني",
+    "emailPlaceholder": "name@email.com",
+    "password": "كلمة المرور",
+    "passwordPlaceholder": "إنشاء كلمة مرور",
+    "passwordRequirements": "بين 8 و 72 حرف",
+    "confirmPassword": "تأكيد كلمة المرور",
+    "confirmPasswordPlaceholder": "أكد كلمة المرور",
+    "createAccountButton": "إنشاء حساب",
+    "creatingAccount": "جاري إنشاء الحساب...",
+    "alreadyHaveAccount": "هل لديك حساب بالفعل؟",
+    "signIn": "تسجيل الدخول",
+    "passwordsDoNotMatch": "كلمات المرور غير متطابقة",
+    "passwordLength": "يجب أن تكون كلمة المرور بين 8 و 72 حرف",
+    "registrationFailed": "فشل في إنشاء حساب. قد يكون البريد الإلكتروني مستخدم بالفعل."
+  },
   "contact": {
     "title": "اتصل بنا",
     "subtitle": "نحن هنا للإجابة على أسئلتك ومساعدتك في بدء رحلتك التعليمية",

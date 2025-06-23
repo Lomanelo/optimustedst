@@ -108,13 +108,13 @@ export default function AdminUsersPage() {
     try {
       setSavingChanges(userId);
       await userService.updateUserRole(userId, newRole);
-      
-      // Update local state for immediate UI feedback
-      setUsers(prev => prev.map(user => 
-        user.uid === userId 
-          ? { ...user, role: newRole }
-          : user
-      ));
+    
+    // Update local state for immediate UI feedback
+    setUsers(prev => prev.map(user => 
+      user.uid === userId 
+        ? { ...user, role: newRole }
+        : user
+    ));
     } catch (err) {
       console.error('Error updating role:', err);
       setError('Failed to update user role');
@@ -132,15 +132,15 @@ export default function AdminUsersPage() {
 
     try {
       setSavingChanges(userId);
-      const updatedPermissions = { ...user.permissions, [permission]: value };
+    const updatedPermissions = { ...user.permissions, [permission]: value };
       await userService.updateUserPermissions(userId, updatedPermissions);
-      
-      // Update local state for immediate UI feedback
-      setUsers(prev => prev.map(u => 
-        u.uid === userId 
-          ? { ...u, permissions: updatedPermissions }
-          : u
-      ));
+    
+    // Update local state for immediate UI feedback
+    setUsers(prev => prev.map(u => 
+      u.uid === userId 
+        ? { ...u, permissions: updatedPermissions }
+        : u
+    ));
     } catch (err) {
       console.error('Error updating permission:', err);
       setError('Failed to update user permission');
@@ -324,22 +324,22 @@ export default function AdminUsersPage() {
           </div>
         ) : (
           <div className="divide-y divide-gray-200">
-            {filteredUsers.map((user) => (
+              {filteredUsers.map((user) => (
               <div key={user.uid} className="p-6">
                 {/* User Header - Clickable */}
                 <div 
                   className="flex items-center justify-between cursor-pointer hover:bg-gray-50 -m-6 p-6"
                   onClick={() => setExpandedUser(expandedUser === user.uid ? null : user.uid)}
                 >
-                  <div className="flex items-center">
+                    <div className="flex items-center">
                     <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center">
                       <User size={24} className="text-primary" />
-                    </div>
-                    <div className="ml-4">
-                      <div className="text-lg font-medium text-gray-900">
-                        {user.displayName || 'No name'}
                       </div>
-                      <div className="text-sm text-gray-500">{user.email}</div>
+                      <div className="ml-4">
+                      <div className="text-lg font-medium text-gray-900">
+                          {user.displayName || 'No name'}
+                        </div>
+                        <div className="text-sm text-gray-500">{user.email}</div>
                       <div className="flex items-center mt-1">
                         <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getRoleBadgeColor(user.role)}`}>
                           {user.role.charAt(0).toUpperCase() + user.role.slice(1)}
@@ -357,15 +357,15 @@ export default function AdminUsersPage() {
                   </div>
                   
                   <div className="flex items-center">
-                    {savingChanges === user.uid && (
+                      {savingChanges === user.uid && (
                       <div className="animate-spin rounded-full h-5 w-5 border-t-2 border-b-2 border-primary mr-3"></div>
-                    )}
+                      )}
                     <div className={`transform transition-transform ${expandedUser === user.uid ? 'rotate-180' : ''}`}>
                       ▼
                     </div>
                   </div>
-                </div>
-
+        </div>
+        
                 {/* Expanded Content - Permissions */}
                 {expandedUser === user.uid && (
                   <div className="mt-4 pt-4 border-t border-gray-200">

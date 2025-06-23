@@ -371,8 +371,6 @@ export default function EditProgramPage({ params }: { params: Promise<{ id: stri
         </div>
       </div>
 
-
-
       <div className="bg-white shadow overflow-hidden sm:rounded-lg p-6">
         {error && (
           <div className="mb-4 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
@@ -619,27 +617,27 @@ export default function EditProgramPage({ params }: { params: Promise<{ id: stri
               {activeLanguage === 'en' ? 'Accreditations & Partnerships' : 'الاعتمادات والشراكات'}
             </label>
             
-            {/* Partnerships First - Priority */}
+            {/* Accreditations First - PRIORITY */}
             <div className="mb-6">
-              <h4 className="text-sm font-semibold text-primary mb-3">
-                {activeLanguage === 'en' ? '🏛️ Academic Partnerships (Priority)' : '🏛️ الشراكات الأكاديمية (أولوية)'}
+              <h4 className="text-lg font-bold text-primary mb-4">
+                {activeLanguage === 'en' ? '🏆 Accreditations (PRIORITY)' : '🏆 الاعتمادات (أولوية)'}
               </h4>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-3 p-4 bg-primary/5 rounded-lg border border-primary/20">
-                {allAccreditationsAndPartnerships.filter(item => item.type === 'partnership').map((item) => (
-                  <div key={item.id} className="flex items-center bg-white p-3 rounded-lg shadow-sm">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-6 bg-primary/10 rounded-xl border-2 border-primary/30">
+                {allAccreditationsAndPartnerships.filter(item => item.type === 'accreditation').map((item) => (
+                  <div key={item.id} className="flex items-center bg-white p-4 rounded-lg shadow-md border-2 border-primary/20">
                     <input
                       id={`accreditation-${item.id}`}
                       name="accreditations"
                       type="checkbox"
                       checked={formData.accreditations.includes(item.name)}
                       onChange={() => handleAccreditationToggle(item.name)}
-                      className="h-4 w-4 text-primary focus:ring-primary border-gray-300 rounded"
+                      className="h-5 w-5 text-primary focus:ring-primary border-gray-300 rounded"
                     />
-                    <label htmlFor={`accreditation-${item.id}`} className="ml-3 block text-sm text-gray-700 flex items-center font-medium">
+                    <label htmlFor={`accreditation-${item.id}`} className="ml-4 block text-sm text-gray-700 flex items-center font-bold">
                       <img 
                         src={item.logo} 
                         alt={item.name}
-                        className="w-6 h-6 object-contain mr-3"
+                        className="w-8 h-8 object-contain mr-4"
                       />
                       {item.name}
                     </label>
@@ -648,23 +646,23 @@ export default function EditProgramPage({ params }: { params: Promise<{ id: stri
               </div>
             </div>
 
-            {/* Accreditations */}
+            {/* Academic Partnerships */}
             <div>
               <h4 className="text-sm font-semibold text-gray-600 mb-3">
-                {activeLanguage === 'en' ? '📜 Accreditations' : '📜 الاعتمادات'}
+                {activeLanguage === 'en' ? '🏛️ Academic Partnerships' : '🏛️ الشراكات الأكاديمية'}
               </h4>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-                {allAccreditationsAndPartnerships.filter(item => item.type === 'accreditation').map((item) => (
-                  <div key={item.id} className="flex items-center p-2 rounded">
+                {allAccreditationsAndPartnerships.filter(item => item.type === 'partnership').map((item) => (
+                  <div key={item.id} className="flex items-center p-3 rounded bg-gray-50">
                     <input
-                      id={`accreditation-${item.id}`}
+                      id={`partnership-${item.id}`}
                       name="accreditations"
                       type="checkbox"
                       checked={formData.accreditations.includes(item.name)}
                       onChange={() => handleAccreditationToggle(item.name)}
                       className="h-4 w-4 text-primary focus:ring-primary border-gray-300 rounded"
                     />
-                    <label htmlFor={`accreditation-${item.id}`} className="ml-2 block text-sm text-gray-700 flex items-center">
+                    <label htmlFor={`partnership-${item.id}`} className="ml-2 block text-sm text-gray-700 flex items-center">
                       <img 
                         src={item.logo} 
                         alt={item.name}

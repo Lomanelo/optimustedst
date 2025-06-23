@@ -225,6 +225,33 @@
       "support": "Support"
     }
   },
+  "accreditations": {
+    "title": "Accreditations & Partnerships",
+    "subtitle": "Our programs are recognized by leading educational institutions and industry bodies worldwide.",
+    "main_title": "Accreditations",
+    "main_subtitle": "Officially recognized and accredited by leading international bodies",
+    "partnerships_title": "Academic Partnerships",
+    "partnerships_subtitle": "Collaborating with prestigious institutions to deliver exceptional education"
+  },
+  "auth": {
+    "createAccount": "Create Account",
+    "fullName": "Full Name",
+    "fullNamePlaceholder": "Enter your full name",
+    "email": "Email",
+    "emailPlaceholder": "name@email.com",
+    "password": "Password",
+    "passwordPlaceholder": "Create password",
+    "passwordRequirements": "Between 8 and 72 characters",
+    "confirmPassword": "Confirm Password",
+    "confirmPasswordPlaceholder": "Confirm your password",
+    "createAccountButton": "Create Account",
+    "creatingAccount": "Creating Account...",
+    "alreadyHaveAccount": "Already have an account?",
+    "signIn": "Sign in",
+    "passwordsDoNotMatch": "Passwords do not match",
+    "passwordLength": "Password must be between 8 and 72 characters",
+    "registrationFailed": "Failed to create an account. Email may already be in use."
+  },
   "contact": {
     "title": "Contact Us",
     "subtitle": "We're here to answer your questions and help you begin your educational journey",
