@@ -3,10 +3,9 @@ import {
   Facebook, 
   Instagram, 
   Twitter, 
-  Linkedin, 
-  MessageCircle, 
-  Music 
+  Linkedin 
 } from 'lucide-react';
+import { SiTiktok, SiSnapchat } from 'react-icons/si';
 import { useSettings } from '../../app/contexts/settings-context';
 
 interface SocialMediaLinksProps {
@@ -29,11 +28,13 @@ export default function SocialMediaLinks({
   }
 
   const getSocialIcon = (platform: string, url: string) => {
+    const baseClassName = variant === 'footer' 
+      ? "text-white hover:text-accent transition-colors" 
+      : "text-gray-600 hover:text-primary transition-colors";
+    
     const iconProps = { 
       size: iconSize, 
-      className: variant === 'footer' 
-        ? "text-white hover:text-accent transition-colors" 
-        : "text-gray-600 hover:text-primary transition-colors" 
+      className: baseClassName
     };
     
     switch (platform) {
@@ -44,11 +45,11 @@ export default function SocialMediaLinks({
       case 'twitter':
         return <Twitter {...iconProps} />;
       case 'snapchat':
-        return <MessageCircle {...iconProps} />;
+        return <SiSnapchat {...iconProps} />;
       case 'linkedin':
         return <Linkedin {...iconProps} />;
       case 'tiktok':
-        return <Music {...iconProps} />;
+        return <SiTiktok {...iconProps} />;
       default:
         return null;
     }

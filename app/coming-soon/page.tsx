@@ -1,12 +1,12 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-
-// Force dynamic rendering for this page
-export const dynamic = 'force-dynamic';
-import { Facebook, Instagram, Twitter, Linkedin, MessageCircle, Music, CheckCircle, Globe } from 'lucide-react';
-import { doc, getDoc } from 'firebase/firestore';
+import { useRouter } from 'next/navigation';
+import { useAuth } from '../contexts/auth-context';
+import { collection, doc, setDoc, serverTimestamp, getDoc } from 'firebase/firestore';
 import { db } from '../../src/firebase/firebase';
+import { Facebook, Instagram, Twitter, Linkedin, CheckCircle, Globe } from 'lucide-react';
+import { SiTiktok, SiSnapchat } from 'react-icons/si';
 import Head from 'next/head';
 
 interface SocialMediaLinks {
@@ -230,11 +230,11 @@ export default function ComingSoonPage() {
       case 'twitter':
         return <Twitter {...iconProps} className="text-blue-400 hover:text-blue-500" />;
       case 'snapchat':
-        return <MessageCircle {...iconProps} className="text-yellow-500 hover:text-yellow-600" />;
+        return <SiSnapchat {...iconProps} className="text-yellow-500 hover:text-yellow-600" />;
       case 'linkedin':
         return <Linkedin {...iconProps} className="text-blue-700 hover:text-blue-800" />;
       case 'tiktok':
-        return <Music {...iconProps} className="text-black hover:text-gray-800" />;
+        return <SiTiktok {...iconProps} className="text-black hover:text-gray-800" />;
       default:
         return null;
     }

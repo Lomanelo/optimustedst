@@ -19,6 +19,7 @@ import {
   Check,
   AlertCircle
 } from 'lucide-react';
+import { SiTiktok, SiSnapchat } from 'react-icons/si';
 import { doc, getDoc, setDoc, updateDoc } from 'firebase/firestore';
 import { db } from '../../../src/firebase/firebase';
 
@@ -128,11 +129,11 @@ export default function AdminSettingsPage() {
       case 'twitter':
         return <Twitter {...iconProps} className="text-blue-400" />;
       case 'snapchat':
-        return <MessageCircle {...iconProps} className="text-yellow-500" />;
+        return <SiSnapchat {...iconProps} className="text-yellow-500" />;
       case 'linkedin':
         return <Linkedin {...iconProps} className="text-blue-700" />;
       case 'tiktok':
-        return <Music {...iconProps} className="text-black" />;
+        return <SiTiktok {...iconProps} className="text-black" />;
       default:
         return <Globe {...iconProps} />;
     }
