@@ -9,27 +9,27 @@ const Accreditations: React.FC = () => {
         <section className="py-20 md:py-24 bg-white">
             <div className="container mx-auto px-4 md:px-6">
                 <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-center mb-6 text-primary">
-                    {getContent('accreditations.title')}
+                    {getContent('accreditations_title') || 'Accreditations & Partnerships'}
                 </h2>
                 <p className="text-center mb-20 text-gray-600 max-w-3xl mx-auto text-lg">
-                    {getContent('accreditations.subtitle')}
+                    {getContent('accreditations_subtitle') || 'Our programs are recognized by leading educational institutions and industry bodies worldwide.'}
                 </p>
                 
                 {/* Accreditations Section - PRIORITY */}
                 <div className="mb-24">
                     <h3 className="text-4xl md:text-5xl font-bold text-center mb-6 text-primary">
-                        {getContent('accreditations.main_title')}
+                        {getContent('accreditations_main_title') || 'Accreditations'}
                     </h3>
                     <p className="text-center mb-16 text-gray-600 max-w-2xl mx-auto text-xl">
-                        {getContent('accreditations.main_subtitle')}
+                        {getContent('accreditations_main_subtitle') || 'Officially recognized and accredited by leading international bodies'}
                     </p>
                     <div className="flex justify-center items-center gap-8 md:gap-12 max-w-3xl mx-auto">
-                        {accreditations.map((accreditation) => (
+                    {accreditations.map((accreditation) => (
                             <div key={accreditation.name} className="group bg-white p-6 rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 border border-primary/10 hover:border-primary/30 flex items-center justify-center">
                                 <div className="text-center">
-                                    <img
-                                        src={accreditation.logo}
-                                        alt={accreditation.name}
+                                <img
+                                    src={accreditation.logo}
+                                    alt={accreditation.name}
                                         className="w-20 h-20 md:w-24 md:h-24 object-contain mx-auto transition-transform duration-300 group-hover:scale-110"
                                         title={accreditation.name}
                                     />
@@ -42,10 +42,10 @@ const Accreditations: React.FC = () => {
                 {/* Academic Partnerships Section */}
                 <div>
                     <h3 className="text-3xl md:text-4xl font-bold text-center mb-4 text-primary">
-                        {getContent('accreditations.partnerships_title')}
+                        {getContent('accreditations_partnerships_title') || 'Academic Partnerships'}
                     </h3>
                     <p className="text-center mb-12 text-gray-600 max-w-2xl mx-auto text-lg">
-                        {getContent('accreditations.partnerships_subtitle')}
+                        {getContent('accreditations_partnerships_subtitle') || 'Collaborating with prestigious institutions to deliver exceptional education'}
                     </p>
                     <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6 items-center max-w-6xl mx-auto">
                         {partnerships.map((partnership) => (
@@ -58,8 +58,8 @@ const Accreditations: React.FC = () => {
                                         title={partnership.name}
                                     />
                                 </div>
-                            </div>
-                        ))}
+                        </div>
+                    ))}
                     </div>
                 </div>
             </div>

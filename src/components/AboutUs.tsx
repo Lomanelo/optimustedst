@@ -217,14 +217,14 @@ const AboutUs: React.FC = () => {
               {getContent('accreditations.main_subtitle')}
             </p>
             <div className="flex justify-center items-center gap-10 max-w-3xl mx-auto">
-              {accreditations.map((accreditation) => (
+            {accreditations.map((accreditation) => (
                 <div key={accreditation.id} className="group bg-white p-6 rounded-2xl shadow-xl flex flex-col items-center justify-center relative hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 border border-primary/10 hover:border-primary/30">
-                  <img 
-                    src={accreditation.logo} 
-                    alt={accreditation.name} 
+                <img 
+                  src={accreditation.logo} 
+                  alt={accreditation.name} 
                     className="w-20 h-20 md:w-24 md:h-24 object-contain transition-transform duration-300 group-hover:scale-110"
                     title={accreditation.name}
-                  />
+                />
                 </div>
               ))}
             </div>
@@ -245,8 +245,8 @@ const AboutUs: React.FC = () => {
                     className="max-h-16 md:max-h-20 max-w-full transition-transform duration-300 group-hover:scale-105"
                     title={partnership.name}
                   />
-                </div>
-              ))}
+              </div>
+            ))}
             </div>
           </div>
         </div>

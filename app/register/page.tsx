@@ -89,48 +89,48 @@ export default function RegisterPage() {
           <form className="mt-8 space-y-6" onSubmit={handleAccountSubmit}>
             {error && (
               <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
-                <span className="block sm:inline">{error}</span>
+              <span className="block sm:inline">{error}</span>
               </div>
             )}
 
             {/* Full Name Field */}
-            <div>
+              <div>
               <label htmlFor="display-name" className="block text-sm font-medium text-gray-700 mb-2">
                 {getContent('auth.fullName')} *
               </label>
-              <input
-                id="display-name"
-                name="name"
-                type="text"
-                autoComplete="name"
-                required
+                <input
+                  id="display-name"
+                  name="name"
+                  type="text"
+                  autoComplete="name"
+                  required
                 className="appearance-none relative block w-full px-4 py-3 border border-gray-300 placeholder-gray-400 text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary sm:text-sm"
                 placeholder={getContent('auth.fullNamePlaceholder')}
-                value={displayName}
-                onChange={(e) => setDisplayName(e.target.value)}
-              />
-            </div>
+                  value={displayName}
+                  onChange={(e) => setDisplayName(e.target.value)}
+                />
+              </div>
 
             {/* Email Field */}
-            <div>
+              <div>
               <label htmlFor="email-address" className="block text-sm font-medium text-gray-700 mb-2">
                 {getContent('auth.email')} *
               </label>
-              <input
-                id="email-address"
-                name="email"
-                type="email"
-                autoComplete="email"
-                required
+                <input
+                  id="email-address"
+                  name="email"
+                  type="email"
+                  autoComplete="email"
+                  required
                 className="appearance-none relative block w-full px-4 py-3 border border-gray-300 placeholder-gray-400 text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary sm:text-sm"
                 placeholder={getContent('auth.emailPlaceholder')}
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-              />
-            </div>
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                />
+              </div>
 
             {/* Password Field */}
-            <div>
+              <div>
               <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-2">
                 {getContent('auth.password')} *
               </label>
@@ -164,7 +164,7 @@ export default function RegisterPage() {
             </div>
 
             {/* Confirm Password Field */}
-            <div>
+              <div>
               <label htmlFor="confirm-password" className="block text-sm font-medium text-gray-700 mb-2">
                 {getContent('auth.confirmPassword')} *
               </label>

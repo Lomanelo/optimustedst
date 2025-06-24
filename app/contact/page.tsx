@@ -27,13 +27,13 @@ export default function ContactPage() {
   };
 
   const daysOfWeek = [
-    { key: 'monday', label: 'Monday' },
-    { key: 'tuesday', label: 'Tuesday' },
-    { key: 'wednesday', label: 'Wednesday' },
-    { key: 'thursday', label: 'Thursday' },
-    { key: 'friday', label: 'Friday' },
-    { key: 'saturday', label: 'Saturday' },
-    { key: 'sunday', label: 'Sunday' }
+    { key: 'monday', label: getContent('contact_monday') || 'Monday' },
+    { key: 'tuesday', label: getContent('contact_tuesday') || 'Tuesday' },
+    { key: 'wednesday', label: getContent('contact_wednesday') || 'Wednesday' },
+    { key: 'thursday', label: getContent('contact_thursday') || 'Thursday' },
+    { key: 'friday', label: getContent('contact_friday') || 'Friday' },
+    { key: 'saturday', label: getContent('contact_saturday') || 'Saturday' },
+    { key: 'sunday', label: getContent('contact_sunday') || 'Sunday' }
   ] as const;
 
   return (
@@ -42,9 +42,11 @@ export default function ContactPage() {
       <div className="pt-20 pb-16 bg-gray-50">
         <div className="container mx-auto px-4 py-8">
           <div className="text-center mb-12">
-            <h1 className="text-4xl font-bold text-primary mb-4 uppercase tracking-wide">Contact Us</h1>
+            <h1 className="text-4xl font-bold text-primary mb-4 uppercase tracking-wide">
+              {getContent('contact_title') || 'Contact Us'}
+            </h1>
             <p className="text-gray-600 max-w-3xl mx-auto">
-              Get in touch with us to learn more about our programs or to schedule a consultation.
+              {getContent('contact_subtitle') || 'Get in touch with us to learn more about our programs or to schedule a consultation.'}
             </p>
           </div>
 
@@ -55,21 +57,23 @@ export default function ContactPage() {
             
             <div className="space-y-6">
               <div className="bg-white rounded-lg shadow-md p-6">
-                <h2 className="text-2xl font-bold text-primary mb-6">Get in Touch</h2>
+                <h2 className="text-2xl font-bold text-primary mb-6">
+                  {getContent('contact_get_in_touch') || 'Get in Touch'}
+                </h2>
                 
                 <div className="space-y-6">
                   <div className="flex items-start">
                     <MapPin className="text-accent shrink-0 mr-4 mt-1" size={20} />
                     <div>
-                      <p className="font-medium">Address</p>
-                        <p className="text-gray-600">{contactInfo.address}</p>
+                      <p className="font-medium">{getContent('contact_address_label') || 'Address'}</p>
+                      <p className="text-gray-600">{contactInfo.address}</p>
                     </div>
                   </div>
                   
                   <div className="flex items-start">
                     <Phone className="text-accent shrink-0 mr-4 mt-1" size={20} />
                     <div>
-                      <p className="font-medium">Phone</p>
+                      <p className="font-medium">{getContent('contact_phone_label') || 'Phone'}</p>
                       <p className="text-gray-600">{contactInfo.phoneNumber}</p>
                     </div>
                   </div>
@@ -77,25 +81,33 @@ export default function ContactPage() {
                   <div className="flex items-start">
                     <Mail className="text-accent shrink-0 mr-4 mt-1" size={20} />
                     <div>
-                      <p className="font-medium">Email</p>
+                      <p className="font-medium">{getContent('contact_email_label') || 'Email'}</p>
                       <p className="text-gray-600">{contactInfo.generalInquiriesEmail}</p>
                     </div>
                   </div>
 
                   {/* Additional Contact Emails */}
                   <div className="border-t border-gray-200 pt-4">
-                    <h3 className="font-medium text-gray-900 mb-3">Specific Inquiries</h3>
+                    <h3 className="font-medium text-gray-900 mb-3">
+                      {getContent('contact_specific_inquiries') || 'Specific Inquiries'}
+                    </h3>
                     <div className="space-y-2 text-sm">
                       <div>
-                        <span className="font-medium text-gray-700">Admissions:</span>
+                        <span className="font-medium text-gray-700">
+                          {getContent('contact_admissions_label') || 'Admissions'}:
+                        </span>
                         <span className="ml-2 text-gray-600">{contactInfo.admissionsEmail}</span>
                       </div>
                       <div>
-                        <span className="font-medium text-gray-700">Support:</span>
+                        <span className="font-medium text-gray-700">
+                          {getContent('contact_support_label') || 'Support'}:
+                        </span>
                         <span className="ml-2 text-gray-600">{contactInfo.supportEmail}</span>
                       </div>
                       <div>
-                        <span className="font-medium text-gray-700">Marketing:</span>
+                        <span className="font-medium text-gray-700">
+                          {getContent('contact_marketing_label') || 'Marketing'}:
+                        </span>
                         <span className="ml-2 text-gray-600">{contactInfo.marketingEmail}</span>
                       </div>
                     </div>
@@ -106,7 +118,7 @@ export default function ContactPage() {
               <div className="bg-white rounded-lg shadow-md p-6">
                 <h3 className="text-xl font-bold text-primary mb-4 flex items-center">
                   <Clock className="mr-2" size={20} />
-                  Operating Hours
+                  {getContent('contact_operating_hours') || 'Operating Hours'}
                 </h3>
                 <div className="space-y-2 text-sm">
                     {daysOfWeek.map(({ key, label }) => {
@@ -117,7 +129,7 @@ export default function ContactPage() {
                           <span className="text-gray-600">
                             {dayHours?.isOpen 
                               ? `${formatTime(dayHours.openTime)} - ${formatTime(dayHours.closeTime)}`
-                              : 'Closed'
+                              : getContent('contact_closed') || 'Closed'
                             }
                           </span>
                   </div>

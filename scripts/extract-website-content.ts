@@ -1016,6 +1016,482 @@ export const extractedContent: CMSContent[] = [
     updatedBy: 'system'
   },
 
+  // ACCREDITATIONS SECTION CONTENT
+  {
+    id: 'accreditations_title',
+    key: 'accreditations_title',
+    section: CMS_SECTIONS.ACCREDITATIONS,
+    content_en: 'Accreditations & Partnerships',
+    content_ar: 'الاعتمادات والشراكات',
+    description: 'Accreditations page main title',
+    lastUpdated: new Date().toISOString(),
+    updatedBy: 'system'
+  },
+  {
+    id: 'accreditations_subtitle',
+    key: 'accreditations_subtitle',
+    section: CMS_SECTIONS.ACCREDITATIONS,
+    content_en: 'Our programs are recognized by leading educational institutions and industry bodies worldwide.',
+    content_ar: 'برامجنا معترف بها من قبل المؤسسات التعليمية الرائدة والهيئات الصناعية في جميع أنحاء العالم.',
+    description: 'Accreditations page subtitle',
+    lastUpdated: new Date().toISOString(),
+    updatedBy: 'system'
+  },
+  {
+    id: 'accreditations_main_title',
+    key: 'accreditations_main_title',
+    section: CMS_SECTIONS.ACCREDITATIONS,
+    content_en: 'Accreditations',
+    content_ar: 'الاعتمادات',
+    description: 'Accreditations section title',
+    lastUpdated: new Date().toISOString(),
+    updatedBy: 'system'
+  },
+  {
+    id: 'accreditations_main_subtitle',
+    key: 'accreditations_main_subtitle',
+    section: CMS_SECTIONS.ACCREDITATIONS,
+    content_en: 'Officially recognized and accredited by leading international bodies',
+    content_ar: 'معترف بها رسمياً ومعتمدة من قبل الهيئات الدولية الرائدة',
+    description: 'Accreditations section subtitle',
+    lastUpdated: new Date().toISOString(),
+    updatedBy: 'system'
+  },
+  {
+    id: 'accreditations_partnerships_title',
+    key: 'accreditations_partnerships_title',
+    section: CMS_SECTIONS.ACCREDITATIONS,
+    content_en: 'Academic Partnerships',
+    content_ar: 'الشراكات الأكاديمية',
+    description: 'Academic partnerships section title',
+    lastUpdated: new Date().toISOString(),
+    updatedBy: 'system'
+  },
+  {
+    id: 'accreditations_partnerships_subtitle',
+    key: 'accreditations_partnerships_subtitle',
+    section: CMS_SECTIONS.ACCREDITATIONS,
+    content_en: 'Collaborating with prestigious institutions to deliver exceptional education',
+    content_ar: 'التعاون مع المؤسسات المرموقة لتقديم تعليم استثنائي',
+    description: 'Academic partnerships section subtitle',
+    lastUpdated: new Date().toISOString(),
+    updatedBy: 'system'
+  },
+
+  // CONTACT PAGE CONTENT
+  {
+    id: 'contact_title',
+    key: 'contact_title',
+    section: CMS_SECTIONS.CONTACT_PAGE,
+    content_en: 'Contact Us',
+    content_ar: 'اتصل بنا',
+    description: 'Contact page main title',
+    lastUpdated: new Date().toISOString(),
+    updatedBy: 'system'
+  },
+  {
+    id: 'contact_subtitle',
+    key: 'contact_subtitle',
+    section: CMS_SECTIONS.CONTACT_PAGE,
+    content_en: 'Get in touch with us to learn more about our programs or to schedule a consultation.',
+    content_ar: 'تواصل معنا لمعرفة المزيد عن برامجنا أو لتحديد موعد استشارة.',
+    description: 'Contact page subtitle',
+    lastUpdated: new Date().toISOString(),
+    updatedBy: 'system'
+  },
+  {
+    id: 'contact_get_in_touch',
+    key: 'contact_get_in_touch',
+    section: CMS_SECTIONS.CONTACT_PAGE,
+    content_en: 'Get in Touch',
+    content_ar: 'تواصل معنا',
+    description: 'Get in touch section title',
+    lastUpdated: new Date().toISOString(),
+    updatedBy: 'system'
+  },
+  {
+    id: 'contact_address_label',
+    key: 'contact_address_label',
+    section: CMS_SECTIONS.CONTACT_PAGE,
+    content_en: 'Address',
+    content_ar: 'العنوان',
+    description: 'Address label',
+    lastUpdated: new Date().toISOString(),
+    updatedBy: 'system'
+  },
+  {
+    id: 'contact_phone_label',
+    key: 'contact_phone_label',
+    section: CMS_SECTIONS.CONTACT_PAGE,
+    content_en: 'Phone',
+    content_ar: 'الهاتف',
+    description: 'Phone label',
+    lastUpdated: new Date().toISOString(),
+    updatedBy: 'system'
+  },
+  {
+    id: 'contact_email_label',
+    key: 'contact_email_label',
+    section: CMS_SECTIONS.CONTACT_PAGE,
+    content_en: 'Email',
+    content_ar: 'البريد الإلكتروني',
+    description: 'Email label',
+    lastUpdated: new Date().toISOString(),
+    updatedBy: 'system'
+  },
+  {
+    id: 'contact_specific_inquiries',
+    key: 'contact_specific_inquiries',
+    section: CMS_SECTIONS.CONTACT_PAGE,
+    content_en: 'Specific Inquiries',
+    content_ar: 'استفسارات محددة',
+    description: 'Specific inquiries section title',
+    lastUpdated: new Date().toISOString(),
+    updatedBy: 'system'
+  },
+  {
+    id: 'contact_admissions_label',
+    key: 'contact_admissions_label',
+    section: CMS_SECTIONS.CONTACT_PAGE,
+    content_en: 'Admissions',
+    content_ar: 'القبول',
+    description: 'Admissions label',
+    lastUpdated: new Date().toISOString(),
+    updatedBy: 'system'
+  },
+  {
+    id: 'contact_support_label',
+    key: 'contact_support_label',
+    section: CMS_SECTIONS.CONTACT_PAGE,
+    content_en: 'Support',
+    content_ar: 'الدعم',
+    description: 'Support label',
+    lastUpdated: new Date().toISOString(),
+    updatedBy: 'system'
+  },
+  {
+    id: 'contact_marketing_label',
+    key: 'contact_marketing_label',
+    section: CMS_SECTIONS.CONTACT_PAGE,
+    content_en: 'Marketing',
+    content_ar: 'التسويق',
+    description: 'Marketing label',
+    lastUpdated: new Date().toISOString(),
+    updatedBy: 'system'
+  },
+  {
+    id: 'contact_operating_hours',
+    key: 'contact_operating_hours',
+    section: CMS_SECTIONS.CONTACT_PAGE,
+    content_en: 'Operating Hours',
+    content_ar: 'ساعات العمل',
+    description: 'Operating hours section title',
+    lastUpdated: new Date().toISOString(),
+    updatedBy: 'system'
+  },
+  {
+    id: 'contact_monday',
+    key: 'contact_monday',
+    section: CMS_SECTIONS.CONTACT_PAGE,
+    content_en: 'Monday',
+    content_ar: 'الاثنين',
+    description: 'Monday label',
+    lastUpdated: new Date().toISOString(),
+    updatedBy: 'system'
+  },
+  {
+    id: 'contact_tuesday',
+    key: 'contact_tuesday',
+    section: CMS_SECTIONS.CONTACT_PAGE,
+    content_en: 'Tuesday',
+    content_ar: 'الثلاثاء',
+    description: 'Tuesday label',
+    lastUpdated: new Date().toISOString(),
+    updatedBy: 'system'
+  },
+  {
+    id: 'contact_wednesday',
+    key: 'contact_wednesday',
+    section: CMS_SECTIONS.CONTACT_PAGE,
+    content_en: 'Wednesday',
+    content_ar: 'الأربعاء',
+    description: 'Wednesday label',
+    lastUpdated: new Date().toISOString(),
+    updatedBy: 'system'
+  },
+  {
+    id: 'contact_thursday',
+    key: 'contact_thursday',
+    section: CMS_SECTIONS.CONTACT_PAGE,
+    content_en: 'Thursday',
+    content_ar: 'الخميس',
+    description: 'Thursday label',
+    lastUpdated: new Date().toISOString(),
+    updatedBy: 'system'
+  },
+  {
+    id: 'contact_friday',
+    key: 'contact_friday',
+    section: CMS_SECTIONS.CONTACT_PAGE,
+    content_en: 'Friday',
+    content_ar: 'الجمعة',
+    description: 'Friday label',
+    lastUpdated: new Date().toISOString(),
+    updatedBy: 'system'
+  },
+  {
+    id: 'contact_saturday',
+    key: 'contact_saturday',
+    section: CMS_SECTIONS.CONTACT_PAGE,
+    content_en: 'Saturday',
+    content_ar: 'السبت',
+    description: 'Saturday label',
+    lastUpdated: new Date().toISOString(),
+    updatedBy: 'system'
+  },
+  {
+    id: 'contact_sunday',
+    key: 'contact_sunday',
+    section: CMS_SECTIONS.CONTACT_PAGE,
+    content_en: 'Sunday',
+    content_ar: 'الأحد',
+    description: 'Sunday label',
+    lastUpdated: new Date().toISOString(),
+    updatedBy: 'system'
+  },
+  {
+    id: 'contact_closed',
+    key: 'contact_closed',
+    section: CMS_SECTIONS.CONTACT_PAGE,
+    content_en: 'Closed',
+    content_ar: 'مغلق',
+    description: 'Closed status for operating hours',
+    lastUpdated: new Date().toISOString(),
+    updatedBy: 'system'
+  },
+
+  // CONTACT FORM CONTENT
+  {
+    id: 'contact_form_title',
+    key: 'contact_form_title',
+    section: CMS_SECTIONS.CONTACT_PAGE,
+    content_en: 'Send a Message',
+    content_ar: 'أرسل رسالة',
+    description: 'Contact form title',
+    lastUpdated: new Date().toISOString(),
+    updatedBy: 'system'
+  },
+  {
+    id: 'contact_form_name_label',
+    key: 'contact_form_name_label',
+    section: CMS_SECTIONS.CONTACT_PAGE,
+    content_en: 'Full Name',
+    content_ar: 'الاسم الكامل',
+    description: 'Contact form name field label',
+    lastUpdated: new Date().toISOString(),
+    updatedBy: 'system'
+  },
+  {
+    id: 'contact_form_name_placeholder',
+    key: 'contact_form_name_placeholder',
+    section: CMS_SECTIONS.CONTACT_PAGE,
+    content_en: 'Enter your full name',
+    content_ar: 'أدخل اسمك الكامل',
+    description: 'Contact form name field placeholder',
+    lastUpdated: new Date().toISOString(),
+    updatedBy: 'system'
+  },
+  {
+    id: 'contact_form_email_label',
+    key: 'contact_form_email_label',
+    section: CMS_SECTIONS.CONTACT_PAGE,
+    content_en: 'Email Address',
+    content_ar: 'عنوان البريد الإلكتروني',
+    description: 'Contact form email field label',
+    lastUpdated: new Date().toISOString(),
+    updatedBy: 'system'
+  },
+  {
+    id: 'contact_form_email_placeholder',
+    key: 'contact_form_email_placeholder',
+    section: CMS_SECTIONS.CONTACT_PAGE,
+    content_en: 'Enter your email address',
+    content_ar: 'أدخل عنوان بريدك الإلكتروني',
+    description: 'Contact form email field placeholder',
+    lastUpdated: new Date().toISOString(),
+    updatedBy: 'system'
+  },
+  {
+    id: 'contact_form_phone_label',
+    key: 'contact_form_phone_label',
+    section: CMS_SECTIONS.CONTACT_PAGE,
+    content_en: 'Phone Number',
+    content_ar: 'رقم الهاتف',
+    description: 'Contact form phone field label',
+    lastUpdated: new Date().toISOString(),
+    updatedBy: 'system'
+  },
+  {
+    id: 'contact_form_phone_placeholder',
+    key: 'contact_form_phone_placeholder',
+    section: CMS_SECTIONS.CONTACT_PAGE,
+    content_en: 'Enter your phone number',
+    content_ar: 'أدخل رقم هاتفك',
+    description: 'Contact form phone field placeholder',
+    lastUpdated: new Date().toISOString(),
+    updatedBy: 'system'
+  },
+  {
+    id: 'contact_form_inquiry_type',
+    key: 'contact_form_inquiry_type',
+    section: CMS_SECTIONS.CONTACT_PAGE,
+    content_en: 'Inquiry Type',
+    content_ar: 'نوع الاستفسار',
+    description: 'Contact form inquiry type field label',
+    lastUpdated: new Date().toISOString(),
+    updatedBy: 'system'
+  },
+  {
+    id: 'contact_form_select_inquiry',
+    key: 'contact_form_select_inquiry',
+    section: CMS_SECTIONS.CONTACT_PAGE,
+    content_en: 'Select inquiry type',
+    content_ar: 'اختر نوع الاستفسار',
+    description: 'Contact form inquiry type placeholder',
+    lastUpdated: new Date().toISOString(),
+    updatedBy: 'system'
+  },
+  {
+    id: 'contact_inquiry_general',
+    key: 'contact_inquiry_general',
+    section: CMS_SECTIONS.CONTACT_PAGE,
+    content_en: 'General Information',
+    content_ar: 'معلومات عامة',
+    description: 'General inquiry type option',
+    lastUpdated: new Date().toISOString(),
+    updatedBy: 'system'
+  },
+  {
+    id: 'contact_inquiry_admissions',
+    key: 'contact_inquiry_admissions',
+    section: CMS_SECTIONS.CONTACT_PAGE,
+    content_en: 'Admissions',
+    content_ar: 'القبول',
+    description: 'Admissions inquiry type option',
+    lastUpdated: new Date().toISOString(),
+    updatedBy: 'system'
+  },
+  {
+    id: 'contact_inquiry_programs',
+    key: 'contact_inquiry_programs',
+    section: CMS_SECTIONS.CONTACT_PAGE,
+    content_en: 'Program Information',
+    content_ar: 'معلومات البرنامج',
+    description: 'Programs inquiry type option',
+    lastUpdated: new Date().toISOString(),
+    updatedBy: 'system'
+  },
+  {
+    id: 'contact_inquiry_financial',
+    key: 'contact_inquiry_financial',
+    section: CMS_SECTIONS.CONTACT_PAGE,
+    content_en: 'Financial Aid',
+    content_ar: 'المساعدة المالية',
+    description: 'Financial aid inquiry type option',
+    lastUpdated: new Date().toISOString(),
+    updatedBy: 'system'
+  },
+  {
+    id: 'contact_inquiry_technical',
+    key: 'contact_inquiry_technical',
+    section: CMS_SECTIONS.CONTACT_PAGE,
+    content_en: 'Technical Support',
+    content_ar: 'الدعم الفني',
+    description: 'Technical support inquiry type option',
+    lastUpdated: new Date().toISOString(),
+    updatedBy: 'system'
+  },
+  {
+    id: 'contact_inquiry_partnership',
+    key: 'contact_inquiry_partnership',
+    section: CMS_SECTIONS.CONTACT_PAGE,
+    content_en: 'Partnership Opportunities',
+    content_ar: 'فرص الشراكة',
+    description: 'Partnership inquiry type option',
+    lastUpdated: new Date().toISOString(),
+    updatedBy: 'system'
+  },
+  {
+    id: 'contact_form_message_label',
+    key: 'contact_form_message_label',
+    section: CMS_SECTIONS.CONTACT_PAGE,
+    content_en: 'Message',
+    content_ar: 'الرسالة',
+    description: 'Contact form message field label',
+    lastUpdated: new Date().toISOString(),
+    updatedBy: 'system'
+  },
+  {
+    id: 'contact_form_message_placeholder',
+    key: 'contact_form_message_placeholder',
+    section: CMS_SECTIONS.CONTACT_PAGE,
+    content_en: 'Please describe your inquiry in detail...',
+    content_ar: 'يرجى وصف استفسارك بالتفصيل...',
+    description: 'Contact form message field placeholder',
+    lastUpdated: new Date().toISOString(),
+    updatedBy: 'system'
+  },
+  {
+    id: 'contact_form_submit_button',
+    key: 'contact_form_submit_button',
+    section: CMS_SECTIONS.CONTACT_PAGE,
+    content_en: 'Send Message',
+    content_ar: 'إرسال الرسالة',
+    description: 'Contact form submit button text',
+    lastUpdated: new Date().toISOString(),
+    updatedBy: 'system'
+  },
+  {
+    id: 'contact_form_sending',
+    key: 'contact_form_sending',
+    section: CMS_SECTIONS.CONTACT_PAGE,
+    content_en: 'Sending...',
+    content_ar: 'جاري الإرسال...',
+    description: 'Contact form sending state text',
+    lastUpdated: new Date().toISOString(),
+    updatedBy: 'system'
+  },
+  {
+    id: 'contact_form_success',
+    key: 'contact_form_success',
+    section: CMS_SECTIONS.CONTACT_PAGE,
+    content_en: 'Thank you for your message! We will get back to you soon.',
+    content_ar: 'شكراً لك على رسالتك! سنعاود الاتصال بك قريباً.',
+    description: 'Contact form success message',
+    lastUpdated: new Date().toISOString(),
+    updatedBy: 'system'
+  },
+  {
+    id: 'contact_form_error',
+    key: 'contact_form_error',
+    section: CMS_SECTIONS.CONTACT_PAGE,
+    content_en: 'There was an error submitting your message. Please try again.',
+    content_ar: 'حدث خطأ في إرسال رسالتك. يرجى المحاولة مرة أخرى.',
+    description: 'Contact form error message',
+    lastUpdated: new Date().toISOString(),
+    updatedBy: 'system'
+  },
+  {
+    id: 'contact_form_disclaimer',
+    key: 'contact_form_disclaimer',
+    section: CMS_SECTIONS.CONTACT_PAGE,
+    content_en: 'By submitting this form, you agree to receive communications from Optimus Education. We respect your privacy and will never share your information with third parties.',
+    content_ar: 'بإرسال هذا النموذج، أنت توافق على تلقي اتصالات من أوبتيموس للتعليم. نحن نحترم خصوصيتك ولن نشارك معلوماتك مع أطراف ثالثة.',
+    description: 'Contact form privacy disclaimer',
+    lastUpdated: new Date().toISOString(),
+    updatedBy: 'system'
+  },
+
   // BLOG PAGE CONTENT
   {
     id: 'blog_title',

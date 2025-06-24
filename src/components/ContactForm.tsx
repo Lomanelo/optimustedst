@@ -1,3 +1,5 @@
+'use client';
+
 import React, { useState } from 'react';
 import { MapPin, Phone, Mail, Send, CheckCircle } from 'lucide-react';
 import { useCMS } from '../../app/contexts/cms-context';
@@ -26,11 +28,12 @@ const ContactForm: React.FC = () => {
   const [submitError, setSubmitError] = useState<string | null>(null);
 
   const inquiryTypes = [
-    { value: 'general', label: 'General Inquiry' },
-    { value: 'admissions', label: 'Admissions & Enrollment' },
-    { value: 'support', label: 'Tech Support' },
-    { value: 'marketing', label: 'Partnerships & Marketing' },
-    { value: 'executive', label: 'Executive Contact' }
+    { value: 'general', label: getContent('contact_inquiry_general') || 'General Information' },
+    { value: 'admissions', label: getContent('contact_inquiry_admissions') || 'Admissions' },
+    { value: 'programs', label: getContent('contact_inquiry_programs') || 'Program Information' },
+    { value: 'financial', label: getContent('contact_inquiry_financial') || 'Financial Aid' },
+    { value: 'technical', label: getContent('contact_inquiry_technical') || 'Technical Support' },
+    { value: 'partnership', label: getContent('contact_inquiry_partnership') || 'Partnership Opportunities' }
   ];
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
@@ -109,7 +112,9 @@ const ContactForm: React.FC = () => {
 
   return (
     <div className="bg-white rounded-lg shadow-md p-6 md:p-8">
-      <h3 className="text-xl font-bold text-primary mb-6">{getContent('contact_form_title') || 'Contact Us'}</h3>
+      <h3 className="text-xl font-bold text-primary mb-6">
+        {getContent('contact_form_title') || 'Send a Message'}
+      </h3>
       
       {submitError && (
         <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-md">
@@ -131,7 +136,7 @@ const ContactForm: React.FC = () => {
               onChange={handleChange}
               required
               className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-accent focus:border-transparent"
-              placeholder="Enter your full name"
+              placeholder={getContent('contact_form_name_placeholder') || 'Enter your full name'}
             />
           </div>
           
@@ -147,7 +152,7 @@ const ContactForm: React.FC = () => {
               onChange={handleChange}
               required
               className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-accent focus:border-transparent"
-              placeholder="Enter your email address"
+              placeholder={getContent('contact_form_email_placeholder') || 'Enter your email address'}
             />
           </div>
           
@@ -162,13 +167,13 @@ const ContactForm: React.FC = () => {
               value={formData.phone}
               onChange={handleChange}
               className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-accent focus:border-transparent"
-              placeholder="Enter your phone number"
+              placeholder={getContent('contact_form_phone_placeholder') || 'Enter your phone number'}
             />
           </div>
           
           <div>
             <label htmlFor="inquiryType" className="block text-gray-700 font-medium mb-2">
-              Inquiry Type*
+              {getContent('contact_form_inquiry_type') || 'Inquiry Type'}*
             </label>
             <select
               id="inquiryType"
@@ -178,7 +183,7 @@ const ContactForm: React.FC = () => {
               required
               className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-accent focus:border-transparent"
             >
-              <option value="">Select inquiry type</option>
+              <option value="">{getContent('contact_form_select_inquiry') || 'Select inquiry type'}</option>
               {inquiryTypes.map((type) => (
                 <option key={type.value} value={type.value}>
                   {type.label}
@@ -188,8 +193,6 @@ const ContactForm: React.FC = () => {
           </div>
         </div>
 
-
-        
         <div className="mb-6">
           <label htmlFor="message" className="block text-gray-700 font-medium mb-2">
             {getContent('contact_form_message_label') || 'Message'}*
@@ -202,7 +205,7 @@ const ContactForm: React.FC = () => {
             rows={4}
             required
             className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-accent focus:border-transparent"
-            placeholder="Please describe your inquiry in detail..."
+            placeholder={getContent('contact_form_message_placeholder') || 'Please describe your inquiry in detail...'}
           ></textarea>
         </div>
         
@@ -214,7 +217,7 @@ const ContactForm: React.FC = () => {
           {isSubmitting ? (
             <>
               <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-              Sending...
+              {getContent('contact_form_sending') || 'Sending...'}
             </>
           ) : (
             <>
@@ -227,8 +230,7 @@ const ContactForm: React.FC = () => {
       
       <div className="mt-6 pt-6 border-t border-gray-200">
         <p className="text-sm text-gray-600 text-center">
-          By submitting this form, you agree to receive communications from Optimus Education.
-          We respect your privacy and will never share your information with third parties.
+          {getContent('contact_form_disclaimer') || 'By submitting this form, you agree to receive communications from Optimus Education. We respect your privacy and will never share your information with third parties.'}
         </p>
       </div>
     </div>

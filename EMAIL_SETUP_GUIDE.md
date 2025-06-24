@@ -151,3 +151,4 @@ For testing purposes, you can use services like:
 - **Phone** (optional): User's phone number
 - **Inquiry Type** (required): Determines email routing
 - **Message** (required): User's detailed message
+ 
