@@ -1077,6 +1077,26 @@ export const extractedContent: CMSContent[] = [
     lastUpdated: new Date().toISOString(),
     updatedBy: 'system'
   },
+  {
+    id: 'accreditation_vern',
+    key: 'accreditation_vern',
+    section: CMS_SECTIONS.ACCREDITATIONS,
+    content_en: 'VERN University of Applied Sciences',
+    content_ar: 'جامعة فيرن للعلوم التطبيقية',
+    description: 'VERN accreditation name',
+    lastUpdated: new Date().toISOString(),
+    updatedBy: 'system'
+  },
+  {
+    id: 'accreditation_ibas',
+    key: 'accreditation_ibas',
+    section: CMS_SECTIONS.ACCREDITATIONS,
+    content_en: 'International Business Academy of Switzerland',
+    content_ar: 'الأكاديمية الدولية للأعمال في سويسرا',
+    description: 'IBAS accreditation name',
+    lastUpdated: new Date().toISOString(),
+    updatedBy: 'system'
+  },
 
   // CONTACT PAGE CONTENT
   {

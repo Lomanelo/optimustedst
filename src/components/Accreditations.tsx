@@ -24,18 +24,26 @@ const Accreditations: React.FC = () => {
                         {getContent('accreditations_main_subtitle') || 'Officially recognized and accredited by leading international bodies'}
                     </p>
                     <div className="flex justify-center items-center gap-8 md:gap-12 max-w-3xl mx-auto">
-                    {accreditations.map((accreditation) => (
+                    {accreditations.map((accreditation) => {
+                        // Map accreditation IDs to CMS keys
+                        const getAccreditationName = (id: string) => {
+                            const cmsKey = `accreditation_${id}`;
+                            return getContent(cmsKey) || accreditation.name;
+                        };
+                        
+                        return (
                             <div key={accreditation.name} className="group bg-white p-6 rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 border border-primary/10 hover:border-primary/30 flex items-center justify-center">
                                 <div className="text-center">
                                 <img
                                     src={accreditation.logo}
-                                    alt={accreditation.name}
+                                    alt={getAccreditationName(accreditation.id)}
                                         className="w-20 h-20 md:w-24 md:h-24 object-contain mx-auto transition-transform duration-300 group-hover:scale-110"
-                                        title={accreditation.name}
+                                        title={getAccreditationName(accreditation.id)}
                                     />
                                 </div>
                             </div>
-                        ))}
+                        );
+                    })}
                     </div>
                 </div>
 

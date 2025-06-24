@@ -212,29 +212,37 @@ const AboutUs: React.FC = () => {
           
           {/* Accreditations - PRIORITY */}
           <div className="mb-20">
-            <h4 className="text-3xl font-bold text-primary mb-6 text-center">{getContent('accreditations.main_title')}</h4>
+            <h4 className="text-3xl font-bold text-primary mb-6 text-center">{getContent('accreditations_main_title')}</h4>
             <p className="text-center text-gray-600 mb-12 max-w-2xl mx-auto text-lg">
-              {getContent('accreditations.main_subtitle')}
+              {getContent('accreditations_main_subtitle')}
             </p>
             <div className="flex justify-center items-center gap-10 max-w-3xl mx-auto">
-            {accreditations.map((accreditation) => (
+            {accreditations.map((accreditation) => {
+              // Map accreditation IDs to CMS keys
+              const getAccreditationName = (id: string) => {
+                const cmsKey = `accreditation_${id}`;
+                return getContent(cmsKey) || accreditation.name;
+              };
+              
+              return (
                 <div key={accreditation.id} className="group bg-white p-6 rounded-2xl shadow-xl flex flex-col items-center justify-center relative hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 border border-primary/10 hover:border-primary/30">
                 <img 
                   src={accreditation.logo} 
-                  alt={accreditation.name} 
+                  alt={getAccreditationName(accreditation.id)} 
                     className="w-20 h-20 md:w-24 md:h-24 object-contain transition-transform duration-300 group-hover:scale-110"
-                    title={accreditation.name}
+                    title={getAccreditationName(accreditation.id)}
                 />
                 </div>
-              ))}
+              );
+            })}
             </div>
           </div>
 
           {/* Academic Partnerships */}
           <div>
-            <h4 className="text-2xl font-bold text-primary mb-4 text-center">{getContent('accreditations.partnerships_title')}</h4>
+            <h4 className="text-2xl font-bold text-primary mb-4 text-center">{getContent('accreditations_partnerships_title')}</h4>
             <p className="text-center text-gray-600 mb-10 max-w-2xl mx-auto">
-              {getContent('accreditations.partnerships_subtitle')}
+              {getContent('accreditations_partnerships_subtitle')}
             </p>
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-6 gap-8 max-w-6xl mx-auto">
               {partnerships.map((partnership) => (
