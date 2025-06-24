@@ -282,7 +282,7 @@ export default function EditProgramPage({ params }: { params: Promise<{ id: stri
       if (thumbnailFile) {
         thumbnailUrl = await uploadThumbnail();
       }
-
+      
       let brochureEnUrl = existingBrochureEn;
       if (brochureEnFile) {
         brochureEnUrl = await uploadImageAsDataUrl(brochureEnFile);
@@ -372,20 +372,20 @@ export default function EditProgramPage({ params }: { params: Promise<{ id: stri
       </div>
 
       <div className="bg-white shadow overflow-hidden sm:rounded-lg p-6">
-        {error && (
+      {error && (
           <div className="mb-4 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
             <span className="block sm:inline">{error}</span>
-          </div>
-        )}
+        </div>
+      )}
 
-        {success && (
-          <div className="mb-6 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative" role="alert">
+      {success && (
+        <div className="mb-6 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative" role="alert">
             <div className="flex">
               <Check size={20} className="mr-2" />
-              <span>{success}</span>
-            </div>
+            <span>{success}</span>
           </div>
-        )}
+        </div>
+      )}
 
         {/* Language Tabs */}
         <div className="flex space-x-1 mb-6 bg-gray-100 p-1 rounded-lg">
@@ -418,29 +418,29 @@ export default function EditProgramPage({ params }: { params: Promise<{ id: stri
             <div>
               <label htmlFor={getFieldName('title')} className="block text-sm font-medium text-gray-700">
                 {activeLanguage === 'en' ? 'Program Title *' : 'عنوان البرنامج *'}
-              </label>
-              <input
-                type="text"
+                </label>
+                <input
+                  type="text"
                 name={getFieldName('title')}
                 id={getFieldName('title')}
                 required
                 value={getCurrentFields().title}
-                onChange={handleChange}
+                  onChange={handleChange}
                 className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary focus:border-primary sm:text-sm"
                 placeholder={activeLanguage === 'en' ? 'e.g. Master of Business Administration' : 'مثال: ماجستير إدارة الأعمال'}
-              />
-            </div>
-
-            <div>
+                />
+              </div>
+              
+              <div>
               <label htmlFor={getFieldName('category')} className="block text-sm font-medium text-gray-700">
                 {activeLanguage === 'en' ? 'Category *' : 'الفئة *'}
-              </label>
-              <select
+                </label>
+                <select
                 id={getFieldName('category')}
                 name={getFieldName('category')}
                 required
                 value={getCurrentFields().category}
-                onChange={handleChange}
+                  onChange={handleChange}
                 className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary focus:border-primary sm:text-sm"
               >
                 <option value="">{activeLanguage === 'en' ? 'Select a category' : 'اختر فئة'}</option>
@@ -459,7 +459,7 @@ export default function EditProgramPage({ params }: { params: Promise<{ id: stri
                 <option value={activeLanguage === 'en' ? 'Arts' : 'الفنون'}>
                   {activeLanguage === 'en' ? 'Arts & Humanities' : 'الفنون والعلوم الإنسانية'}
                 </option>
-              </select>
+                </select>
             </div>
           </div>
 
@@ -493,19 +493,19 @@ export default function EditProgramPage({ params }: { params: Promise<{ id: stri
               className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary focus:border-primary sm:text-sm"
               placeholder={activeLanguage === 'en' ? 'Provide a detailed description of the program' : 'قدم وصفاً مفصلاً للبرنامج'}
             />
-          </div>
-
+              </div>
+              
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div>
+              <div>
               <label htmlFor={getFieldName('programType')} className="block text-sm font-medium text-gray-700">
                 {activeLanguage === 'en' ? 'Program Type *' : 'نوع البرنامج *'}
-              </label>
-              <select
+                </label>
+                <select
                 id={getFieldName('programType')}
                 name={getFieldName('programType')}
                 required
                 value={getCurrentFields().programType}
-                onChange={handleChange}
+                  onChange={handleChange}
                 className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary focus:border-primary sm:text-sm"
               >
                 <option value="">{activeLanguage === 'en' ? 'Select program type' : 'اختر نوع البرنامج'}</option>
@@ -515,19 +515,19 @@ export default function EditProgramPage({ params }: { params: Promise<{ id: stri
                 <option value={activeLanguage === 'en' ? 'PHD' : 'دكتوراه'}>
                   {activeLanguage === 'en' ? 'PHD' : 'دكتوراه'}
                 </option>
-              </select>
-            </div>
-
-            <div>
+                </select>
+              </div>
+              
+              <div>
               <label htmlFor={getFieldName('speciality')} className="block text-sm font-medium text-gray-700">
                 {activeLanguage === 'en' ? 'Speciality *' : 'التخصص *'}
-              </label>
-              <select
+                </label>
+                <select
                 id={getFieldName('speciality')}
                 name={getFieldName('speciality')}
                 required
                 value={getCurrentFields().speciality}
-                onChange={handleChange}
+                  onChange={handleChange}
                 className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary focus:border-primary sm:text-sm"
               >
                 <option value="">{activeLanguage === 'en' ? 'Select speciality' : 'اختر التخصص'}</option>
@@ -543,8 +543,8 @@ export default function EditProgramPage({ params }: { params: Promise<{ id: stri
                 <option value={activeLanguage === 'en' ? 'Project Management' : 'إدارة المشاريع'}>
                   {activeLanguage === 'en' ? 'Project Management' : 'إدارة المشاريع'}
                 </option>
-              </select>
-            </div>
+                </select>
+              </div>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -564,17 +564,17 @@ export default function EditProgramPage({ params }: { params: Promise<{ id: stri
               />
             </div>
 
-            <div>
+              <div>
               <label htmlFor="price" className="block text-sm font-medium text-gray-700">
                 {activeLanguage === 'en' ? 'Price (SAR) *' : 'السعر (ريال سعودي) *'}
-              </label>
-              <input
+                </label>
+                <input
                 type="text"
                 name="price"
-                id="price"
+                  id="price"
                 required
-                value={formData.price}
-                onChange={handleChange}
+                  value={formData.price}
+                  onChange={handleChange}
                 className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary focus:border-primary sm:text-sm"
                 placeholder={activeLanguage === 'en' ? 'e.g. 25000' : 'مثال: 25000'}
               />
@@ -593,19 +593,19 @@ export default function EditProgramPage({ params }: { params: Promise<{ id: stri
               onChange={handleChange}
               className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary focus:border-primary sm:text-sm"
               placeholder={activeLanguage === 'en' ? 'Prerequisites or requirements for enrollment' : 'المتطلبات الأساسية أو متطلبات التسجيل'}
-            />
-          </div>
-
-          <div>
+                />
+              </div>
+              
+              <div>
             <label htmlFor={getFieldName('benefits')} className="block text-sm font-medium text-gray-700">
               {activeLanguage === 'en' ? 'Benefits' : 'الفوائد'}
-            </label>
+                </label>
             <textarea
               id={getFieldName('benefits')}
               name={getFieldName('benefits')}
               rows={4}
               value={getCurrentFields().benefits}
-              onChange={handleChange}
+                  onChange={handleChange}
               className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary focus:border-primary sm:text-sm"
               placeholder={activeLanguage === 'en' ? 'What students will gain from this program' : 'ما سيحصل عليه الطلاب من هذا البرنامج'}
             />
@@ -644,8 +644,8 @@ export default function EditProgramPage({ params }: { params: Promise<{ id: stri
                   </div>
                 ))}
               </div>
-            </div>
-
+              </div>
+              
             {/* Academic Partnerships */}
             <div>
               <h4 className="text-sm font-semibold text-gray-600 mb-3">
@@ -696,7 +696,7 @@ export default function EditProgramPage({ params }: { params: Promise<{ id: stri
                     >
                       ×
                     </button>
-                  </div>
+                    </div>
                 ) : (
                   <ImagePlus className="mx-auto h-12 w-12 text-gray-400" />
                 )}
@@ -706,10 +706,10 @@ export default function EditProgramPage({ params }: { params: Promise<{ id: stri
                     className="relative cursor-pointer bg-white rounded-md font-medium text-primary hover:text-primary-dark focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-primary"
                   >
                     <span>{activeLanguage === 'en' ? 'Upload a file' : 'رفع ملف'}</span>
-                    <input
+                    <input 
                       id="thumbnail-upload"
                       name="thumbnail-upload"
-                      type="file"
+                      type="file" 
                       accept="image/*"
                       onChange={handleThumbnailChange}
                       className="sr-only"
@@ -722,13 +722,13 @@ export default function EditProgramPage({ params }: { params: Promise<{ id: stri
                 </p>
               </div>
             </div>
-          </div>
-
+              </div>
+              
           {/* Brochure Upload */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-3">
               {activeLanguage === 'en' ? 'Program Brochures (Optional)' : 'كتيبات البرنامج (اختياري)'}
-            </label>
+                </label>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {/* English Brochure */}
@@ -774,7 +774,7 @@ export default function EditProgramPage({ params }: { params: Promise<{ id: stri
                         className="cursor-pointer text-primary hover:text-primary-dark text-sm font-medium"
                       >
                         {activeLanguage === 'en' ? 'Upload English PDF' : 'ارفع ملف PDF إنجليزي'}
-                        <input
+                      <input
                           id="brochure-en"
                           name="brochure-en"
                           type="file"
@@ -782,13 +782,13 @@ export default function EditProgramPage({ params }: { params: Promise<{ id: stri
                           accept=".pdf"
                           onChange={handleBrochureEnChange}
                         />
-                      </label>
+                    </label>
                       <p className="text-xs text-gray-500 mt-1">PDF up to 20MB</p>
                     </div>
                   )}
                 </div>
               </div>
-
+              
               {/* Arabic Brochure */}
               <div>
                 <label htmlFor="brochure-ar" className="block text-sm font-medium text-gray-600 mb-2">
@@ -844,11 +844,11 @@ export default function EditProgramPage({ params }: { params: Promise<{ id: stri
                       <p className="text-xs text-gray-500 mt-1">PDF up to 20MB</p>
                     </div>
                   )}
-                </div>
+              </div>
               </div>
             </div>
           </div>
-
+          
           <div className="flex justify-end space-x-3">
             <Link
               href="/admin/programs"

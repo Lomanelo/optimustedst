@@ -192,7 +192,7 @@ const ContactForm: React.FC = () => {
             </select>
           </div>
         </div>
-
+        
         <div className="mb-6">
           <label htmlFor="message" className="block text-gray-700 font-medium mb-2">
             {getContent('contact_form_message_label') || 'Message'}*
