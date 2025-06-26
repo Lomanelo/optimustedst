@@ -32,7 +32,7 @@ const Hero: React.FC = () => {
     <section 
       id="hero" 
       className="relative min-h-[80vh] flex items-center bg-primary bg-cover bg-center overflow-hidden"
-      style={{ backgroundImage: "url('/grabbedPhotos/hero/campus-students.jpg')" }}
+      style={{ backgroundImage: "url('/001HQ.jpg')" }}
     >
       {/* Overlay */}
       <div className="absolute inset-0 bg-primary/75"></div>
