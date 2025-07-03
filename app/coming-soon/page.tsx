@@ -1,12 +1,9 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-import { useAuth } from '../contexts/auth-context';
-import { collection, doc, setDoc, serverTimestamp, getDoc } from 'firebase/firestore';
+import { Facebook, Instagram, Twitter, Linkedin, MessageCircle, Music, CheckCircle, Globe } from 'lucide-react';
+import { doc, getDoc } from 'firebase/firestore';
 import { db } from '../../src/firebase/firebase';
-import { Facebook, Instagram, Twitter, Linkedin, CheckCircle, Globe } from 'lucide-react';
-import { SiTiktok, SiSnapchat } from 'react-icons/si';
 import Head from 'next/head';
 
 interface SocialMediaLinks {
@@ -35,6 +32,9 @@ interface UTMParameters {
   utm_content: string;
 }
 
+// Google Apps Script URL - Direct submission for ad traffic safety
+const GOOGLE_APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzETSBs4FkIKwZWtBur-ADi1wpypZ9gdJy48MRWohiJhUWXMC4r-rFLtLfs6KFKXYfZ/exec';
+
 export default function ComingSoonPage() {
   const [formData, setFormData] = useState<FormData>({
     firstName: '',
@@ -52,7 +52,6 @@ export default function ComingSoonPage() {
     utm_term: '',
     utm_content: ''
   });
-  const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [language, setLanguage] = useState<'ar' | 'en'>('ar');
   const [socialMedia, setSocialMedia] = useState<SocialMediaLinks>({
@@ -67,6 +66,14 @@ export default function ComingSoonPage() {
   useEffect(() => {
     loadSocialMediaLinks();
     captureUTMParameters();
+    
+    // Check if we're on the thank you page (success parameter)
+    if (typeof window !== 'undefined') {
+      const urlParams = new URLSearchParams(window.location.search);
+      if (urlParams.get('success') === 'true') {
+        setIsSubmitted(true);
+      }
+    }
   }, []);
 
   const captureUTMParameters = () => {
@@ -125,98 +132,32 @@ export default function ComingSoonPage() {
     setCountryCode(e.target.value);
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    
+  const validateForm = () => {
     if (!formData.firstName || !formData.lastName || !formData.phone || !formData.email || !formData.gender || !formData.certificate) {
       const alertMessage = language === 'ar' 
         ? 'يرجى ملء جميع الحقول' 
         : 'Please fill in all fields';
       alert(alertMessage);
-      return;
+      return false;
     }
-
-    setIsSubmitting(true);
-
-    try {
-      console.log('Submitting form data:', formData);
-      console.log('Including UTM parameters:', utmParams);
+    return true;
+  };
       
-      // Get the current origin for the API call
-      const apiUrl = typeof window !== 'undefined' 
-        ? `${window.location.origin}/api/submit-form`
-        : '/api/submit-form';
-      
-      console.log('API URL:', apiUrl);
-      
-      // Submit to Google Sheets with UTM parameters
-      const response = await fetch(apiUrl, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          firstName: formData.firstName,
-          lastName: formData.lastName,
-          countryCode: countryCode,
-          phone: formData.phone,
-          email: formData.email,
-          gender: formData.gender,
-          certificate: formData.certificate,
-          timestamp: new Date().toISOString(),
-          // Include UTM parameters
-          utm_source: utmParams.utm_source,
-          utm_medium: utmParams.utm_medium,
-          utm_campaign: utmParams.utm_campaign,
-          utm_term: utmParams.utm_term,
-          utm_content: utmParams.utm_content,
-          // Also include the full URL for reference
-          page_url: typeof window !== 'undefined' ? window.location.href : ''
-        }),
-      });
-
-      console.log('API Response status:', response.status);
-      
-      // Check if response is actually JSON
-      const contentType = response.headers.get('content-type');
-      console.log('Response content type:', contentType);
-      
-      let responseData;
-      if (contentType && contentType.includes('application/json')) {
-        responseData = await response.json();
-      } else {
-        const responseText = await response.text();
-        console.log('Non-JSON response:', responseText);
-        throw new Error(`Server returned non-JSON response: ${response.status} ${response.statusText}`);
-      }
-      
-      console.log('API Response data:', responseData);
-
-      if (response.ok) {
-        setIsSubmitted(true);
-        setFormData({
-          firstName: '',
-          lastName: '',
-          phone: '',
-          email: '',
-          gender: '',
-          certificate: ''
-        });
-        setCountryCode('+966');
-        console.log('Form submitted successfully to Google Sheets with UTM tracking');
-      } else {
-        // Handle server errors
-        throw new Error(`Server error: ${responseData.error || 'Unknown error'}`);
-      }
-    } catch (error) {
-      console.error('Error submitting form:', error);
-      const errorMessage = language === 'ar'
-        ? `حدث خطأ في إرسال النموذج: ${error instanceof Error ? error.message : 'خطأ غير معروف'}. يرجى المحاولة مرة أخرى`
-        : `There was an error submitting your form: ${error instanceof Error ? error.message : 'Unknown error'}. Please try again.`;
-      alert(errorMessage);
-    } finally {
-      setIsSubmitting(false);
-    }
+  // Create current timestamp
+  const getCurrentTimestamp = () => {
+    const now = new Date();
+    const dateOnly = now.toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit'
+    });
+    const timeOnly = now.toLocaleTimeString('en-US', {
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
+      hour12: true
+    });
+    return { dateOnly, timeOnly };
   };
 
   const getSocialIcon = (platform: keyof SocialMediaLinks) => {
@@ -230,11 +171,11 @@ export default function ComingSoonPage() {
       case 'twitter':
         return <Twitter {...iconProps} className="text-blue-400 hover:text-blue-500" />;
       case 'snapchat':
-        return <SiSnapchat {...iconProps} className="text-yellow-500 hover:text-yellow-600" />;
+        return <MessageCircle {...iconProps} className="text-yellow-500 hover:text-yellow-600" />;
       case 'linkedin':
         return <Linkedin {...iconProps} className="text-blue-700 hover:text-blue-800" />;
       case 'tiktok':
-        return <SiTiktok {...iconProps} className="text-black hover:text-gray-800" />;
+        return <Music {...iconProps} className="text-black hover:text-gray-800" />;
       default:
         return null;
     }
@@ -253,7 +194,7 @@ export default function ComingSoonPage() {
       last_name: 'اسم العائلة',
       phone: 'رقم الهاتف',
       email: 'عنوان البريد الإلكتروني',
-      gender: 'نوع',
+      gender: 'الجنس',
       male: 'ذكر',
       female: 'أنثى',
       certificate: 'الشهادة المهتم بها',
@@ -268,9 +209,18 @@ export default function ComingSoonPage() {
       contact_soon: 'سيتواصل معكم فريقنا قريباً بمزيد من المعلومات.',
       success_title: 'تم التسجيل بنجاح!',
       success_message: 'شكراً لاهتمامك. سنتواصل معك قريباً.',
+      duplicate_title: 'تم التسجيل مسبقاً',
+      duplicate_message: 'تم تسجيل بياناتك مسبقاً باستخدام نفس',
+      duplicate_email: 'البريد الإلكتروني',
+      duplicate_phone: 'رقم الهاتف',
+      duplicate_contact: 'سيتواصل معك فريقنا قريباً.',
+      error_title: 'خطأ في الإرسال',
+      error_message: 'حدث خطأ أثناء إرسال النموذج. يرجى المحاولة مرة أخرى.',
+      try_again: 'حاول مرة أخرى',
       disclaimer: 'بإرسال هذا النموذج، أنت توافق على تلقي معلومات حول برامجنا.',
       stay_connected: 'تابعونا للحصول على التحديثات',
-              copyright: '© جميع الحقوق محفوظة. أوبتيموس ٢٠٢٥ '
+      copyright: '© جميع الحقوق محفوظة. أوبتيموس ٢٠٢٤ ',
+      register_another: 'تسجيل آخر'
     },
     en: {
       title: 'Coming Soon - OPTIMUS KSA | Your Gateway to the Future',
@@ -289,7 +239,7 @@ export default function ComingSoonPage() {
       certificate_mba: 'MBA',
       certificate_phd: 'PHD/BDA',
       certificate_diploma: 'Diploma',
-      certificate_course: 'Course',
+      certificate_course: 'Training Course',
       certificate_other: 'Other',
       submit_button: 'Register Your Interest',
       submitting: 'Submitting...',
@@ -297,14 +247,115 @@ export default function ComingSoonPage() {
       contact_soon: 'Our team will contact you soon with more information.',
       success_title: 'Registration Successful!',
       success_message: 'Thank you for your interest. We\'ll be in touch soon.',
+      duplicate_title: 'Already Registered',
+      duplicate_message: 'Your information has already been registered using the same',
+      duplicate_email: 'email address',
+      duplicate_phone: 'phone number',
+      duplicate_contact: 'Our team will contact you soon.',
+      error_title: 'Submission Error',
+      error_message: 'An error occurred while submitting the form. Please try again.',
+      try_again: 'Try Again',
       disclaimer: 'By submitting this form, you agree to receive information about our programs.',
       stay_connected: 'Stay Connected',
-              copyright: '© 2025 Optimus. All rights reserved.'
+      copyright: '© 2024 Optimus. All rights reserved.',
+      register_another: 'Register Another'
     }
   };
 
   const currentContent = content[language];
   const isRTL = language === 'ar';
+
+  // Create timestamp for form submission
+  const { dateOnly, timeOnly } = getCurrentTimestamp();
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!validateForm()) {
+      return;
+    }
+
+    // Show loading state
+    const submitButton = e.currentTarget.querySelector('button[type="submit"]') as HTMLButtonElement;
+    const originalText = submitButton.textContent;
+    submitButton.disabled = true;
+    submitButton.textContent = language === 'ar' ? 'جاري الإرسال...' : 'Submitting...';
+
+    try {
+      const { dateOnly, timeOnly } = getCurrentTimestamp();
+      
+      // Create a hidden iframe for form submission
+      const iframe = document.createElement('iframe');
+      iframe.style.display = 'none';
+      iframe.name = 'form-submission-frame';
+      document.body.appendChild(iframe);
+      
+      // Create a form dynamically for submission
+      const form = document.createElement('form');
+      form.action = GOOGLE_APPS_SCRIPT_URL;
+      form.method = 'POST';
+      form.target = 'form-submission-frame';
+      form.style.display = 'none';
+      
+      // Add all form data as hidden inputs
+      const formFields = {
+        firstName: formData.firstName,
+        lastName: formData.lastName,
+        countryCode: countryCode,
+        phone: formData.phone,
+        email: formData.email,
+        gender: formData.gender,
+        certificate: formData.certificate,
+        date: dateOnly,
+        timestamp: timeOnly,
+        utm_source: utmParams.utm_source,
+        utm_medium: utmParams.utm_medium,
+        utm_campaign: utmParams.utm_campaign,
+        utm_term: utmParams.utm_term,
+        utm_content: utmParams.utm_content,
+        page_url: typeof window !== 'undefined' ? window.location.href : ''
+      };
+      
+      Object.entries(formFields).forEach(([key, value]) => {
+        const input = document.createElement('input');
+        input.type = 'hidden';
+        input.name = key;
+        input.value = value || '';
+        form.appendChild(input);
+      });
+      
+      document.body.appendChild(form);
+      
+      // Submit the form
+      form.submit();
+      
+      // Wait a moment for submission, then redirect
+      setTimeout(() => {
+        // Clean up
+        document.body.removeChild(iframe);
+        document.body.removeChild(form);
+        
+        // Redirect to success page
+        if (typeof window !== 'undefined') {
+          window.location.href = `/coming-soon?success=true&lang=${language}`;
+        }
+      }, 1000);
+
+    } catch (error) {
+      console.error('Submission error:', error);
+      
+      // Show user-friendly error message
+      const errorMessage = language === 'ar' 
+        ? 'حدث خطأ أثناء الإرسال. يرجى المحاولة مرة أخرى.' 
+        : 'An error occurred during submission. Please try again.';
+      
+      alert(errorMessage);
+      
+      // Reset button state
+      submitButton.disabled = false;
+      submitButton.textContent = originalText;
+    }
+  };
 
   return (
     <>
@@ -369,14 +420,14 @@ export default function ComingSoonPage() {
         <main 
           className="py-12 lg:py-16 flex-grow relative min-h-[85vh] flex items-center"
           style={{
-            backgroundImage: 'url(/guyworknew.jpg)',
+            backgroundImage: 'url(/001HQ.jpg)',
             backgroundSize: 'cover',
-            backgroundPosition: 'left 20%',
+            backgroundPosition: 'center',
             backgroundRepeat: 'no-repeat'
           }}
         >
           {/* Hero overlay for better content visibility */}
-          <div className="absolute inset-0 bg-gradient-to-r from-white/30 via-black/40 to-black/60"></div>
+          <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/60 to-black/80"></div>
           
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-start">
@@ -417,7 +468,13 @@ export default function ComingSoonPage() {
                 <div className="bg-white/95 backdrop-blur-sm rounded-2xl p-8 lg:p-10 shadow-2xl border border-white/20">
                   {!isSubmitted ? (
                     <>
-                      <form onSubmit={handleSubmit} className="space-y-6">
+                      {/* DYNAMIC FORM SUBMISSION - BYPASSES CORS RESTRICTIONS */}
+                      <form 
+                        onSubmit={handleSubmit}
+                        className="space-y-6"
+                      >
+
+
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                           <div>
                             <input
@@ -450,6 +507,7 @@ export default function ComingSoonPage() {
                         <div>
                           <div className="flex gap-2" dir="ltr">
                             <select
+                              name="countryCode"
                               value={countryCode}
                               onChange={handleCountryCodeChange}
                               className="px-3 py-3 pr-8 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#2B1F4F] focus:border-transparent outline-none transition-colors bg-white font-normal appearance-none text-gray-500 flex-shrink-0"
@@ -507,17 +565,6 @@ export default function ComingSoonPage() {
                               <option value="+90" style={{ color: '#6b7280' }}>🇹🇷 +90</option>
                               <option value="+98" style={{ color: '#6b7280' }}>🇮🇷 +98</option>
                               <option value="+92" style={{ color: '#6b7280' }}>🇵🇰 +92</option>
-                              <option value="+880" style={{ color: '#6b7280' }}>🇧🇩 +880</option>
-                              <option value="+94" style={{ color: '#6b7280' }}>🇱🇰 +94</option>
-                              <option value="+977" style={{ color: '#6b7280' }}>🇳🇵 +977</option>
-                              <option value="+93" style={{ color: '#6b7280' }}>🇦🇫 +93</option>
-                              <option value="+964" style={{ color: '#6b7280' }}>🇮🇶 +964</option>
-                              <option value="+963" style={{ color: '#6b7280' }}>🇸🇾 +963</option>
-                              <option value="+212" style={{ color: '#6b7280' }}>🇲🇦 +212</option>
-                              <option value="+213" style={{ color: '#6b7280' }}>🇩🇿 +213</option>
-                              <option value="+216" style={{ color: '#6b7280' }}>🇹🇳 +216</option>
-                              <option value="+218" style={{ color: '#6b7280' }}>🇱🇾 +218</option>
-                              <option value="+249" style={{ color: '#6b7280' }}>🇸🇩 +249</option>
                             </select>
                             <input
                               type="tel"
@@ -613,18 +660,10 @@ export default function ComingSoonPage() {
                         
                         <button
                           type="submit"
-                          disabled={isSubmitting}
                           className="w-full bg-[#058C42] hover:bg-green-700 text-white font-semibold py-4 px-6 rounded-md transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                           style={{ fontFamily: isRTL ? 'Cairo, sans-serif' : 'inherit' }}
                         >
-                          {isSubmitting ? (
-                            <div className="flex items-center justify-center">
-                              <div className={`animate-spin rounded-full h-5 w-5 border-2 border-white border-t-transparent ${isRTL ? 'ml-2' : 'mr-2'}`}></div>
-                              {currentContent.submitting}
-                            </div>
-                          ) : (
-                            currentContent.submit_button
-                          )}
+                          {currentContent.submit_button}
                         </button>
                       </form>
                       
@@ -649,6 +688,23 @@ export default function ComingSoonPage() {
                           {currentContent.success_message}
                         </p>
                       </div>
+                      
+                      <button
+                        onClick={() => {
+                          setIsSubmitted(false);
+                          // Remove success parameter from URL
+                          if (typeof window !== 'undefined') {
+                            const url = new URL(window.location.href);
+                            url.searchParams.delete('success');
+                            url.searchParams.delete('lang');
+                            window.history.replaceState({}, '', url.toString());
+                          }
+                        }}
+                        className="bg-[#2B1F4F] hover:bg-[#1d1437] text-white px-6 py-2 rounded-md transition-colors"
+                        style={{ fontFamily: isRTL ? 'Cairo, sans-serif' : 'inherit' }}
+                      >
+                        {currentContent.register_another}
+                      </button>
                     </div>
                   )}
                 </div>

@@ -734,6 +734,558 @@ export const extractedContent: CMSContent[] = [
     updatedBy: 'system'
   },
   {
+    id: 'programs_page_certification',
+    key: 'programs_page_certification',
+    section: CMS_SECTIONS.PROGRAMS,
+    content_en: 'Internationally accredited programs with recognized certificates',
+    content_ar: 'برامج معتمدة دولياً مع شهادات معترف بها',
+    description: 'Programs page certification tagline',
+    lastUpdated: new Date().toISOString(),
+    updatedBy: 'system'
+  },
+  {
+    id: 'programs_page_filters_title',
+    key: 'programs_page_filters_title',
+    section: CMS_SECTIONS.PROGRAMS,
+    content_en: 'Filters',
+    content_ar: 'المرشحات',
+    description: 'Programs filters section title',
+    lastUpdated: new Date().toISOString(),
+    updatedBy: 'system'
+  },
+  {
+    id: 'programs_page_clear_all',
+    key: 'programs_page_clear_all',
+    section: CMS_SECTIONS.PROGRAMS,
+    content_en: 'Clear All',
+    content_ar: 'مسح الكل',
+    description: 'Clear all filters button',
+    lastUpdated: new Date().toISOString(),
+    updatedBy: 'system'
+  },
+  {
+    id: 'programs_page_program_type',
+    key: 'programs_page_program_type',
+    section: CMS_SECTIONS.PROGRAMS,
+    content_en: 'Program Type',
+    content_ar: 'نوع البرنامج',
+    description: 'Program type filter label',
+    lastUpdated: new Date().toISOString(),
+    updatedBy: 'system'
+  },
+  {
+    id: 'programs_page_speciality',
+    key: 'programs_page_speciality',
+    section: CMS_SECTIONS.PROGRAMS,
+    content_en: 'Speciality',
+    content_ar: 'التخصص',
+    description: 'Speciality filter label',
+    lastUpdated: new Date().toISOString(),
+    updatedBy: 'system'
+  },
+  {
+    id: 'programs_page_study_time',
+    key: 'programs_page_study_time',
+    section: CMS_SECTIONS.PROGRAMS,
+    content_en: 'Study Time',
+    content_ar: 'وقت الدراسة',
+    description: 'Study time filter label',
+    lastUpdated: new Date().toISOString(),
+    updatedBy: 'system'
+  },
+  {
+    id: 'programs_page_category',
+    key: 'programs_page_category',
+    section: CMS_SECTIONS.PROGRAMS,
+    content_en: 'Category',
+    content_ar: 'الفئة',
+    description: 'Category filter label',
+    lastUpdated: new Date().toISOString(),
+    updatedBy: 'system'
+  },
+  {
+    id: 'programs_page_accreditation',
+    key: 'programs_page_accreditation',
+    section: CMS_SECTIONS.PROGRAMS,
+    content_en: 'Accreditation',
+    content_ar: 'الاعتماد',
+    description: 'Accreditation filter label',
+    lastUpdated: new Date().toISOString(),
+    updatedBy: 'system'
+  },
+  {
+    id: 'programs_page_academic_partnerships',
+    key: 'programs_page_academic_partnerships',
+    section: CMS_SECTIONS.PROGRAMS,
+    content_en: 'Academic Partnerships',
+    content_ar: 'الشراكات الأكاديمية',
+    description: 'Academic partnerships filter label',
+    lastUpdated: new Date().toISOString(),
+    updatedBy: 'system'
+  },
+  {
+    id: 'programs_page_showing_count',
+    key: 'programs_page_showing_count',
+    section: CMS_SECTIONS.PROGRAMS,
+    content_en: 'Showing {count} of {total} programs',
+    content_ar: 'عرض {count} من {total} برنامج',
+    description: 'Programs count display',
+    lastUpdated: new Date().toISOString(),
+    updatedBy: 'system'
+  },
+  {
+    id: 'programs_page_no_results',
+    key: 'programs_page_no_results',
+    section: CMS_SECTIONS.PROGRAMS,
+    content_en: 'No programs found matching your criteria',
+    content_ar: 'لم يتم العثور على برامج تطابق معاييرك',
+    description: 'No programs found message',
+    lastUpdated: new Date().toISOString(),
+    updatedBy: 'system'
+  },
+  {
+    id: 'programs_page_clear_filters',
+    key: 'programs_page_clear_filters',
+    section: CMS_SECTIONS.PROGRAMS,
+    content_en: 'Clear Filters',
+    content_ar: 'مسح المرشحات',
+    description: 'Clear filters button',
+    lastUpdated: new Date().toISOString(),
+    updatedBy: 'system'
+  },
+  {
+    id: 'programs_page_program_type_label',
+    key: 'programs_page_program_type_label',
+    section: CMS_SECTIONS.PROGRAMS,
+    content_en: 'Program Type:',
+    content_ar: 'نوع البرنامج:',
+    description: 'Program type label in cards',
+    lastUpdated: new Date().toISOString(),
+    updatedBy: 'system'
+  },
+  {
+    id: 'programs_page_speciality_label',
+    key: 'programs_page_speciality_label',
+    section: CMS_SECTIONS.PROGRAMS,
+    content_en: 'Speciality:',
+    content_ar: 'التخصص:',
+    description: 'Speciality label in cards',
+    lastUpdated: new Date().toISOString(),
+    updatedBy: 'system'
+  },
+  {
+    id: 'programs_page_study_time_label',
+    key: 'programs_page_study_time_label',
+    section: CMS_SECTIONS.PROGRAMS,
+    content_en: 'Study Time:',
+    content_ar: 'وقت الدراسة:',
+    description: 'Study time label in cards',
+    lastUpdated: new Date().toISOString(),
+    updatedBy: 'system'
+  },
+  {
+    id: 'programs_page_accredited_by',
+    key: 'programs_page_accredited_by',
+    section: CMS_SECTIONS.PROGRAMS,
+    content_en: 'Accredited by:',
+    content_ar: 'معتمد من:',
+    description: 'Accredited by label in cards',
+    lastUpdated: new Date().toISOString(),
+    updatedBy: 'system'
+  },
+  {
+    id: 'programs_page_more',
+    key: 'programs_page_more',
+    section: CMS_SECTIONS.PROGRAMS,
+    content_en: 'more',
+    content_ar: 'المزيد',
+    description: 'More text for accreditations',
+    lastUpdated: new Date().toISOString(),
+    updatedBy: 'system'
+  },
+  {
+    id: 'programs_page_learn_more',
+    key: 'programs_page_learn_more',
+    section: CMS_SECTIONS.PROGRAMS,
+    content_en: 'Learn More',
+    content_ar: 'اعرف المزيد',
+    description: 'Learn more button text',
+    lastUpdated: new Date().toISOString(),
+    updatedBy: 'system'
+  },
+  {
+    id: 'programs_page_loading',
+    key: 'programs_page_loading',
+    section: CMS_SECTIONS.PROGRAMS,
+    content_en: 'Loading programs...',
+    content_ar: 'جاري تحميل البرامج...',
+    description: 'Loading programs message',
+    lastUpdated: new Date().toISOString(),
+    updatedBy: 'system'
+  },
+
+  // PROGRAM TYPE OPTIONS
+  {
+    id: 'filter_program_type_mba',
+    key: 'filter_program_type_mba',
+    section: CMS_SECTIONS.PROGRAMS,
+    content_en: 'MBA',
+    content_ar: 'ماجستير إدارة الأعمال',
+    description: 'MBA program type filter option',
+    lastUpdated: new Date().toISOString(),
+    updatedBy: 'system'
+  },
+  {
+    id: 'filter_program_type_phd',
+    key: 'filter_program_type_phd',
+    section: CMS_SECTIONS.PROGRAMS,
+    content_en: 'PHD',
+    content_ar: 'دكتوراه',
+    description: 'PHD program type filter option',
+    lastUpdated: new Date().toISOString(),
+    updatedBy: 'system'
+  },
+
+  // SPECIALITY OPTIONS
+  {
+    id: 'filter_speciality_digital_transformation',
+    key: 'filter_speciality_digital_transformation',
+    section: CMS_SECTIONS.PROGRAMS,
+    content_en: 'Digital Transformation',
+    content_ar: 'التحول الرقمي',
+    description: 'Digital Transformation speciality option',
+    lastUpdated: new Date().toISOString(),
+    updatedBy: 'system'
+  },
+  {
+    id: 'filter_speciality_strategic_management',
+    key: 'filter_speciality_strategic_management',
+    section: CMS_SECTIONS.PROGRAMS,
+    content_en: 'Strategic Management',
+    content_ar: 'الإدارة الاستراتيجية',
+    description: 'Strategic Management speciality option',
+    lastUpdated: new Date().toISOString(),
+    updatedBy: 'system'
+  },
+  {
+    id: 'filter_speciality_healthcare_management',
+    key: 'filter_speciality_healthcare_management',
+    section: CMS_SECTIONS.PROGRAMS,
+    content_en: 'Healthcare Management',
+    content_ar: 'إدارة الرعاية الصحية',
+    description: 'Healthcare Management speciality option',
+    lastUpdated: new Date().toISOString(),
+    updatedBy: 'system'
+  },
+  {
+    id: 'filter_speciality_project_management',
+    key: 'filter_speciality_project_management',
+    section: CMS_SECTIONS.PROGRAMS,
+    content_en: 'Project Management',
+    content_ar: 'إدارة المشاريع',
+    description: 'Project Management speciality option',
+    lastUpdated: new Date().toISOString(),
+    updatedBy: 'system'
+  },
+  {
+    id: 'filter_speciality_accounting_finance_management',
+    key: 'filter_speciality_accounting_finance_management',
+    section: CMS_SECTIONS.PROGRAMS,
+    content_en: 'Accounting & Finance Management',
+    content_ar: 'إدارة المحاسبة والمالية',
+    description: 'Accounting & Finance Management speciality option',
+    lastUpdated: new Date().toISOString(),
+    updatedBy: 'system'
+  },
+  {
+    id: 'filter_speciality_marketing_management',
+    key: 'filter_speciality_marketing_management',
+    section: CMS_SECTIONS.PROGRAMS,
+    content_en: 'Marketing Management',
+    content_ar: 'إدارة التسويق',
+    description: 'Marketing Management speciality option',
+    lastUpdated: new Date().toISOString(),
+    updatedBy: 'system'
+  },
+  {
+    id: 'filter_speciality_logistics_supply_chain',
+    key: 'filter_speciality_logistics_supply_chain',
+    section: CMS_SECTIONS.PROGRAMS,
+    content_en: 'Logistics & Supply Chain Management',
+    content_ar: 'إدارة اللوجستيات وسلسلة التوريد',
+    description: 'Logistics & Supply Chain Management speciality option',
+    lastUpdated: new Date().toISOString(),
+    updatedBy: 'system'
+  },
+  {
+    id: 'filter_speciality_human_resources',
+    key: 'filter_speciality_human_resources',
+    section: CMS_SECTIONS.PROGRAMS,
+    content_en: 'Human Resources Management',
+    content_ar: 'إدارة الموارد البشرية',
+    description: 'Human Resources Management speciality option',
+    lastUpdated: new Date().toISOString(),
+    updatedBy: 'system'
+  },
+  {
+    id: 'filter_speciality_quality_management',
+    key: 'filter_speciality_quality_management',
+    section: CMS_SECTIONS.PROGRAMS,
+    content_en: 'Quality Management',
+    content_ar: 'إدارة الجودة',
+    description: 'Quality Management speciality option',
+    lastUpdated: new Date().toISOString(),
+    updatedBy: 'system'
+  },
+  {
+    id: 'filter_speciality_accounting_finance',
+    key: 'filter_speciality_accounting_finance',
+    section: CMS_SECTIONS.PROGRAMS,
+    content_en: 'Accounting & Finance',
+    content_ar: 'المحاسبة والمالية',
+    description: 'Accounting & Finance speciality option',
+    lastUpdated: new Date().toISOString(),
+    updatedBy: 'system'
+  },
+  {
+    id: 'filter_speciality_entrepreneurship_innovation',
+    key: 'filter_speciality_entrepreneurship_innovation',
+    section: CMS_SECTIONS.PROGRAMS,
+    content_en: 'Entrepreneurship & Innovation',
+    content_ar: 'ريادة الأعمال والابتكار',
+    description: 'Entrepreneurship & Innovation speciality option',
+    lastUpdated: new Date().toISOString(),
+    updatedBy: 'system'
+  },
+  {
+    id: 'filter_speciality_international_business',
+    key: 'filter_speciality_international_business',
+    section: CMS_SECTIONS.PROGRAMS,
+    content_en: 'International Business Management',
+    content_ar: 'إدارة الأعمال الدولية',
+    description: 'International Business Management speciality option',
+    lastUpdated: new Date().toISOString(),
+    updatedBy: 'system'
+  },
+  {
+    id: 'filter_speciality_sports_management',
+    key: 'filter_speciality_sports_management',
+    section: CMS_SECTIONS.PROGRAMS,
+    content_en: 'Sports Management',
+    content_ar: 'إدارة الرياضة',
+    description: 'Sports Management speciality option',
+    lastUpdated: new Date().toISOString(),
+    updatedBy: 'system'
+  },
+  {
+    id: 'filter_speciality_hospitality_events',
+    key: 'filter_speciality_hospitality_events',
+    section: CMS_SECTIONS.PROGRAMS,
+    content_en: 'Hospitality & Events Management',
+    content_ar: 'إدارة الضيافة والفعاليات',
+    description: 'Hospitality & Events Management speciality option',
+    lastUpdated: new Date().toISOString(),
+    updatedBy: 'system'
+  },
+
+  // STUDY TIME OPTIONS
+  {
+    id: 'filter_study_time_under_50',
+    key: 'filter_study_time_under_50',
+    section: CMS_SECTIONS.PROGRAMS,
+    content_en: '< 50 hours',
+    content_ar: 'أقل من 50 ساعة',
+    description: 'Under 50 hours study time option',
+    lastUpdated: new Date().toISOString(),
+    updatedBy: 'system'
+  },
+  {
+    id: 'filter_study_time_50_100',
+    key: 'filter_study_time_50_100',
+    section: CMS_SECTIONS.PROGRAMS,
+    content_en: '50-100 hours',
+    content_ar: '50-100 ساعة',
+    description: '50-100 hours study time option',
+    lastUpdated: new Date().toISOString(),
+    updatedBy: 'system'
+  },
+  {
+    id: 'filter_study_time_100_200',
+    key: 'filter_study_time_100_200',
+    section: CMS_SECTIONS.PROGRAMS,
+    content_en: '100-200 hours',
+    content_ar: '100-200 ساعة',
+    description: '100-200 hours study time option',
+    lastUpdated: new Date().toISOString(),
+    updatedBy: 'system'
+  },
+  {
+    id: 'filter_study_time_over_200',
+    key: 'filter_study_time_over_200',
+    section: CMS_SECTIONS.PROGRAMS,
+    content_en: '> 200 hours',
+    content_ar: 'أكثر من 200 ساعة',
+    description: 'Over 200 hours study time option',
+    lastUpdated: new Date().toISOString(),
+    updatedBy: 'system'
+  },
+
+  // CATEGORY OPTIONS
+  {
+    id: 'filter_category_business',
+    key: 'filter_category_business',
+    section: CMS_SECTIONS.PROGRAMS,
+    content_en: 'Business',
+    content_ar: 'الأعمال',
+    description: 'Business category option',
+    lastUpdated: new Date().toISOString(),
+    updatedBy: 'system'
+  },
+  {
+    id: 'filter_category_technology',
+    key: 'filter_category_technology',
+    section: CMS_SECTIONS.PROGRAMS,
+    content_en: 'Technology',
+    content_ar: 'التكنولوجيا',
+    description: 'Technology category option',
+    lastUpdated: new Date().toISOString(),
+    updatedBy: 'system'
+  },
+  {
+    id: 'filter_category_healthcare',
+    key: 'filter_category_healthcare',
+    section: CMS_SECTIONS.PROGRAMS,
+    content_en: 'Healthcare',
+    content_ar: 'الرعاية الصحية',
+    description: 'Healthcare category option',
+    lastUpdated: new Date().toISOString(),
+    updatedBy: 'system'
+  },
+  {
+    id: 'filter_category_education',
+    key: 'filter_category_education',
+    section: CMS_SECTIONS.PROGRAMS,
+    content_en: 'Education',
+    content_ar: 'التعليم',
+    description: 'Education category option',
+    lastUpdated: new Date().toISOString(),
+    updatedBy: 'system'
+  },
+  {
+    id: 'filter_category_arts',
+    key: 'filter_category_arts',
+    section: CMS_SECTIONS.PROGRAMS,
+    content_en: 'Arts',
+    content_ar: 'الفنون',
+    description: 'Arts category option',
+    lastUpdated: new Date().toISOString(),
+    updatedBy: 'system'
+  },
+
+  // ACCREDITATION OPTIONS
+  {
+    id: 'filter_accreditation_acbsp',
+    key: 'filter_accreditation_acbsp',
+    section: CMS_SECTIONS.PROGRAMS,
+    content_en: 'ACBSP',
+    content_ar: 'ACBSP',
+    description: 'ACBSP accreditation option',
+    lastUpdated: new Date().toISOString(),
+    updatedBy: 'system'
+  },
+  {
+    id: 'filter_accreditation_athe',
+    key: 'filter_accreditation_athe',
+    section: CMS_SECTIONS.PROGRAMS,
+    content_en: 'ATHE',
+    content_ar: 'ATHE',
+    description: 'ATHE accreditation option',
+    lastUpdated: new Date().toISOString(),
+    updatedBy: 'system'
+  },
+  {
+    id: 'filter_accreditation_qualifi',
+    key: 'filter_accreditation_qualifi',
+    section: CMS_SECTIONS.PROGRAMS,
+    content_en: 'QUALIFI',
+    content_ar: 'QUALIFI',
+    description: 'QUALIFI accreditation option',
+    lastUpdated: new Date().toISOString(),
+    updatedBy: 'system'
+  },
+  {
+    id: 'filter_accreditation_iacbe',
+    key: 'filter_accreditation_iacbe',
+    section: CMS_SECTIONS.PROGRAMS,
+    content_en: 'IACBE',
+    content_ar: 'IACBE',
+    description: 'IACBE accreditation option',
+    lastUpdated: new Date().toISOString(),
+    updatedBy: 'system'
+  },
+  {
+    id: 'filter_accreditation_ibas',
+    key: 'filter_accreditation_ibas',
+    section: CMS_SECTIONS.PROGRAMS,
+    content_en: 'IBAS',
+    content_ar: 'IBAS',
+    description: 'IBAS accreditation option',
+    lastUpdated: new Date().toISOString(),
+    updatedBy: 'system'
+  },
+  {
+    id: 'filter_accreditation_eduqua',
+    key: 'filter_accreditation_eduqua',
+    section: CMS_SECTIONS.PROGRAMS,
+    content_en: 'EDUQUA',
+    content_ar: 'EDUQUA',
+    description: 'EDUQUA accreditation option',
+    lastUpdated: new Date().toISOString(),
+    updatedBy: 'system'
+  },
+  {
+    id: 'filter_accreditation_qs',
+    key: 'filter_accreditation_qs',
+    section: CMS_SECTIONS.PROGRAMS,
+    content_en: 'QS',
+    content_ar: 'QS',
+    description: 'QS accreditation option',
+    lastUpdated: new Date().toISOString(),
+    updatedBy: 'system'
+  },
+  {
+    id: 'filter_accreditation_vern',
+    key: 'filter_accreditation_vern',
+    section: CMS_SECTIONS.PROGRAMS,
+    content_en: 'VERN',
+    content_ar: 'VERN',
+    description: 'VERN accreditation option',
+    lastUpdated: new Date().toISOString(),
+    updatedBy: 'system'
+  },
+
+  // ACADEMIC PARTNERSHIP OPTIONS
+  {
+    id: 'filter_partnership_bedfordshire',
+    key: 'filter_partnership_bedfordshire',
+    section: CMS_SECTIONS.PROGRAMS,
+    content_en: 'University of Bedfordshire',
+    content_ar: 'جامعة بيدفوردشاير',
+    description: 'University of Bedfordshire partnership option',
+    lastUpdated: new Date().toISOString(),
+    updatedBy: 'system'
+  },
+  {
+    id: 'filter_partnership_plymouth',
+    key: 'filter_partnership_plymouth',
+    section: CMS_SECTIONS.PROGRAMS,
+    content_en: 'University of Plymouth',
+    content_ar: 'جامعة بليموث',
+    description: 'University of Plymouth partnership option',
+    lastUpdated: new Date().toISOString(),
+    updatedBy: 'system'
+  },
+  {
     id: 'programs_filters_title',
     key: 'programs_filters_title',
     section: CMS_SECTIONS.PROGRAMS,
@@ -2434,6 +2986,182 @@ export const extractedContent: CMSContent[] = [
     content_en: 'Navigate to the Firebase Console',
     content_ar: 'انتقل إلى وحدة تحكم Firebase',
     description: 'Firebase instruction step 1',
+    lastUpdated: new Date().toISOString(),
+    updatedBy: 'system'
+  },
+
+  // LOGIN PAGE CONTENT
+  {
+    id: 'login_page_title',
+    key: 'login_page_title',
+    section: CMS_SECTIONS.LOGIN_PAGE,
+    content_en: 'Sign in to your account',
+    content_ar: 'تسجيل الدخول إلى حسابك',
+    description: 'Login page main title',
+    lastUpdated: new Date().toISOString(),
+    updatedBy: 'system'
+  },
+  {
+    id: 'login_sign_in_button',
+    key: 'login_sign_in_button',
+    section: CMS_SECTIONS.LOGIN_PAGE,
+    content_en: 'Sign in',
+    content_ar: 'تسجيل الدخول',
+    description: 'Sign in button text',
+    lastUpdated: new Date().toISOString(),
+    updatedBy: 'system'
+  },
+  {
+    id: 'login_no_account_signup',
+    key: 'login_no_account_signup',
+    section: CMS_SECTIONS.LOGIN_PAGE,
+    content_en: "Don't have an account? Sign up",
+    content_ar: 'ليس لديك حساب؟ سجل الآن',
+    description: 'Sign up link text for users without account',
+    lastUpdated: new Date().toISOString(),
+    updatedBy: 'system'
+  },
+  {
+    id: 'login_email_label',
+    key: 'login_email_label',
+    section: CMS_SECTIONS.LOGIN_PAGE,
+    content_en: 'Email address',
+    content_ar: 'عنوان البريد الإلكتروني',
+    description: 'Email field label on login form',
+    lastUpdated: new Date().toISOString(),
+    updatedBy: 'system'
+  },
+  {
+    id: 'login_password_label',
+    key: 'login_password_label',
+    section: CMS_SECTIONS.LOGIN_PAGE,
+    content_en: 'Password',
+    content_ar: 'كلمة المرور',
+    description: 'Password field label on login form',
+    lastUpdated: new Date().toISOString(),
+    updatedBy: 'system'
+  },
+  {
+    id: 'login_forgot_password',
+    key: 'login_forgot_password',
+    section: CMS_SECTIONS.LOGIN_PAGE,
+    content_en: 'Forgot your password?',
+    content_ar: 'نسيت كلمة المرور؟',
+    description: 'Forgot password link text',
+    lastUpdated: new Date().toISOString(),
+    updatedBy: 'system'
+  },
+  {
+    id: 'login_remember_me',
+    key: 'login_remember_me',
+    section: CMS_SECTIONS.LOGIN_PAGE,
+    content_en: 'Remember me',
+    content_ar: 'تذكرني',
+    description: 'Remember me checkbox label',
+    lastUpdated: new Date().toISOString(),
+    updatedBy: 'system'
+  },
+  {
+    id: 'login_signing_in',
+    key: 'login_signing_in',
+    section: CMS_SECTIONS.LOGIN_PAGE,
+    content_en: 'Signing in...',
+    content_ar: 'جاري تسجيل الدخول...',
+    description: 'Sign in loading state text',
+    lastUpdated: new Date().toISOString(),
+    updatedBy: 'system'
+  },
+  {
+    id: 'login_invalid_credentials',
+    key: 'login_invalid_credentials',
+    section: CMS_SECTIONS.LOGIN_PAGE,
+    content_en: 'Invalid email or password',
+    content_ar: 'البريد الإلكتروني أو كلمة المرور غير صحيحة',
+    description: 'Invalid login credentials error message',
+    lastUpdated: new Date().toISOString(),
+    updatedBy: 'system'
+  },
+  {
+    id: 'login_success_welcome',
+    key: 'login_success_welcome',
+    section: CMS_SECTIONS.LOGIN_PAGE,
+    content_en: 'Welcome back!',
+    content_ar: 'مرحباً بعودتك!',
+    description: 'Successful login welcome message',
+    lastUpdated: new Date().toISOString(),
+    updatedBy: 'system'
+  },
+
+  // SIGNUP/REGISTER LINK CONTENT
+  {
+    id: 'signup_page_title',
+    key: 'signup_page_title',
+    section: CMS_SECTIONS.REGISTER_PAGE,
+    content_en: 'Create your account',
+    content_ar: 'أنشئ حسابك',
+    description: 'Sign up page main title',
+    lastUpdated: new Date().toISOString(),
+    updatedBy: 'system'
+  },
+  {
+    id: 'signup_sign_up_button',
+    key: 'signup_sign_up_button',
+    section: CMS_SECTIONS.REGISTER_PAGE,
+    content_en: 'Sign up',
+    content_ar: 'التسجيل',
+    description: 'Sign up button text',
+    lastUpdated: new Date().toISOString(),
+    updatedBy: 'system'
+  },
+  {
+    id: 'signup_have_account_signin',
+    key: 'signup_have_account_signin',
+    section: CMS_SECTIONS.REGISTER_PAGE,
+    content_en: 'Already have an account? Sign in',
+    content_ar: 'لديك حساب بالفعل؟ تسجيل الدخول',
+    description: 'Sign in link text for users with existing account',
+    lastUpdated: new Date().toISOString(),
+    updatedBy: 'system'
+  },
+
+  // SEARCH FUNCTIONALITY
+  {
+    id: 'search_articles_placeholder',
+    key: 'search_articles_placeholder',
+    section: CMS_SECTIONS.BLOG_PAGE,
+    content_en: 'search articles...',
+    content_ar: 'البحث في المقالات...',
+    description: 'Search articles input placeholder',
+    lastUpdated: new Date().toISOString(),
+    updatedBy: 'system'
+  },
+  {
+    id: 'search_placeholder',
+    key: 'search_placeholder',
+    section: CMS_SECTIONS.GENERAL,
+    content_en: 'Search...',
+    content_ar: 'البحث...',
+    description: 'Generic search input placeholder',
+    lastUpdated: new Date().toISOString(),
+    updatedBy: 'system'
+  },
+  {
+    id: 'search_no_results',
+    key: 'search_no_results',
+    section: CMS_SECTIONS.GENERAL,
+    content_en: 'No results found',
+    content_ar: 'لم يتم العثور على نتائج',
+    description: 'No search results message',
+    lastUpdated: new Date().toISOString(),
+    updatedBy: 'system'
+  },
+  {
+    id: 'search_results_for',
+    key: 'search_results_for',
+    section: CMS_SECTIONS.GENERAL,
+    content_en: 'Search results for',
+    content_ar: 'نتائج البحث عن',
+    description: 'Search results header text',
     lastUpdated: new Date().toISOString(),
     updatedBy: 'system'
   },

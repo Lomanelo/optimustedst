@@ -31,6 +31,88 @@ const specialityOptions = [
   'Hospitality & Events Management'
 ];
 const studyTimeOptions = ['< 50 hours', '50-100 hours', '100-200 hours', '> 200 hours'];
+const categoryOptions = ['Business', 'Technology', 'Healthcare', 'Education', 'Arts'];
+const accreditationOptions = [
+  'ACBSP',
+  'ATHE', 
+  'QUALIFI',
+  'IACBE',
+  'IBAS',
+  'EDUQUA',
+  'QS',
+  'VERN'
+];
+const academicPartnershipOptions = [
+  'University of Bedfordshire',
+  'University of Plymouth'
+];
+
+// Translation key mapping functions
+const getFilterTranslationKey = (filterType: string, value: string): string => {
+  // Handle specific mappings for complex names
+  const specialMappings: Record<string, string> = {
+    // Program types
+    'MBA': 'filter_program_type_mba',
+    'PHD': 'filter_program_type_phd',
+    
+    // Study time ranges
+    '< 50 hours': 'filter_study_time_under_50',
+    '50-100 hours': 'filter_study_time_50_100', 
+    '100-200 hours': 'filter_study_time_100_200',
+    '> 200 hours': 'filter_study_time_over_200',
+    
+    // Partnerships
+    'University of Bedfordshire': 'filter_partnership_bedfordshire',
+    'University of Plymouth': 'filter_partnership_plymouth',
+    
+    // Specialities - handle special cases
+    'Accounting & Finance Management': 'filter_speciality_accounting_finance_management',
+    'Logistics & Supply Chain Management': 'filter_speciality_logistics_supply_chain',
+    'Human Resources Management': 'filter_speciality_human_resources',
+    'Entrepreneurship & Innovation': 'filter_speciality_entrepreneurship_innovation',
+    'International Business Management': 'filter_speciality_international_business',
+    'Hospitality & Events Management': 'filter_speciality_hospitality_events',
+    'Accounting & Finance': 'filter_speciality_accounting_finance'
+  };
+  
+  // Check if we have a special mapping first
+  if (specialMappings[value]) {
+    return specialMappings[value];
+  }
+  
+  // Otherwise, generate the key automatically
+  const valueKey = value.toLowerCase()
+    .replace(/\s+/g, '_')
+    .replace(/&/g, '')
+    .replace(/[^a-z0-9_]/g, '')
+    .replace(/__+/g, '_')
+    .replace(/^_|_$/g, '');
+  
+  switch (filterType) {
+    case 'programType':
+      return `filter_program_type_${valueKey}`;
+    case 'speciality':
+      return `filter_speciality_${valueKey}`;
+    case 'studyTime':
+      return `filter_study_time_${valueKey}`;
+    case 'category':
+      return `filter_category_${valueKey}`;
+    case 'accreditation':
+      return `filter_accreditation_${valueKey}`;
+    case 'partnership':
+      return `filter_partnership_${valueKey}`;
+    default:
+      return valueKey;
+  }
+};
+
+// Function to get translated filter option text
+const getFilterOptionText = (getContent: (key: string) => string, filterType: string, value: string): string => {
+  const translationKey = getFilterTranslationKey(filterType, value);
+  const translated = getContent(translationKey);
+  // If translation is the same as key (not found), return original value
+  return translated === translationKey ? value : translated;
+};
 
 interface Program {
   id: string;
@@ -64,12 +146,18 @@ function ProgramsContent({ searchParams }: { searchParams: Record<string, string
   const [selectedProgramTypes, setSelectedProgramTypes] = useState<string[]>([]);
   const [selectedSpecialities, setSelectedSpecialities] = useState<string[]>([]);
   const [selectedStudyTimes, setSelectedStudyTimes] = useState<string[]>([]);
+  const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
+  const [selectedAccreditations, setSelectedAccreditations] = useState<string[]>([]);
+  const [selectedAcademicPartnerships, setSelectedAcademicPartnerships] = useState<string[]>([]);
   
   // UI state
   const [openFilters, setOpenFilters] = useState({
     programType: false,
     speciality: false,
-    studyTime: false
+    studyTime: false,
+    category: false,
+    accreditation: false,
+    academicPartnership: false
   });
 
   // Initialize filters from URL parameters
@@ -88,17 +176,17 @@ function ProgramsContent({ searchParams }: { searchParams: Record<string, string
     
     // Use the ProgramService's listener to get real-time updates of published programs
     const unsubscribe = programService.listenToPublishedProgramChanges((programs: ServiceProgram[]) => {
-      // Transform the programs to match our component's format
+      // Transform the programs to match our component's format using the correct field names
       const transformedPrograms = programs.map((program: ServiceProgram) => ({
         id: program.id,
         title: program.title,
-        type: program.type || 'Professional Certificate',
-        programType: program.level === 'Level 7' ? 'MBA' : program.level === 'Level 8' ? 'PHD' : 'MBA',
-        speciality: program.specialization || program.category || 'General',
-        studyTime: program.duration || '',
+        type: (program as any).category || program.type || 'Professional Certificate',
+        programType: (program as any).programType || program.level || 'MBA',
+        speciality: (program as any).speciality || program.specialization || 'General',
+        studyTime: (program as any).studyTime || program.duration || '',
         price: program.price,
         description: program.description,
-        accreditations: program.requirements || [],
+        accreditations: (program as any).accreditations || [],
         status: program.status,
         createdAt: program.createdAt,
       } as Program));
@@ -147,10 +235,37 @@ function ProgramsContent({ searchParams }: { searchParams: Record<string, string
     );
   };
 
+  const handleCategoryChange = (category: string) => {
+    setSelectedCategories(prev => 
+      prev.includes(category) 
+        ? prev.filter(c => c !== category)
+        : [...prev, category]
+    );
+  };
+
+  const handleAccreditationChange = (accreditation: string) => {
+    setSelectedAccreditations(prev => 
+      prev.includes(accreditation) 
+        ? prev.filter(a => a !== accreditation)
+        : [...prev, accreditation]
+    );
+  };
+
+  const handleAcademicPartnershipChange = (partnership: string) => {
+    setSelectedAcademicPartnerships(prev => 
+      prev.includes(partnership) 
+        ? prev.filter(p => p !== partnership)
+        : [...prev, partnership]
+    );
+  };
+
   const clearAllFilters = () => {
     setSelectedProgramTypes([]);
     setSelectedSpecialities([]);
     setSelectedStudyTimes([]);
+    setSelectedCategories([]);
+    setSelectedAccreditations([]);
+    setSelectedAcademicPartnerships([]);
   };
 
   // Filter programs based on selected criteria
@@ -185,6 +300,38 @@ function ProgramsContent({ searchParams }: { searchParams: Record<string, string
       if (!matchesStudyTime) return false;
     }
 
+    // Category filter
+    if (selectedCategories.length > 0) {
+      const programCategory = (program as any)?.category || program.type || '';
+      if (!selectedCategories.some(cat => programCategory.toLowerCase().includes(cat.toLowerCase()))) {
+        return false;
+      }
+    }
+
+    // Accreditation filter
+    if (selectedAccreditations.length > 0) {
+      const programAccreditations = program.accreditations || [];
+      if (!selectedAccreditations.some(acc => 
+        programAccreditations.some(progAcc => 
+          progAcc.toLowerCase().includes(acc.toLowerCase())
+        )
+      )) {
+        return false;
+      }
+    }
+
+    // Academic Partnership filter
+    if (selectedAcademicPartnerships.length > 0) {
+      const programAccreditations = program.accreditations || [];
+      if (!selectedAcademicPartnerships.some(partnership => 
+        programAccreditations.some(progAcc => 
+          progAcc.toLowerCase().includes(partnership.toLowerCase())
+        )
+      )) {
+        return false;
+      }
+    }
+
     return true;
   });
 
@@ -194,7 +341,7 @@ function ProgramsContent({ searchParams }: { searchParams: Record<string, string
         <div className="container mx-auto px-4 py-8">
           <div className="text-center">
             <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary mx-auto"></div>
-            <p className="mt-4 text-gray-600">Loading programs...</p>
+            <p className="mt-4 text-gray-600">{getContent('programs_page_loading')}</p>
           </div>
         </div>
       </ClientLayout>
@@ -210,7 +357,7 @@ function ProgramsContent({ searchParams }: { searchParams: Record<string, string
             {getContent('programs_page_subtitle')}
           </p>
           <p className="text-lg text-accent font-medium">
-            {getContent('program_overview_certification')}
+            {getContent('programs_page_certification')}
           </p>
         </div>
 
@@ -221,16 +368,17 @@ function ProgramsContent({ searchParams }: { searchParams: Record<string, string
               <div className="flex items-center justify-between mb-4">
                 <h2 className="text-lg font-semibold text-primary flex items-center">
                   <Filter className="w-5 h-5 mr-2" />
-                  {getContent('programs_filters_title')}
+                  {getContent('programs_page_filters_title')}
                 </h2>
                 {(selectedProgramTypes.length > 0 || selectedSpecialities.length > 0 || 
-                  selectedStudyTimes.length > 0) && (
+                  selectedStudyTimes.length > 0 || selectedCategories.length > 0 || 
+                  selectedAccreditations.length > 0 || selectedAcademicPartnerships.length > 0) && (
                   <button
                     onClick={clearAllFilters}
                     className="text-sm text-red-600 hover:text-red-800 flex items-center"
                   >
                     <X className="w-4 h-4 mr-1" />
-                    {getContent('programs_clear_all')}
+                    {getContent('programs_page_clear_all')}
                   </button>
                 )}
               </div>
@@ -241,7 +389,7 @@ function ProgramsContent({ searchParams }: { searchParams: Record<string, string
                   onClick={() => toggleFilter('programType')}
                   className="w-full flex items-center justify-between p-2 text-left font-medium text-primary hover:bg-gray-50 rounded"
                 >
-                  {getContent('programs_program_type')}
+                  {getContent('programs_page_program_type')}
                   {openFilters.programType ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
                 </button>
                 {openFilters.programType && (
@@ -254,7 +402,7 @@ function ProgramsContent({ searchParams }: { searchParams: Record<string, string
                           onChange={() => handleProgramTypeChange(programType)}
                           className="rounded border-gray-300 text-accent focus:ring-accent"
                         />
-                        <span className="ml-2 text-sm text-gray-600">{programType}</span>
+                        <span className="ml-2 text-sm text-gray-600">{getFilterOptionText(getContent, 'programType', programType)}</span>
                       </label>
                     ))}
                   </div>
@@ -267,7 +415,7 @@ function ProgramsContent({ searchParams }: { searchParams: Record<string, string
                   onClick={() => toggleFilter('speciality')}
                   className="w-full flex items-center justify-between p-2 text-left font-medium text-primary hover:bg-gray-50 rounded"
                 >
-                  {getContent('programs_speciality')}
+                  {getContent('programs_page_speciality')}
                   {openFilters.speciality ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
                 </button>
                 {openFilters.speciality && (
@@ -280,7 +428,7 @@ function ProgramsContent({ searchParams }: { searchParams: Record<string, string
                           onChange={() => handleSpecialityChange(spec)}
                           className="rounded border-gray-300 text-accent focus:ring-accent"
                         />
-                        <span className="ml-2 text-sm text-gray-600">{spec}</span>
+                        <span className="ml-2 text-sm text-gray-600">{getFilterOptionText(getContent, 'speciality', spec)}</span>
                       </label>
                     ))}
                   </div>
@@ -293,7 +441,7 @@ function ProgramsContent({ searchParams }: { searchParams: Record<string, string
                   onClick={() => toggleFilter('studyTime')}
                   className="w-full flex items-center justify-between p-2 text-left font-medium text-primary hover:bg-gray-50 rounded"
                 >
-                  {getContent('programs_study_time')}
+                  {getContent('programs_page_study_time')}
                   {openFilters.studyTime ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
                 </button>
                 {openFilters.studyTime && (
@@ -306,7 +454,85 @@ function ProgramsContent({ searchParams }: { searchParams: Record<string, string
                           onChange={() => handleStudyTimeChange(studyTime)}
                           className="rounded border-gray-300 text-accent focus:ring-accent"
                         />
-                        <span className="ml-2 text-sm text-gray-600">{studyTime}</span>
+                        <span className="ml-2 text-sm text-gray-600">{getFilterOptionText(getContent, 'studyTime', studyTime)}</span>
+                      </label>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {/* Category Filter */}
+              <div className="mb-4">
+                <button
+                  onClick={() => toggleFilter('category')}
+                  className="w-full flex items-center justify-between p-2 text-left font-medium text-primary hover:bg-gray-50 rounded"
+                >
+                  {getContent('programs_page_category')}
+                  {openFilters.category ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+                </button>
+                {openFilters.category && (
+                  <div className="mt-2 space-y-2">
+                    {categoryOptions.map(category => (
+                      <label key={category} className="flex items-center">
+                        <input
+                          type="checkbox"
+                          checked={selectedCategories.includes(category)}
+                          onChange={() => handleCategoryChange(category)}
+                          className="rounded border-gray-300 text-accent focus:ring-accent"
+                        />
+                        <span className="ml-2 text-sm text-gray-600">{getFilterOptionText(getContent, 'category', category)}</span>
+                      </label>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {/* Accreditation Filter */}
+              <div className="mb-4">
+                <button
+                  onClick={() => toggleFilter('accreditation')}
+                  className="w-full flex items-center justify-between p-2 text-left font-medium text-primary hover:bg-gray-50 rounded"
+                >
+                  {getContent('programs_page_accreditation')}
+                  {openFilters.accreditation ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+                </button>
+                {openFilters.accreditation && (
+                  <div className="mt-2 space-y-2 max-h-48 overflow-y-auto">
+                    {accreditationOptions.map(accreditation => (
+                      <label key={accreditation} className="flex items-center">
+                        <input
+                          type="checkbox"
+                          checked={selectedAccreditations.includes(accreditation)}
+                          onChange={() => handleAccreditationChange(accreditation)}
+                          className="rounded border-gray-300 text-accent focus:ring-accent"
+                        />
+                        <span className="ml-2 text-sm text-gray-600">{getFilterOptionText(getContent, 'accreditation', accreditation)}</span>
+                      </label>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {/* Academic Partnership Filter */}
+              <div className="mb-4">
+                <button
+                  onClick={() => toggleFilter('academicPartnership')}
+                  className="w-full flex items-center justify-between p-2 text-left font-medium text-primary hover:bg-gray-50 rounded"
+                >
+                  {getContent('programs_page_academic_partnerships')}
+                  {openFilters.academicPartnership ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+                </button>
+                {openFilters.academicPartnership && (
+                  <div className="mt-2 space-y-2">
+                    {academicPartnershipOptions.map(partnership => (
+                      <label key={partnership} className="flex items-center">
+                        <input
+                          type="checkbox"
+                          checked={selectedAcademicPartnerships.includes(partnership)}
+                          onChange={() => handleAcademicPartnershipChange(partnership)}
+                          className="rounded border-gray-300 text-accent focus:ring-accent"
+                        />
+                        <span className="ml-2 text-sm text-gray-600">{getFilterOptionText(getContent, 'partnership', partnership)}</span>
                       </label>
                     ))}
                   </div>
@@ -321,18 +547,18 @@ function ProgramsContent({ searchParams }: { searchParams: Record<string, string
           <div className="lg:w-3/4">
             <div className="mb-4 flex items-center justify-between">
               <p className="text-gray-600">
-                {getContent('programs_showing_count').replace('{count}', filteredPrograms.length.toString()).replace('{total}', allPrograms.length.toString())}
+                {getContent('programs_page_showing_count').replace('{count}', filteredPrograms.length.toString()).replace('{total}', allPrograms.length.toString())}
               </p>
             </div>
 
             {filteredPrograms.length === 0 ? (
               <div className="text-center py-12">
-                <p className="text-gray-500 text-lg">{getContent('programs_no_results')}</p>
+                <p className="text-gray-500 text-lg">{getContent('programs_page_no_results')}</p>
                 <button
                   onClick={clearAllFilters}
                   className="mt-4 bg-accent text-white px-6 py-2 rounded-md hover:bg-accent-dark transition-colors"
                 >
-                  {getContent('programs_clear_filters')}
+                  {getContent('programs_page_clear_filters')}
                 </button>
               </div>
             ) : (
@@ -352,13 +578,13 @@ function ProgramsContent({ searchParams }: { searchParams: Record<string, string
                       
                       <div className="space-y-2 mb-4">
                         <p className="text-sm text-gray-600">
-                          <span className="font-medium">Program Type:</span> {program.programType}
+                          <span className="font-medium">{getContent('programs_page_program_type_label')}</span> {program.programType}
                         </p>
                         <p className="text-sm text-gray-600">
-                          <span className="font-medium">Speciality:</span> {program.speciality}
+                          <span className="font-medium">{getContent('programs_page_speciality_label')}</span> {program.speciality}
                         </p>
                         <p className="text-sm text-gray-600">
-                          <span className="font-medium">Study Time:</span> {program.studyTime}
+                          <span className="font-medium">{getContent('programs_page_study_time_label')}</span> {program.studyTime}
                         </p>
                       </div>
 
@@ -370,7 +596,7 @@ function ProgramsContent({ searchParams }: { searchParams: Record<string, string
 
                       {program.accreditations && Array.isArray(program.accreditations) && program.accreditations.length > 0 && (
                         <div className="mb-4">
-                          <p className="text-xs text-gray-500 mb-1">Accredited by:</p>
+                          <p className="text-xs text-gray-500 mb-1">{getContent('programs_page_accredited_by')}</p>
                           <div className="flex flex-wrap gap-1">
                             {program.accreditations.slice(0, 2).map((acc, index) => (
                               <span key={index} className="inline-block bg-gray-100 text-gray-700 text-xs px-2 py-1 rounded">
@@ -379,7 +605,7 @@ function ProgramsContent({ searchParams }: { searchParams: Record<string, string
                             ))}
                             {program.accreditations.length > 2 && (
                               <span className="inline-block bg-gray-100 text-gray-700 text-xs px-2 py-1 rounded">
-                                +{program.accreditations.length - 2} more
+                                +{program.accreditations.length - 2} {getContent('programs_page_more')}
                               </span>
                             )}
                           </div>
@@ -396,7 +622,7 @@ function ProgramsContent({ searchParams }: { searchParams: Record<string, string
                           href={`/programs/${program.id}`}
                           className="bg-primary text-white px-4 py-2 rounded-md hover:bg-primary-dark transition-colors text-sm font-medium"
                         >
-                          {getContent('programs_learn_more')}
+                          {getContent('programs_page_learn_more')}
                         </Link>
                       </div>
                     </div>

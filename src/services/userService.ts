@@ -12,7 +12,8 @@ import {
   limit,
   writeBatch
 } from 'firebase/firestore';
-import { db } from '../firebase/firebase';
+import { createUserWithEmailAndPassword, signOut, signInWithEmailAndPassword } from 'firebase/auth';
+import { auth, db } from '../firebase/firebase';
 
 export interface UserPermissions {
   dashboard: boolean;
@@ -204,6 +205,68 @@ class UserService {
     } catch (error) {
       console.error('Error updating last login:', error);
       // Don't throw error for this non-critical operation
+    }
+  }
+
+  /**
+   * Create a new user with Firebase Auth account and Firestore record (for admin use)
+   */
+  async createUserWithPassword(userData: {
+    email: string;
+    password: string;
+    displayName: string;
+    role: 'admin' | 'student' | 'moderator';
+    permissions?: UserPermissions;
+  }, adminCredentials: { email: string; password: string }): Promise<string> {
+    try {
+      // Check if user with this email already exists in Firestore
+      const usersRef = collection(db, 'users');
+      const emailQuery = query(usersRef, where('email', '==', userData.email));
+      const existingUsers = await getDocs(emailQuery);
+      
+      if (!existingUsers.empty) {
+        throw new Error('A user with this email already exists');
+      }
+
+      // Create the Firebase Auth account
+      const userCredential = await createUserWithEmailAndPassword(auth, userData.email, userData.password);
+      const newUserId = userCredential.user.uid;
+
+      // Set permissions based on role
+      let permissions = userData.permissions || DEFAULT_PERMISSIONS;
+      if (userData.role === 'admin') {
+        permissions = ADMIN_PERMISSIONS;
+      }
+
+      // Create Firestore record with the Auth UID
+      const newUser = {
+        email: userData.email,
+        displayName: userData.displayName,
+        role: userData.role,
+        permissions,
+        isActive: true,
+        createdAt: serverTimestamp(),
+        updatedAt: serverTimestamp(),
+      };
+
+      await setDoc(doc(db, 'users', newUserId), newUser);
+
+      // Sign out the newly created user and re-authenticate as admin
+      await signOut(auth);
+      await signInWithEmailAndPassword(auth, adminCredentials.email, adminCredentials.password);
+
+      return newUserId;
+    } catch (error) {
+      console.error('Error creating user with password:', error);
+      
+      // Try to re-authenticate as admin if something went wrong
+      try {
+        await signInWithEmailAndPassword(auth, adminCredentials.email, adminCredentials.password);
+      } catch (reAuthError) {
+        console.error('Error re-authenticating admin:', reAuthError);
+      }
+      
+      throw error;
     }
   }
 

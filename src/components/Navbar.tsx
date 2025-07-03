@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { Menu, X, User } from 'lucide-react';
-import { Link, useLocation } from 'react-router-dom';
-import { useTranslation } from 'react-i18next';
-import { useAuth } from '../contexts/AuthContext';
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
+import { useCMS } from '../../app/contexts/cms-context';
+import { useAuth } from '../../app/contexts/auth-context';
 import Logo from './Logo';
 import Button from './Button';
 import LanguageSwitcher from './LanguageSwitcher';
@@ -71,7 +72,7 @@ const Navbar: React.FC = () => {
                 <Link to="/login" className="font-medium text-primary hover:text-primary-dark">
                   {t('auth.login')}
                 </Link>
-                <Link to="/register">
+                <Link to="/coming-soon">
                   <Button variant="accent" size="md">{t('header.enroll')}</Button>
                 </Link>
               </>
@@ -112,7 +113,7 @@ const Navbar: React.FC = () => {
               <Link to="/login" className="block font-medium text-primary hover:text-primary-dark py-2">
                 {t('auth.login')}
               </Link>
-              <Link to="/register" className="block w-full mt-2">
+              <Link to="/coming-soon" className="block w-full mt-2">
                 <Button variant="accent" size="md" className="w-full">{t('header.enroll')}</Button>
               </Link>
             </>

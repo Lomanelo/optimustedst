@@ -1,5 +1,5 @@
 import { storage } from '../firebase/firebase';
-import { ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
+import { ref, uploadBytes, getDownloadURL, deleteObject } from 'firebase/storage';
 
 /**
  * Uploads a file to Firebase Storage with progress tracking
@@ -13,70 +13,59 @@ export const uploadFile = async (
   path: string,
   onProgress?: (progress: number) => void
 ): Promise<string> => {
-  // For small files (< 2MB), use data URL as a workaround
-  if (file.size < 2 * 1024 * 1024) {
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        if (typeof reader.result === 'string') {
-          resolve(reader.result);
-        } else {
-          reject(new Error('Failed to convert file to data URL'));
-        }
-      };
-      reader.onerror = () => {
-        reject(reader.error);
-      };
-      reader.readAsDataURL(file);
-    });
-  }
-
-  // For larger files, try direct upload with CORS settings
   try {
+    console.log('Starting file upload:', { fileName: file.name, path, size: file.size });
+    
+    // Validate file
+    if (!file || file.size === 0) {
+      throw new Error('Invalid file: File is empty or not provided');
+    }
+
+    // Set timeout for upload
+    const uploadTimeout = 60000; // 60 seconds
+    
     const storageRef = ref(storage, path);
     
-    // Create metadata with CORS headers
-    const metadata = {
-      contentType: file.type,
-      customMetadata: {
-        'Access-Control-Allow-Origin': '*',
-        'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
-        'Access-Control-Allow-Headers': 'Content-Type, Authorization'
-      }
-    };
-    
-    // Use uploadBytesResumable to handle large files and track progress
-    const uploadTask = uploadBytesResumable(storageRef, file, metadata);
-    
-    return new Promise((resolve, reject) => {
-      uploadTask.on(
-        'state_changed',
-        (snapshot) => {
-          // Track progress
-          const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-          console.log(`Upload progress: ${progress}%`);
-          if (onProgress) {
-            onProgress(progress);
-          }
-        },
-        (error) => {
-          console.error('Upload error:', error);
-          reject(error);
-        },
-        async () => {
-          try {
-            const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
-            resolve(downloadURL);
-          } catch (error) {
-            console.error('Error getting download URL:', error);
-            reject(error);
-          }
-        }
-      );
+    // Create a promise that rejects after timeout
+    const timeoutPromise = new Promise((_, reject) => {
+      setTimeout(() => reject(new Error('Upload timeout - please try again')), uploadTimeout);
     });
-  } catch (error) {
+    
+    // Upload with timeout
+    const uploadPromise = uploadBytes(storageRef, file);
+    
+    const snapshot = await Promise.race([uploadPromise, timeoutPromise]) as any;
+    
+    console.log('Upload completed, getting download URL...');
+    
+    // Get download URL with timeout
+    const urlPromise = getDownloadURL(snapshot.ref);
+    const urlTimeoutPromise = new Promise((_, reject) => {
+      setTimeout(() => reject(new Error('Download URL timeout - please try again')), 10000);
+    });
+    
+    const downloadURL = await Promise.race([urlPromise, urlTimeoutPromise]) as string;
+    
+    console.log('File uploaded successfully:', downloadURL);
+    return downloadURL;
+    
+  } catch (error: any) {
     console.error('Upload error:', error);
-    throw error;
+    
+    // Provide user-friendly error messages
+    if (error.code === 'storage/unauthorized') {
+      throw new Error('You do not have permission to upload files. Please ensure you are logged in.');
+    } else if (error.code === 'storage/invalid-url') {
+      throw new Error('Invalid file path. Please try again.');
+    } else if (error.code === 'storage/retry-limit-exceeded') {
+      throw new Error('Upload failed after multiple attempts. Please check your internet connection.');
+    } else if (error.code === 'storage/canceled') {
+      throw new Error('Upload was canceled. Please try again.');
+    } else if (error.message?.includes('timeout')) {
+      throw new Error('Upload timeout. Please check your internet connection and try again.');
+    } else {
+      throw new Error(`Upload failed: ${error.message || 'Please try again'}`);
+    }
   }
 };
 

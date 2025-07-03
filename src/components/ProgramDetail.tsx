@@ -139,8 +139,24 @@ const ProgramDetail: React.FC<ProgramDetailProps> = ({ id }) => {
   };
 
   const handleDownloadBrochure = () => {
-    // In a real app, this would trigger a file download
-    alert('Downloading program brochure...');
+    // Check if program has brochure data
+    if ((program as any)?.brochure_en) {
+      const link = document.createElement('a');
+      link.href = (program as any).brochure_en;
+      link.download = `${program.title}-English-Brochure.pdf`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    } else if ((program as any)?.brochure_ar) {
+      const link = document.createElement('a');
+      link.href = (program as any).brochure_ar;
+      link.download = `${program.title}-Arabic-Brochure.pdf`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    } else {
+      alert('برفضك حالياً غير متوفر / Brochure currently not available');
+    }
   };
 
   return (

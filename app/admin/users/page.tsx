@@ -19,7 +19,8 @@ import {
   Save,
   X,
   Check,
-  AlertTriangle
+  AlertTriangle,
+  Plus
 } from 'lucide-react';
 
 export default function AdminUsersPage() {
@@ -43,6 +44,17 @@ export default function AdminUsersPage() {
   });
   const [migrating, setMigrating] = useState(false);
   const [migrationResult, setMigrationResult] = useState<{updated: number; errors: number} | null>(null);
+  
+  // Create user modal state
+  const [showCreateModal, setShowCreateModal] = useState(false);
+  const [creating, setCreating] = useState(false);
+  const [createFormData, setCreateFormData] = useState({
+    email: '',
+    password: '',
+    displayName: '',
+    role: 'student' as 'admin' | 'student' | 'moderator',
+    adminPassword: '' // Admin's password for re-authentication
+  });
 
   // Redirect if no access to users management
   useEffect(() => {
@@ -90,9 +102,9 @@ export default function AdminUsersPage() {
       );
     }
 
-    // Role filter
+    // Role filter - use normalized roles for consistent filtering
     if (roleFilter !== 'all') {
-      filtered = filtered.filter(user => user.role === roleFilter);
+      filtered = filtered.filter(user => normalizeRole(user.role) === roleFilter);
     }
 
     setFilteredUsers(filtered);
@@ -185,16 +197,36 @@ export default function AdminUsersPage() {
   };
 
   const getRoleBadgeColor = (role: string) => {
-    switch (role) {
+    const normalizedRole = normalizeRole(role);
+    switch (normalizedRole) {
       case 'admin': return 'bg-red-100 text-red-800';
       case 'moderator': return 'bg-yellow-100 text-yellow-800';
       default: return 'bg-gray-100 text-gray-800';
     }
   };
 
+  // Helper function to normalize role strings consistently
+  const normalizeRole = (role: string | undefined | null): string => {
+    if (!role) return 'student';
+    
+    // Trim whitespace AND remove any newline characters
+    const normalizedRole = role.trim().replace(/\n/g, '').toLowerCase();
+    
+    // Map different admin variations to 'admin'
+    if (normalizedRole === 'admin' || role.includes('admin')) {
+      return 'admin';
+    }
+    
+    if (normalizedRole === 'moderator' || role.includes('moderator')) {
+      return 'moderator';
+    }
+    
+    return 'student'; // Default fallback
+  };
+
   // Helper function to check if a user is an admin
   const isUserAdmin = (user: UserData) => {
-    return user.role && user.role.trim().toLowerCase() === 'admin';
+    return normalizeRole(user.role) === 'admin';
   };
 
   // Helper function to check if current user can edit target user
@@ -230,6 +262,58 @@ export default function AdminUsersPage() {
     }
   };
 
+  const handleCreateUser = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!createFormData.email || !createFormData.password || !createFormData.displayName || !createFormData.adminPassword) {
+      setError('Please fill in all required fields');
+      return;
+    }
+
+    if (!currentUser?.email) {
+      setError('Admin email not found');
+      return;
+    }
+
+    try {
+      setCreating(true);
+      await userService.createUserWithPassword({
+        email: createFormData.email,
+        password: createFormData.password,
+        displayName: createFormData.displayName,
+        role: createFormData.role
+      }, {
+        email: currentUser.email,
+        password: createFormData.adminPassword
+      });
+      
+      // Reset form and close modal
+      setCreateFormData({
+        email: '',
+        password: '',
+        displayName: '',
+        role: 'student',
+        adminPassword: ''
+      });
+      setShowCreateModal(false);
+      
+      // Reload users to show the new user
+      const usersData = await userService.getAllUsers();
+      setUsers(usersData);
+      setFilteredUsers(usersData);
+      
+      // Update stats
+      const statsData = await userService.getUserStats();
+      setStats(statsData);
+      
+    } catch (err: any) {
+      console.error('Error creating user:', err);
+      setError(err.message || 'Failed to create user');
+    } finally {
+      setCreating(false);
+    }
+  };
+
   if (isLoading || loading) {
     return (
       <div className="flex justify-center items-center p-8">
@@ -253,6 +337,15 @@ export default function AdminUsersPage() {
               User Management
             </h1>
           </div>
+          {userRole === 'admin' && (
+            <button
+              onClick={() => setShowCreateModal(true)}
+              className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg flex items-center transition-colors"
+            >
+              <Plus className="mr-2" size={20} />
+              Create User
+            </button>
+          )}
         </div>
       </div>
 
@@ -342,7 +435,7 @@ export default function AdminUsersPage() {
                         <div className="text-sm text-gray-500">{user.email}</div>
                       <div className="flex items-center mt-1">
                         <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getRoleBadgeColor(user.role)}`}>
-                          {user.role.charAt(0).toUpperCase() + user.role.slice(1)}
+                          {normalizeRole(user.role).charAt(0).toUpperCase() + normalizeRole(user.role).slice(1)}
                         </span>
                         {isUserAdmin(user) && userRole !== 'admin' && (
                           <div title="Admin account - protected" className="ml-2">
@@ -416,6 +509,134 @@ export default function AdminUsersPage() {
           </div>
         )}
       </div>
+
+      {/* Create User Modal */}
+      {showCreateModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg p-6 w-full max-w-md">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-semibold text-primary">Create New User</h3>
+              <button
+                onClick={() => {
+                  setShowCreateModal(false);
+                  // Clear sensitive data when closing
+                  setCreateFormData(prev => ({ ...prev, password: '', adminPassword: '' }));
+                }}
+                className="text-gray-400 hover:text-gray-600"
+              >
+                <X size={24} />
+              </button>
+            </div>
+
+            <form onSubmit={handleCreateUser}>
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Email Address *
+                  </label>
+                  <input
+                    type="email"
+                    required
+                    value={createFormData.email}
+                    onChange={(e) => setCreateFormData(prev => ({ ...prev, email: e.target.value }))}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                    placeholder="user@example.com"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Display Name *
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={createFormData.displayName}
+                    onChange={(e) => setCreateFormData(prev => ({ ...prev, displayName: e.target.value }))}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                    placeholder="John Doe"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Password *
+                  </label>
+                  <input
+                    type="password"
+                    required
+                    value={createFormData.password}
+                    onChange={(e) => setCreateFormData(prev => ({ ...prev, password: e.target.value }))}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                    placeholder="Enter user password"
+                    minLength={6}
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Role
+                  </label>
+                  <select
+                    value={createFormData.role}
+                    onChange={(e) => setCreateFormData(prev => ({ ...prev, role: e.target.value as 'admin' | 'student' | 'moderator' }))}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                  >
+                    <option value="student">Student</option>
+                    <option value="moderator">Moderator</option>
+                    <option value="admin">Admin</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Your Admin Password * (for security verification)
+                  </label>
+                  <input
+                    type="password"
+                    required
+                    value={createFormData.adminPassword}
+                    onChange={(e) => setCreateFormData(prev => ({ ...prev, adminPassword: e.target.value }))}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                    placeholder="Enter your admin password"
+                  />
+                </div>
+
+                <div className="bg-green-50 border border-green-200 rounded-lg p-3">
+                  <p className="text-sm text-green-800">
+                    <strong>Note:</strong> This creates a complete user account with login credentials. The user can immediately log in with the email and password you set.
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex justify-end space-x-3 mt-6">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowCreateModal(false);
+                    // Clear sensitive data when canceling
+                    setCreateFormData(prev => ({ ...prev, password: '', adminPassword: '' }));
+                  }}
+                  className="px-4 py-2 text-gray-600 hover:text-gray-800 transition-colors"
+                  disabled={creating}
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={creating}
+                  className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg flex items-center transition-colors disabled:opacity-50"
+                >
+                  {creating && (
+                    <div className="animate-spin rounded-full h-4 w-4 border-t-2 border-b-2 border-white mr-2"></div>
+                  )}
+                  {creating ? 'Creating...' : 'Create User'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 } 

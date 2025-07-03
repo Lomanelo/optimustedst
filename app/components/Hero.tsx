@@ -60,7 +60,7 @@ const Hero: React.FC = () => {
             </Link>
             {/* Only show register button for non-logged-in users */}
             {!currentUser && (
-              <Link href="/register">
+              <Link href="/coming-soon">
                 <button className="bg-white hover:bg-gray-100 text-primary font-medium py-3 px-6 rounded-md transition-colors duration-300">
                   {getContent('hero_cta_register')}
                 </button>

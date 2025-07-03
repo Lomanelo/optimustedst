@@ -41,6 +41,7 @@ export const CMS_SECTIONS = {
   SUCCESS_MESSAGES: 'success_messages',
   FORM_LABELS: 'form_labels',
   BUTTONS: 'buttons',
+  GENERAL: 'general',
   METADATA: 'metadata'
 } as const;
 

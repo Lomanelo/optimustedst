@@ -5,6 +5,7 @@ import { collection, doc, getDocs, setDoc, query, where, onSnapshot } from 'fire
 import { db } from '../../src/firebase/firebase';
 import { CMSContent, CMSSectionKey } from '../../src/types/cms';
 import { useAuth } from './auth-context';
+import { extractedContent } from '../../scripts/extract-website-content';
 
 interface CMSContextType {
   content: Map<string, CMSContent>;
@@ -63,10 +64,39 @@ export const CMSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     }
   };
 
+  // Automatically populate database if empty
+  const populateIfEmpty = async () => {
+    try {
+      const contentCollection = collection(db, 'cms_content');
+      const snapshot = await getDocs(contentCollection);
+      
+      // If database is empty or has less than 10 items, populate it
+      if (snapshot.size < 10) {
+        console.log('CMS database is empty or incomplete, populating with default content...');
+        
+        for (const item of extractedContent) {
+          try {
+            await setDoc(doc(contentCollection, item.id), item);
+          } catch (error) {
+            console.error(`Error adding content item ${item.key}:`, error);
+          }
+        }
+        
+        console.log(`Populated CMS database with ${extractedContent.length} items`);
+      }
+    } catch (error) {
+      console.error('Error checking/populating CMS database:', error);
+    }
+  };
+
   // Load content from Firestore
   const loadContent = async () => {
     try {
       setLoading(true);
+      
+      // First, check if we need to populate the database
+      await populateIfEmpty();
+      
       const contentCollection = collection(db, 'cms_content');
       const snapshot = await getDocs(contentCollection);
       
@@ -88,17 +118,35 @@ export const CMSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   // Set up real-time updates
   useEffect(() => {
-    const contentCollection = collection(db, 'cms_content');
-    const unsubscribe = onSnapshot(contentCollection, (snapshot) => {
-      const contentMap = new Map<string, CMSContent>();
-      snapshot.forEach((doc) => {
-        const data = doc.data() as CMSContent;
-        contentMap.set(data.key, { ...data, id: doc.id });
+    const setupRealtimeUpdates = async () => {
+      // Check if we need to populate first
+      await populateIfEmpty();
+      
+      const contentCollection = collection(db, 'cms_content');
+      const unsubscribe = onSnapshot(contentCollection, (snapshot) => {
+        const contentMap = new Map<string, CMSContent>();
+        snapshot.forEach((doc) => {
+          const data = doc.data() as CMSContent;
+          contentMap.set(data.key, { ...data, id: doc.id });
+        });
+        setContent(contentMap);
+        setLoading(false); // Set loading to false when we get data
       });
-      setContent(contentMap);
+
+      return unsubscribe;
+    };
+
+    let unsubscribe: (() => void) | undefined;
+    
+    setupRealtimeUpdates().then((unsub) => {
+      unsubscribe = unsub;
     });
 
-    return () => unsubscribe();
+    return () => {
+      if (unsubscribe) {
+        unsubscribe();
+      }
+    };
   }, []);
 
   // Get content by key

@@ -6,7 +6,7 @@ import { useRouter } from 'next/navigation';
 import { useAuth } from '../../../contexts/auth-context';
 import { collection, addDoc, serverTimestamp, doc, updateDoc } from 'firebase/firestore';
 import { db } from '../../../../src/firebase/firebase';
-import { uploadImageAsDataUrl } from '../../../../src/services/storageService';
+import { uploadImageAsDataUrl, uploadFile } from '../../../../src/services/storageService';
 import { Calendar, DollarSign, Clock, Award, ImagePlus, Plus, Edit, Trash2, BookOpen, Play, FileText, HelpCircle, Clipboard, Save, ArrowLeft, AlertCircle, Check, Globe, Languages, Upload, X } from 'lucide-react';
 import { allAccreditationsAndPartnerships } from '../../../../src/data/optimus-data';
 
@@ -38,7 +38,9 @@ export default function CreateProgramPage() {
     speciality_ar: '',
     studyTime_ar: '',
     requirements_ar: '',
-    benefits_ar: ''
+    benefits_ar: '',
+    brochure_en: '', // URL for English brochure
+    brochure_ar: '', // URL for Arabic brochure
   });
 
   const [activeLanguage, setActiveLanguage] = useState<'en' | 'ar'>('en');
@@ -88,13 +90,14 @@ export default function CreateProgramPage() {
   const [showModuleForm, setShowModuleForm] = useState(false);
   const [showLessonForm, setShowLessonForm] = useState<string | null>(null);
   const [thumbnailFile, setThumbnailFile] = useState<File | null>(null);
-  const [thumbnailPreview, setThumbnailPreview] = useState<string>('');
   const [brochureEnFile, setBrochureEnFile] = useState<File | null>(null);
   const [brochureArFile, setBrochureArFile] = useState<File | null>(null);
+  const [thumbnailPreview, setThumbnailPreview] = useState<string>('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
-  const [uploadProgress, setUploadProgress] = useState(0);
+  const [uploadProgress, setUploadProgress] = useState<{[key: string]: number}>({});
+  const [isUploading, setIsUploading] = useState(false);
   const [debugInfo, setDebugInfo] = useState<string>('');
 
   useEffect(() => {
@@ -231,17 +234,25 @@ export default function CreateProgramPage() {
   };
 
   const startEditingModule = (module: any) => {
-    setCurrentModule({ title: module.title, description: module.description });
+    setCurrentModule({ 
+      title: module.title || '', 
+      title_ar: module.title_ar || '',
+      description: module.description || '',
+      description_ar: module.description_ar || ''
+    });
     setEditingModuleId(module.id);
   };
 
   const startEditingLesson = (lesson: any) => {
     setCurrentLesson({
-      title: lesson.title,
-      description: lesson.description,
-      duration: lesson.duration,
-      type: lesson.type,
-      content: lesson.content
+      title: lesson.title || '',
+      title_ar: lesson.title_ar || '',
+      description: lesson.description || '',
+      description_ar: lesson.description_ar || '',
+      duration: lesson.duration || 0,
+      type: lesson.type || 'video',
+      content: lesson.content || '',
+      content_ar: lesson.content_ar || ''
     });
     setEditingLessonId(lesson.id);
   };
@@ -283,44 +294,45 @@ export default function CreateProgramPage() {
     }
   };
 
+  // Add file handlers for brochures
   const handleBrochureEnChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (file) {
-      // Validate file size (20MB limit for brochures)
-      if (file.size > 20 * 1024 * 1024) {
-        setError('Brochure file must be less than 20MB');
-        return;
-      }
-      
-      // Validate file type (PDF only)
-      if (file.type !== 'application/pdf') {
-        setError('Please select a PDF file for the brochure');
-        return;
-      }
-
+    if (file && file.type === 'application/pdf') {
       setBrochureEnFile(file);
       setError('');
+    } else {
+      alert('Please select a PDF file');
     }
   };
 
   const handleBrochureArChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (file) {
-      // Validate file size (20MB limit for brochures)
-      if (file.size > 20 * 1024 * 1024) {
-        setError('Brochure file must be less than 20MB');
-        return;
-      }
-
-      // Validate file type (PDF only)
-      if (file.type !== 'application/pdf') {
-        setError('Please select a PDF file for the brochure');
-        return;
-      }
-
+    if (file && file.type === 'application/pdf') {
       setBrochureArFile(file);
       setError('');
+    } else {
+      alert('Please select a PDF file');
     }
+  };
+
+  // Function to save file locally and return public URL
+  const saveFileLocally = async (file: File, programId: string, language: 'en' | 'ar'): Promise<string> => {
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('programId', programId);
+    formData.append('language', language);
+
+    const response = await fetch('/api/upload-brochure', {
+      method: 'POST',
+      body: formData,
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to upload brochure');
+    }
+
+    const result = await response.json();
+    return result.url;
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -334,6 +346,8 @@ export default function CreateProgramPage() {
     setLoading(true);
     setError('');
     setSuccess('');
+    setIsUploading(true);
+    setUploadProgress({});
 
     try {
       const numericPrice = typeof formData.price === 'string' 
@@ -382,9 +396,11 @@ export default function CreateProgramPage() {
       // Upload thumbnail
       if (thumbnailFile) {
         try {
+          setUploadProgress(prev => ({...prev, thumbnail: 0}));
           if (thumbnailFile.size <= 100 * 1024) {
             const dataUrl = await uploadImageAsDataUrl(thumbnailFile);
             updateData.thumbnail = dataUrl;
+            setUploadProgress(prev => ({...prev, thumbnail: 100}));
           } else {
             setError('Note: Image was too large. Program created with placeholder image.');
           }
@@ -394,34 +410,73 @@ export default function CreateProgramPage() {
         }
       }
 
-      // Upload English brochure
-      if (brochureEnFile) {
-        try {
-          const brochureEnUrl = await uploadImageAsDataUrl(brochureEnFile);
-          updateData.brochure_en = brochureEnUrl;
-        } catch (uploadError) {
-          console.error('Error uploading English brochure:', uploadError);
-          setError('Program created, but failed to upload English brochure.');
-        }
+          // Upload brochures locally and get download URLs
+    if (brochureEnFile) {
+      try {
+        setUploadProgress(prev => ({...prev, brochure_en: 0}));
+        const brochureEnUrl = await saveFileLocally(brochureEnFile, docRef.id, 'en');
+        updateData.brochure_en = brochureEnUrl;
+        setUploadProgress(prev => ({...prev, brochure_en: 100}));
+        console.log('English brochure uploaded successfully:', brochureEnUrl);
+      } catch (uploadError: any) {
+        console.error('Error uploading English brochure:', uploadError);
+        setError(`Program created, but failed to upload English brochure: ${uploadError.message}`);
       }
+    }
 
-      // Upload Arabic brochure
-      if (brochureArFile) {
-        try {
-          const brochureArUrl = await uploadImageAsDataUrl(brochureArFile);
-          updateData.brochure_ar = brochureArUrl;
-        } catch (uploadError) {
-          console.error('Error uploading Arabic brochure:', uploadError);
-          setError('Program created, but failed to upload Arabic brochure.');
-        }
+    if (brochureArFile) {
+      try {
+        setUploadProgress(prev => ({...prev, brochure_ar: 0}));
+        const brochureArUrl = await saveFileLocally(brochureArFile, docRef.id, 'ar');
+        updateData.brochure_ar = brochureArUrl;
+        setUploadProgress(prev => ({...prev, brochure_ar: 100}));
+        console.log('Arabic brochure uploaded successfully:', brochureArUrl);
+      } catch (uploadError: any) {
+        console.error('Error uploading Arabic brochure:', uploadError);
+        setError(`Program created, but failed to upload Arabic brochure: ${uploadError.message}`);
       }
+    }
 
-      // Update document with uploaded files
-      if (Object.keys(updateData).length > 0) {
-        await updateDoc(doc(db, 'programs', docRef.id), updateData);
-      }
+    // Update document with uploaded files
+    if (Object.keys(updateData).length > 0) {
+      await updateDoc(doc(db, 'programs', docRef.id), updateData);
+      console.log('Program updated with uploaded files');
+    }
       
       setSuccess(`Program "${formData.title}" created successfully!`);
+      
+      // Reset form
+      setFormData({
+        title: '',
+        description: '',
+        shortDescription: '',
+        category: '',
+        programType: '',
+        speciality: '',
+        studyTime: '',
+        price: '',
+        accreditations: [] as string[],
+        requirements: '',
+        benefits: '',
+        status: 'draft',
+        // Arabic fields
+        title_ar: '',
+        description_ar: '',
+        shortDescription_ar: '',
+        category_ar: '',
+        programType_ar: '',
+        speciality_ar: '',
+        studyTime_ar: '',
+        requirements_ar: '',
+        benefits_ar: '',
+        brochure_en: '',
+        brochure_ar: ''
+      });
+      setThumbnailFile(null);
+      setThumbnailPreview('');
+      setBrochureEnFile(null);
+      setBrochureArFile(null);
+      setUploadProgress({});
       
       setTimeout(() => {
         router.push('/admin/programs');
@@ -431,6 +486,7 @@ export default function CreateProgramPage() {
       setError(err instanceof Error ? `Failed to create program: ${err.message}` : 'Failed to create program. Please try again.');
     } finally {
       setLoading(false);
+      setIsUploading(false);
     }
   };
 
@@ -665,6 +721,36 @@ export default function CreateProgramPage() {
                 <option value={activeLanguage === 'en' ? 'Project Management' : 'إدارة المشاريع'}>
                   {activeLanguage === 'en' ? 'Project Management' : 'إدارة المشاريع'}
                 </option>
+                <option value={activeLanguage === 'en' ? 'Accounting & Finance Management' : 'إدارة المحاسبة والمالية'}>
+                  {activeLanguage === 'en' ? 'Accounting & Finance Management' : 'إدارة المحاسبة والمالية'}
+                </option>
+                <option value={activeLanguage === 'en' ? 'Marketing Management' : 'إدارة التسويق'}>
+                  {activeLanguage === 'en' ? 'Marketing Management' : 'إدارة التسويق'}
+                </option>
+                <option value={activeLanguage === 'en' ? 'Logistics & Supply Chain Management' : 'إدارة اللوجستيات وسلسلة التوريد'}>
+                  {activeLanguage === 'en' ? 'Logistics & Supply Chain Management' : 'إدارة اللوجستيات وسلسلة التوريد'}
+                </option>
+                <option value={activeLanguage === 'en' ? 'Human Resources Management' : 'إدارة الموارد البشرية'}>
+                  {activeLanguage === 'en' ? 'Human Resources Management' : 'إدارة الموارد البشرية'}
+                </option>
+                <option value={activeLanguage === 'en' ? 'Quality Management' : 'إدارة الجودة'}>
+                  {activeLanguage === 'en' ? 'Quality Management' : 'إدارة الجودة'}
+                </option>
+                <option value={activeLanguage === 'en' ? 'Accounting & Finance' : 'المحاسبة والمالية'}>
+                  {activeLanguage === 'en' ? 'Accounting & Finance' : 'المحاسبة والمالية'}
+                </option>
+                <option value={activeLanguage === 'en' ? 'Entrepreneurship & Innovation' : 'ريادة الأعمال والابتكار'}>
+                  {activeLanguage === 'en' ? 'Entrepreneurship & Innovation' : 'ريادة الأعمال والابتكار'}
+                </option>
+                <option value={activeLanguage === 'en' ? 'International Business Management' : 'إدارة الأعمال الدولية'}>
+                  {activeLanguage === 'en' ? 'International Business Management' : 'إدارة الأعمال الدولية'}
+                </option>
+                <option value={activeLanguage === 'en' ? 'Sports Management' : 'إدارة الرياضة'}>
+                  {activeLanguage === 'en' ? 'Sports Management' : 'إدارة الرياضة'}
+                </option>
+                <option value={activeLanguage === 'en' ? 'Hospitality & Events Management' : 'إدارة الضيافة والفعاليات'}>
+                  {activeLanguage === 'en' ? 'Hospitality & Events Management' : 'إدارة الضيافة والفعاليات'}
+                </option>
               </select>
             </div>
           </div>
@@ -861,93 +947,107 @@ export default function CreateProgramPage() {
             </label>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {/* English Brochure */}
-                        <div>
-                <label htmlFor="brochure-en" className="block text-sm font-medium text-gray-600 mb-2">
+              {/* English Brochure Upload */}
+              <div>
+                <label htmlFor="brochure_en" className="block text-sm font-medium text-gray-600 mb-2">
                   {activeLanguage === 'en' ? '📄 English Brochure' : '📄 الكتيب الإنجليزي'}
                 </label>
-                <div className="border-2 border-gray-300 border-dashed rounded-md p-4">
-                  {brochureEnFile ? (
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center">
-                        <FileText size={20} className="text-red-500 mr-2" />
-                        <span className="text-sm text-gray-700">{brochureEnFile.name}</span>
-                        </div>
-                        <button
-                          type="button"
-                        onClick={() => setBrochureEnFile(null)}
-                        className="text-red-500 hover:text-red-700"
-                        >
-                        <X size={16} />
-                        </button>
-                    </div>
-                  ) : (
-                    <div className="text-center">
-                      <Upload size={24} className="mx-auto text-gray-400 mb-2" />
-                      <label
-                        htmlFor="brochure-en"
-                        className="cursor-pointer text-primary hover:text-primary-dark text-sm font-medium"
-                      >
-                        {activeLanguage === 'en' ? 'Upload English PDF' : 'ارفع ملف PDF إنجليزي'}
-                        <input
-                          id="brochure-en"
-                          name="brochure-en"
-                          type="file"
-                          className="sr-only"
-                          accept=".pdf"
-                          onChange={handleBrochureEnChange}
-                        />
-                      </label>
-                      <p className="text-xs text-gray-500 mt-1">PDF up to 20MB</p>
-                    </div>
-                  )}
-                </div>
+                <input
+                  id="brochure_en"
+                  name="brochure_en"
+                  type="file"
+                  accept="application/pdf"
+                  onChange={handleBrochureEnChange}
+                  className="mt-1 block w-full border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary/50"
+                />
+                <p className="text-xs text-gray-500 mt-1">
+                  {activeLanguage === 'en' ? 'Upload a PDF file' : 'ارفع ملف PDF'}
+                </p>
               </div>
 
-              {/* Arabic Brochure */}
-                              <div>
-                <label htmlFor="brochure-ar" className="block text-sm font-medium text-gray-600 mb-2">
+              {/* Arabic Brochure Upload */}
+              <div>
+                <label htmlFor="brochure_ar" className="block text-sm font-medium text-gray-600 mb-2">
                   {activeLanguage === 'en' ? '📄 Arabic Brochure' : '📄 الكتيب العربي'}
                 </label>
-                <div className="border-2 border-gray-300 border-dashed rounded-md p-4">
-                  {brochureArFile ? (
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center">
-                        <FileText size={20} className="text-red-500 mr-2" />
-                        <span className="text-sm text-gray-700">{brochureArFile.name}</span>
-                                </div>
-                              <button
-                                type="button"
-                        onClick={() => setBrochureArFile(null)}
-                        className="text-red-500 hover:text-red-700"
-                      >
-                        <X size={16} />
-                              </button>
-                            </div>
-                  ) : (
-                    <div className="text-center">
-                      <Upload size={24} className="mx-auto text-gray-400 mb-2" />
-                      <label
-                        htmlFor="brochure-ar"
-                        className="cursor-pointer text-primary hover:text-primary-dark text-sm font-medium"
-                      >
-                        {activeLanguage === 'en' ? 'Upload Arabic PDF' : 'ارفع ملف PDF عربي'}
-              <input
-                          id="brochure-ar"
-                          name="brochure-ar"
-                type="file"
-                          className="sr-only"
-                          accept=".pdf"
-                          onChange={handleBrochureArChange}
-                        />
-              </label>
-                      <p className="text-xs text-gray-500 mt-1">PDF up to 20MB</p>
+                <input
+                  id="brochure_ar"
+                  name="brochure_ar"
+                  type="file"
+                  accept="application/pdf"
+                  onChange={handleBrochureArChange}
+                  className="mt-1 block w-full border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary/50"
+                />
+                <p className="text-xs text-gray-500 mt-1">
+                  {activeLanguage === 'en' ? 'Upload a PDF file' : 'ارفع ملف PDF'}
+                </p>
+              </div>
+                          </div>
+          </div>
+
+          {/* Program Status */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-3">
+              {activeLanguage === 'en' ? 'Program Status' : 'حالة البرنامج'}
+            </label>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="flex items-center">
+                <input
+                  type="radio"
+                  id="status-draft"
+                  name="status"
+                  value="draft"
+                  checked={formData.status === 'draft'}
+                  onChange={handleChange}
+                  className="focus:ring-primary h-4 w-4 text-primary border-gray-300"
+                />
+                <label htmlFor="status-draft" className="ml-2 block text-sm text-gray-900">
+                  <span className="font-medium">{activeLanguage === 'en' ? 'Draft' : 'مسودة'}</span>
+                  <div className="text-xs text-gray-500">
+                    {activeLanguage === 'en' ? 'Hidden from website' : 'مخفي من الموقع'}
+                  </div>
+                </label>
+              </div>
+              <div className="flex items-center">
+                <input
+                  type="radio"
+                  id="status-published"
+                  name="status"
+                  value="published"
+                  checked={formData.status === 'published'}
+                  onChange={handleChange}
+                  className="focus:ring-primary h-4 w-4 text-primary border-gray-300"
+                />
+                <label htmlFor="status-published" className="ml-2 block text-sm text-gray-900">
+                  <span className="font-medium">{activeLanguage === 'en' ? 'Published' : 'منشور'}</span>
+                  <div className="text-xs text-gray-500">
+                    {activeLanguage === 'en' ? 'Visible on website' : 'مرئي على الموقع'}
+                  </div>
+                </label>
+              </div>
             </div>
-                  )}
-              </div>
-              </div>
           </div>
-          </div>
+
+          {/* Upload Progress Display */}
+          {isUploading && Object.keys(uploadProgress).length > 0 && (
+            <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded">
+              <h4 className="font-medium text-blue-800 mb-3">Upload Progress:</h4>
+              {Object.entries(uploadProgress).map(([key, progress]) => (
+                <div key={key} className="mb-2">
+                  <div className="flex justify-between text-sm text-blue-700">
+                    <span>{key === 'thumbnail' ? 'Thumbnail' : 'English Brochure'}</span>
+                    <span>{progress}%</span>
+                  </div>
+                  <div className="w-full bg-blue-200 rounded-full h-2">
+                    <div 
+                      className="bg-blue-600 h-2 rounded-full transition-all duration-300" 
+                      style={{ width: `${progress}%` }}
+                    ></div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
 
           <div className="flex justify-end space-x-3">
             <Link
@@ -957,21 +1057,56 @@ export default function CreateProgramPage() {
               {activeLanguage === 'en' ? 'Cancel' : 'إلغاء'}
             </Link>
             <button
-              type="submit"
-              disabled={loading}
-              className="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-primary hover:bg-primary-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary disabled:opacity-50 disabled:cursor-not-allowed"
+              type="button"
+              onClick={(e) => {
+                setFormData(prev => ({ ...prev, status: 'draft' }));
+                const form = e.currentTarget.closest('form') as HTMLFormElement;
+                if (form) {
+                  const submitEvent = new Event('submit', { bubbles: true, cancelable: true });
+                  form.dispatchEvent(submitEvent);
+                }
+              }}
+              disabled={loading || isUploading}
+              className="inline-flex justify-center py-2 px-4 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {loading ? (
+              {(loading || isUploading) && formData.status === 'draft' ? (
                 <>
-                  <div className="animate-spin -ml-1 mr-3 h-5 w-5 text-white">
-                    <div className="border-2 border-white border-t-transparent rounded-full h-5 w-5"></div>
+                  <div className="animate-spin -ml-1 mr-3 h-5 w-5 text-gray-700">
+                    <div className="border-2 border-gray-300 border-t-transparent rounded-full h-5 w-5"></div>
                   </div>
-                  {activeLanguage === 'en' ? 'Creating...' : 'جاري الإنشاء...'}
+                  {activeLanguage === 'en' ? 'Saving...' : 'جاري الحفظ...'}
                 </>
               ) : (
                 <>
                   <Save size={16} className="mr-2" />
-                  {activeLanguage === 'en' ? 'Create Program' : 'إنشاء البرنامج'}
+                  {activeLanguage === 'en' ? 'Save as Draft' : 'حفظ كمسودة'}
+                </>
+              )}
+            </button>
+            <button
+              type="button"
+              onClick={(e) => {
+                setFormData(prev => ({ ...prev, status: 'published' }));
+                const form = e.currentTarget.closest('form') as HTMLFormElement;
+                if (form) {
+                  const submitEvent = new Event('submit', { bubbles: true, cancelable: true });
+                  form.dispatchEvent(submitEvent);
+                }
+              }}
+              disabled={loading || isUploading}
+              className="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-accent hover:bg-accent-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-accent disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {(loading || isUploading) && formData.status === 'published' ? (
+                <>
+                  <div className="animate-spin -ml-1 mr-3 h-5 w-5 text-white">
+                    <div className="border-2 border-white border-t-transparent rounded-full h-5 w-5"></div>
+                  </div>
+                  {activeLanguage === 'en' ? 'Publishing...' : 'جاري النشر...'}
+                </>
+              ) : (
+                <>
+                  <Save size={16} className="mr-2" />
+                  {activeLanguage === 'en' ? 'Publish Program' : 'نشر البرنامج'}
                 </>
               )}
             </button>

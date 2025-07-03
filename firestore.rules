@@ -55,6 +55,8 @@ service cloud.firestore {
     // Allow users with 'users' permission to read user profiles, but only admins can modify
     match /users/{userId} {
       allow read: if hasPermission('users');
+      // Only admins can create new user records
+      allow create: if isAdmin();
       // Only admins can modify user data (roles, permissions, status)
       allow update: if isAdmin();
       // Only admins can delete users

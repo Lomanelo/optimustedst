@@ -1,8 +1,8 @@
 import React from 'react';
 import { ArrowRight } from 'lucide-react';
-import { useTranslation } from 'react-i18next';
+import { useCMS } from '../../app/contexts/cms-context';
 import Button from './Button';
-import { Link } from 'react-router-dom';
+import Link from 'next/link';
 import { motion } from 'framer-motion';
 
 // LTR wrapper component that completely isolates content from RTL influence
@@ -23,8 +23,8 @@ const LtrTextContainer: React.FC<{children: React.ReactNode; className?: string}
 };
 
 const Hero: React.FC = () => {
-  const { t, i18n } = useTranslation();
-  const isArabic = i18n.language === 'ar';
+  const { getContent, currentLanguage } = useCMS();
+  const isArabic = currentLanguage === 'ar';
 
   // Animations for elements
   const sloganAnimation = {
@@ -58,35 +58,35 @@ const Hero: React.FC = () => {
         {...sloganAnimation}
         className="text-accent text-lg font-bold tracking-widest uppercase mb-2 block"
       >
-        {t('hero.slogan')}
+        {getContent('hero_badge')}
       </motion.span>
       
       <motion.h1 
         {...titleAnimation}
         className="text-4xl md:text-5xl lg:text-6xl font-extrabold text-white leading-tight mb-6 font-sans"
       >
-        {t('hero.title')}
+        {getContent('hero_title')}
       </motion.h1>
       
       <motion.p 
         {...subtitleAnimation}
         className="text-white/90 text-xl md:text-2xl mb-6 font-sans"
       >
-        {t('hero.subtitle')}
+        {getContent('hero_subtitle')}
       </motion.p>
       
       <motion.div 
         {...buttonsAnimation}
         className="flex flex-wrap gap-4 mt-8"
       >
-        <Link to="/programs">
+        <Link href="/programs">
           <button className="bg-accent hover:bg-accent-dark text-white font-medium py-3 px-6 rounded-md transition-colors duration-300">
-            {t('hero.explore')}
+            {getContent('hero_cta_explore')}
           </button>
         </Link>
-        <Link to="/register">
+        <Link href="/enrollment/register">
           <button className="bg-white hover:bg-gray-100 text-primary font-medium py-3 px-6 rounded-md transition-colors duration-300">
-            {t('hero.enroll')}
+            {getContent('hero_cta_register')}
           </button>
         </Link>
       </motion.div>
@@ -100,35 +100,35 @@ const Hero: React.FC = () => {
         {...sloganAnimation}
         className="text-accent text-lg font-bold tracking-widest uppercase mb-2 block"
       >
-        {t('hero.slogan')}
+        {getContent('hero_badge')}
       </motion.span>
       
       <motion.h1 
         {...titleAnimation}
         className="text-4xl md:text-5xl lg:text-6xl font-extrabold text-white leading-tight mb-6 font-sans"
       >
-        {t('hero.title')}
+        {getContent('hero_title')}
       </motion.h1>
       
       <motion.p 
         {...subtitleAnimation}
         className="text-white/90 text-xl md:text-2xl mb-6 font-sans"
       >
-        {t('hero.subtitle')}
+        {getContent('hero_subtitle')}
       </motion.p>
       
       <motion.div 
         {...buttonsAnimation}
         className="flex flex-wrap gap-4 mt-8 justify-start"
       >
-        <Link to="/programs">
+        <Link href="/programs">
           <button className="bg-accent hover:bg-accent-dark text-white font-medium py-3 px-6 rounded-md transition-colors duration-300">
-            {t('hero.explore')}
+            {getContent('hero_cta_explore')}
           </button>
         </Link>
-        <Link to="/register">
+        <Link href="/enrollment/register">
           <button className="bg-white hover:bg-gray-100 text-primary font-medium py-3 px-6 rounded-md transition-colors duration-300">
-            {t('hero.enroll')}
+            {getContent('hero_cta_register')}
           </button>
         </Link>
       </motion.div>
