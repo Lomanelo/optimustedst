@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
-import { useTranslation } from 'react-i18next';
+import { useCMS } from '../../contexts/cms-context';
 
 // Form type definition
 interface FormData {
@@ -16,7 +16,7 @@ interface FormData {
 }
 
 const ShortLandingPage = () => {
-  const { t } = useTranslation();
+  const { getContent } = useCMS();
   const router = useRouter();
   
   // Form state

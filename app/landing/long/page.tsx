@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
-import { useTranslation } from 'react-i18next';
+import { useCMS } from '../../contexts/cms-context';
 import { CheckCircle, Users, Award, Clock, BookOpen, ChevronRight } from 'lucide-react';
 
 // Form type definition
@@ -17,7 +17,7 @@ interface FormData {
 }
 
 const LongLandingPage = () => {
-  const { t } = useTranslation();
+  const { getContent } = useCMS();
   const router = useRouter();
   
   // Form state

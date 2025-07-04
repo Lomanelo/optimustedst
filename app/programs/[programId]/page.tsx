@@ -105,24 +105,24 @@ export default function ProgramDetailPage({ params }: PageProps) {
             <div className="flex flex-wrap gap-3 mb-4">
               {/* Program Type (PhD, MBA, etc.) */}
               {((program as any).programType || (program as any).type || program.level) && (
-                <span className="bg-primary/10 text-primary px-3 py-1 rounded text-sm font-medium">
+              <span className="bg-primary/10 text-primary px-3 py-1 rounded text-sm font-medium">
                   {(program as any).programType || (program as any).type || program.level}
-                </span>
+              </span>
               )}
               
               {/* Study Duration */}
               {((program as any).studyTime || program.duration) && (
-                <span className="bg-gray-200 text-gray-700 px-3 py-1 rounded text-sm font-medium flex items-center">
-                  <Clock size={14} className="mr-1" />
-                  {(program as any).studyTime || program.duration}
-                </span>
+              <span className="bg-gray-200 text-gray-700 px-3 py-1 rounded text-sm font-medium flex items-center">
+                <Clock size={14} className="mr-1" />
+                {(program as any).studyTime || program.duration}
+              </span>
               )}
               
               {/* Category */}
               {((program as any).category || program.category) && (
                 <span className="bg-blue-100 text-blue-700 px-3 py-1 rounded text-sm font-medium">
                   {(program as any).category || program.category}
-                </span>
+              </span>
               )}
               
               {/* Specialization */}
@@ -209,20 +209,20 @@ export default function ProgramDetailPage({ params }: PageProps) {
                   </h2>
                   <ul className="space-y-3">
                     {benefitsList.map((benefit, index) => (
-                      <li key={index} className="flex items-start">
-                        <svg 
-                          xmlns="http://www.w3.org/2000/svg" 
-                          className="h-5 w-5 text-accent mr-2 mt-0.5" 
-                          viewBox="0 0 20 20" 
-                          fill="currentColor"
-                        >
-                          <path 
-                            fillRule="evenodd" 
-                            d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" 
-                            clipRule="evenodd" 
-                          />
-                        </svg>
-                        <span>{benefit}</span>
+                          <li key={index} className="flex items-start">
+                            <svg 
+                              xmlns="http://www.w3.org/2000/svg" 
+                              className="h-5 w-5 text-accent mr-2 mt-0.5" 
+                              viewBox="0 0 20 20" 
+                              fill="currentColor"
+                            >
+                              <path 
+                                fillRule="evenodd" 
+                                d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" 
+                                clipRule="evenodd" 
+                              />
+                            </svg>
+                            <span>{benefit}</span>
                       </li>
                     ))}
                   </ul>
@@ -256,32 +256,32 @@ export default function ProgramDetailPage({ params }: PageProps) {
                 <div className="space-y-3">
                   {/* Program Type */}
                   {((program as any).programType || (program as any).type || program.level) && (
-                    <div className="flex justify-between">
+                  <div className="flex justify-between">
                       <span className="text-gray-600">
                         {currentLanguage === 'ar' ? 'النوع:' : 'Type:'}
                       </span>
                       <span className="font-medium">{(program as any).programType || (program as any).type || program.level}</span>
-                    </div>
+                  </div>
                   )}
                   
                   {/* Duration */}
                   {((program as any).studyTime || program.duration) && (
-                    <div className="flex justify-between">
+                  <div className="flex justify-between">
                       <span className="text-gray-600">
                         {currentLanguage === 'ar' ? 'المدة:' : 'Duration:'}
                       </span>
-                      <span className="font-medium">{(program as any).studyTime || program.duration}</span>
-                    </div>
+                    <span className="font-medium">{(program as any).studyTime || program.duration}</span>
+                  </div>
                   )}
                   
                   {/* Category */}
                   {((program as any).category || program.category) && (
-                    <div className="flex justify-between">
+                  <div className="flex justify-between">
                       <span className="text-gray-600">
                         {currentLanguage === 'ar' ? 'الفئة:' : 'Category:'}
                       </span>
                       <span className="font-medium">{(program as any).category || program.category}</span>
-                    </div>
+                  </div>
                   )}
                   
                   {/* Specialization */}
@@ -380,7 +380,7 @@ export default function ProgramDetailPage({ params }: PageProps) {
                           document.body.removeChild(link);
                         }}
                         className="w-full bg-primary hover:bg-primary-dark text-white font-bold py-3 px-4 rounded-md transition-colors duration-300 flex items-center justify-center"
-                      >
+                >
                         <Download size={20} className="mr-2" />
                         📄 Download English Brochure
                       </button>

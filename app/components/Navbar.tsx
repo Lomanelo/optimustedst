@@ -128,8 +128,8 @@ const Navbar: React.FC = () => {
                   {getContent('navbar_login')}
                 </Link>
                             <Link href="/coming-soon">
-              <Button variant="accent" size="md">{getContent('navbar_register')}</Button>
-            </Link>
+                  <Button variant="accent" size="md">{getContent('navbar_register')}</Button>
+                </Link>
               </>
             )}
           </div>

@@ -122,14 +122,14 @@ export const CMSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       // Check if we need to populate first
       await populateIfEmpty();
       
-      const contentCollection = collection(db, 'cms_content');
-      const unsubscribe = onSnapshot(contentCollection, (snapshot) => {
-        const contentMap = new Map<string, CMSContent>();
-        snapshot.forEach((doc) => {
-          const data = doc.data() as CMSContent;
-          contentMap.set(data.key, { ...data, id: doc.id });
-        });
-        setContent(contentMap);
+    const contentCollection = collection(db, 'cms_content');
+    const unsubscribe = onSnapshot(contentCollection, (snapshot) => {
+      const contentMap = new Map<string, CMSContent>();
+      snapshot.forEach((doc) => {
+        const data = doc.data() as CMSContent;
+        contentMap.set(data.key, { ...data, id: doc.id });
+      });
+      setContent(contentMap);
         setLoading(false); // Set loading to false when we get data
       });
 

@@ -411,37 +411,37 @@ export default function CreateProgramPage() {
       }
 
           // Upload brochures locally and get download URLs
-    if (brochureEnFile) {
-      try {
+      if (brochureEnFile) {
+        try {
         setUploadProgress(prev => ({...prev, brochure_en: 0}));
         const brochureEnUrl = await saveFileLocally(brochureEnFile, docRef.id, 'en');
-        updateData.brochure_en = brochureEnUrl;
+          updateData.brochure_en = brochureEnUrl;
         setUploadProgress(prev => ({...prev, brochure_en: 100}));
         console.log('English brochure uploaded successfully:', brochureEnUrl);
       } catch (uploadError: any) {
-        console.error('Error uploading English brochure:', uploadError);
+          console.error('Error uploading English brochure:', uploadError);
         setError(`Program created, but failed to upload English brochure: ${uploadError.message}`);
+        }
       }
-    }
 
-    if (brochureArFile) {
-      try {
+      if (brochureArFile) {
+        try {
         setUploadProgress(prev => ({...prev, brochure_ar: 0}));
         const brochureArUrl = await saveFileLocally(brochureArFile, docRef.id, 'ar');
-        updateData.brochure_ar = brochureArUrl;
+          updateData.brochure_ar = brochureArUrl;
         setUploadProgress(prev => ({...prev, brochure_ar: 100}));
         console.log('Arabic brochure uploaded successfully:', brochureArUrl);
       } catch (uploadError: any) {
-        console.error('Error uploading Arabic brochure:', uploadError);
+          console.error('Error uploading Arabic brochure:', uploadError);
         setError(`Program created, but failed to upload Arabic brochure: ${uploadError.message}`);
+        }
       }
-    }
 
-    // Update document with uploaded files
-    if (Object.keys(updateData).length > 0) {
-      await updateDoc(doc(db, 'programs', docRef.id), updateData);
+      // Update document with uploaded files
+      if (Object.keys(updateData).length > 0) {
+        await updateDoc(doc(db, 'programs', docRef.id), updateData);
       console.log('Program updated with uploaded files');
-    }
+      }
       
       setSuccess(`Program "${formData.title}" created successfully!`);
       
@@ -948,16 +948,16 @@ export default function CreateProgramPage() {
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {/* English Brochure Upload */}
-              <div>
+                        <div>
                 <label htmlFor="brochure_en" className="block text-sm font-medium text-gray-600 mb-2">
                   {activeLanguage === 'en' ? '📄 English Brochure' : '📄 الكتيب الإنجليزي'}
                 </label>
-                <input
+                        <input
                   id="brochure_en"
                   name="brochure_en"
-                  type="file"
+                          type="file"
                   accept="application/pdf"
-                  onChange={handleBrochureEnChange}
+                          onChange={handleBrochureEnChange}
                   className="mt-1 block w-full border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary/50"
                 />
                 <p className="text-xs text-gray-500 mt-1">
@@ -969,7 +969,7 @@ export default function CreateProgramPage() {
               <div>
                 <label htmlFor="brochure_ar" className="block text-sm font-medium text-gray-600 mb-2">
                   {activeLanguage === 'en' ? '📄 Arabic Brochure' : '📄 الكتيب العربي'}
-                </label>
+                      </label>
                 <input
                   id="brochure_ar"
                   name="brochure_ar"
@@ -981,17 +981,17 @@ export default function CreateProgramPage() {
                 <p className="text-xs text-gray-500 mt-1">
                   {activeLanguage === 'en' ? 'Upload a PDF file' : 'ارفع ملف PDF'}
                 </p>
+                    </div>
+                </div>
               </div>
-                          </div>
-          </div>
 
           {/* Program Status */}
-          <div>
+                              <div>
             <label className="block text-sm font-medium text-gray-700 mb-3">
               {activeLanguage === 'en' ? 'Program Status' : 'حالة البرنامج'}
-            </label>
+                </label>
             <div className="grid grid-cols-2 gap-4">
-              <div className="flex items-center">
+                      <div className="flex items-center">
                 <input
                   type="radio"
                   id="status-draft"
@@ -1005,11 +1005,11 @@ export default function CreateProgramPage() {
                   <span className="font-medium">{activeLanguage === 'en' ? 'Draft' : 'مسودة'}</span>
                   <div className="text-xs text-gray-500">
                     {activeLanguage === 'en' ? 'Hidden from website' : 'مخفي من الموقع'}
-                  </div>
+                                </div>
                 </label>
-              </div>
+                            </div>
               <div className="flex items-center">
-                <input
+              <input
                   type="radio"
                   id="status-published"
                   name="status"
@@ -1023,10 +1023,10 @@ export default function CreateProgramPage() {
                   <div className="text-xs text-gray-500">
                     {activeLanguage === 'en' ? 'Visible on website' : 'مرئي على الموقع'}
                   </div>
-                </label>
-              </div>
+              </label>
             </div>
-          </div>
+              </div>
+              </div>
 
           {/* Upload Progress Display */}
           {isUploading && Object.keys(uploadProgress).length > 0 && (
@@ -1037,13 +1037,13 @@ export default function CreateProgramPage() {
                   <div className="flex justify-between text-sm text-blue-700">
                     <span>{key === 'thumbnail' ? 'Thumbnail' : 'English Brochure'}</span>
                     <span>{progress}%</span>
-                  </div>
+          </div>
                   <div className="w-full bg-blue-200 rounded-full h-2">
                     <div 
                       className="bg-blue-600 h-2 rounded-full transition-all duration-300" 
                       style={{ width: `${progress}%` }}
                     ></div>
-                  </div>
+          </div>
                 </div>
               ))}
             </div>

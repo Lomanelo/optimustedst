@@ -283,7 +283,7 @@ export default function EditProgramPage({ params }: { params: Promise<{ id: stri
       if (thumbnailFile) {
         thumbnailUrl = await uploadThumbnail();
       }
-
+      
       // Handle brochure uploads
       let brochureEnUrl = formData.brochure_en;
       let brochureArUrl = formData.brochure_ar;
@@ -341,12 +341,12 @@ export default function EditProgramPage({ params }: { params: Promise<{ id: stri
         whatYouWillLearn_ar: formData.benefits_ar ? [formData.benefits_ar] : [],
         // Common fields
         languages: ['en', 'ar'] as ('en' | 'ar')[],
-                  durationWeeks: 12, // Default value
-          thumbnail: thumbnailUrl,
-          brochure_en: brochureEnUrl,
-          brochure_ar: brochureArUrl,
-          updatedAt: serverTimestamp()
-        };
+        durationWeeks: 12, // Default value
+        thumbnail: thumbnailUrl,
+        brochure_en: brochureEnUrl,
+        brochure_ar: brochureArUrl,
+        updatedAt: serverTimestamp()
+      };
       
       // Update program in Firestore
       await updateDoc(doc(db, 'programs', program.id), programData);
@@ -784,7 +784,7 @@ export default function EditProgramPage({ params }: { params: Promise<{ id: stri
                 </p>
               </div>
             </div>
-              </div>
+          </div>
           
           <div className="flex justify-end space-x-3">
             <Link
