@@ -202,7 +202,7 @@ function BlogContent() {
           <div className="relative flex-grow max-w-md">
             <input
               type="text"
-              placeholder="Search articles..."
+              placeholder={getContent('search_articles_placeholder') || 'Search articles...'}
               value={searchTerm}
               onChange={(e) => {
                 setSearchTerm(e.target.value);

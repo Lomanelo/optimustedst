@@ -19,7 +19,11 @@ interface FeatureCardProps {
 }
 
 const FeatureCard: React.FC<FeatureCardProps> = ({ titleKey, descriptionKey, icon, index }) => {
-  const { getContent } = useCMS();
+  const { getContent, currentLanguage } = useCMS();
+  
+  const getCardTextAlign = () => {
+    return currentLanguage === 'ar' ? 'text-right rtl-content' : 'text-left';
+  };
   
   return (
     <motion.div 
@@ -27,13 +31,13 @@ const FeatureCard: React.FC<FeatureCardProps> = ({ titleKey, descriptionKey, ico
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5, delay: 0.2 * index }}
       whileHover={{ y: -5 }}
-      className="bg-white rounded-lg p-6 shadow-md hover:shadow-lg transition-shadow duration-300"
+      className={`bg-white rounded-lg p-6 shadow-md hover:shadow-lg transition-shadow duration-300 ${getCardTextAlign()}`}
     >
       <div className="text-[#058C42] mb-4">
         {icon}
       </div>
-      <h3 className="text-xl font-bold text-[#2B1F4F] mb-2">{getContent(titleKey)}</h3>
-      <p className="text-gray-600">{getContent(descriptionKey)}</p>
+      <h3 className={`text-xl font-bold text-[#2B1F4F] mb-2 ${getCardTextAlign()}`}>{getContent(titleKey)}</h3>
+      <p className={`text-gray-600 ${getCardTextAlign()}`}>{getContent(descriptionKey)}</p>
     </motion.div>
   );
 };
@@ -66,7 +70,19 @@ const Leader: React.FC<LeaderProps> = ({ name, title, image, bio }) => {
 };
 
 const AboutUs: React.FC = () => {
-  const { getContent } = useCMS();
+  const { getContent, currentLanguage } = useCMS();
+  
+  // Helper function to get text alignment classes based on language
+  const getTextAlignClass = () => {
+    return currentLanguage === 'ar' 
+      ? 'text-right rtl-content' 
+      : 'text-left';
+  };
+  
+  // Helper function to get direction class
+  const getDirectionClass = () => {
+    return currentLanguage === 'ar' ? 'dir-rtl' : 'dir-ltr';
+  };
   
   // All 5 faculty members with consistent data structure
   const featuredFaculty = [
@@ -123,10 +139,10 @@ const AboutUs: React.FC = () => {
               />
             </div>
             {/* Mission text and stats on the right */}
-            <div className="md:w-1/2 w-full p-6 md:p-10 flex flex-col justify-center rtl-component">
-              <h3 className="text-2xl font-bold text-primary mb-6">{getContent('about_mission_title')}</h3>
+            <div className={`md:w-1/2 w-full p-6 md:p-10 flex flex-col justify-center ${getTextAlignClass()}`}>
+              <h3 className={`text-2xl font-bold text-primary mb-6 ${getTextAlignClass()}`}>{getContent('about_mission_title')}</h3>
               <div className="space-y-4">
-                <p className="text-gray-600">
+                <p className={`text-gray-600 ${getTextAlignClass()}`}>
                   {getContent('about_mission_description')}
                 </p>
               </div>
@@ -169,15 +185,15 @@ const AboutUs: React.FC = () => {
             className="absolute bottom-0 left-0 w-64 h-64 bg-[#058C42]/5 rounded-full translate-y-1/2 -translate-x-1/4"
           ></motion.div>
           
-          <div className="relative z-10 rtl-component">
+          <div className={`relative z-10 ${getTextAlignClass()}`}>
             <motion.div 
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.7 }}
-              className="text-center mb-12"
+              className={`mb-12 ${currentLanguage === 'ar' ? 'text-center' : 'text-center'}`}
             >
-              <h3 className="text-3xl md:text-4xl font-bold text-[#2B1F4F] mb-4">{getContent('about_why_choose_title')}</h3>
-              <p className="text-gray-600 max-w-2xl mx-auto">
+              <h3 className={`text-3xl md:text-4xl font-bold text-[#2B1F4F] mb-4 ${getTextAlignClass()}`}>{getContent('about_why_choose_title')}</h3>
+              <p className={`text-gray-600 max-w-2xl mx-auto ${getTextAlignClass()}`}>
                 {getContent('about_why_choose_subtitle')}
               </p>
             </motion.div>
@@ -206,9 +222,9 @@ const AboutUs: React.FC = () => {
         </div>
         
         {/* Accreditations Section */}
-        <div className="mb-24 rtl-component">
-          <h3 className="text-2xl font-bold text-primary mb-14 text-center">{getContent('about_accreditations_title')}</h3>
-          <p className="text-center text-gray-600 mb-16">{getContent('about_accreditations_subtitle')}</p>
+        <div className={`mb-24 ${getTextAlignClass()}`}>
+          <h3 className={`text-2xl font-bold text-primary mb-14 ${currentLanguage === 'ar' ? 'text-center' : 'text-center'}`}>{getContent('about_accreditations_title')}</h3>
+          <p className={`text-gray-600 mb-16 ${currentLanguage === 'ar' ? 'text-center' : 'text-center'}`}>{getContent('about_accreditations_subtitle')}</p>
           
           {/* Accreditations - PRIORITY */}
           <div className="mb-20">
@@ -260,9 +276,9 @@ const AboutUs: React.FC = () => {
         </div>
         
         {/* Faculty Section */}
-        <div className="rtl-component">
-          <h3 className="text-2xl font-bold text-primary mb-6 text-center">{getContent('about_faculty_title')}</h3>
-          <p className="text-center text-gray-600 mb-10">{getContent('about_faculty_subtitle')}</p>
+        <div className={getTextAlignClass()}>
+          <h3 className={`text-2xl font-bold text-primary mb-6 ${currentLanguage === 'ar' ? 'text-center' : 'text-center'}`}>{getContent('about_faculty_title')}</h3>
+          <p className={`text-gray-600 mb-10 ${currentLanguage === 'ar' ? 'text-center' : 'text-center'}`}>{getContent('about_faculty_subtitle')}</p>
           
           {/* Top row: 3 faculty members */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-10 max-w-5xl mx-auto mb-12">

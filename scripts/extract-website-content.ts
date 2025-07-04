@@ -156,6 +156,228 @@ export const extractedContent: CMSContent[] = [
     updatedBy: 'system'
   },
 
+  // REGISTRATION MODAL CONTENT
+  {
+    id: 'registration_modal_title',
+    key: 'registration_modal_title',
+    section: CMS_SECTIONS.GENERAL,
+    content_en: 'Program Registration',
+    content_ar: 'التسجيل في البرامج',
+    description: 'Title for registration modal',
+    lastUpdated: new Date().toISOString(),
+    updatedBy: 'system'
+  },
+  {
+    id: 'registration_modal_subtitle',
+    key: 'registration_modal_subtitle',
+    section: CMS_SECTIONS.GENERAL,
+    content_en: 'Register your interest to receive more details about our programs',
+    content_ar: 'سجل اهتمامك لتلقي مزيد من التفاصيل حول برامجنا',
+    description: 'Subtitle for registration modal',
+    lastUpdated: new Date().toISOString(),
+    updatedBy: 'system'
+  },
+  {
+    id: 'registration_modal_first_name',
+    key: 'registration_modal_first_name',
+    section: CMS_SECTIONS.GENERAL,
+    content_en: 'First Name',
+    content_ar: 'الاسم الأول',
+    description: 'First name field label in registration modal',
+    lastUpdated: new Date().toISOString(),
+    updatedBy: 'system'
+  },
+  {
+    id: 'registration_modal_last_name',
+    key: 'registration_modal_last_name',
+    section: CMS_SECTIONS.GENERAL,
+    content_en: 'Last Name',
+    content_ar: 'اسم العائلة',
+    description: 'Last name field label in registration modal',
+    lastUpdated: new Date().toISOString(),
+    updatedBy: 'system'
+  },
+  {
+    id: 'registration_modal_phone',
+    key: 'registration_modal_phone',
+    section: CMS_SECTIONS.GENERAL,
+    content_en: 'Phone Number',
+    content_ar: 'رقم الهاتف',
+    description: 'Phone field label in registration modal',
+    lastUpdated: new Date().toISOString(),
+    updatedBy: 'system'
+  },
+  {
+    id: 'registration_modal_email',
+    key: 'registration_modal_email',
+    section: CMS_SECTIONS.GENERAL,
+    content_en: 'Email Address',
+    content_ar: 'عنوان البريد الإلكتروني',
+    description: 'Email field label in registration modal',
+    lastUpdated: new Date().toISOString(),
+    updatedBy: 'system'
+  },
+  {
+    id: 'registration_modal_gender',
+    key: 'registration_modal_gender',
+    section: CMS_SECTIONS.GENERAL,
+    content_en: 'Gender',
+    content_ar: 'الجنس',
+    description: 'Gender field label in registration modal',
+    lastUpdated: new Date().toISOString(),
+    updatedBy: 'system'
+  },
+  {
+    id: 'registration_modal_select_gender',
+    key: 'registration_modal_select_gender',
+    section: CMS_SECTIONS.GENERAL,
+    content_en: 'Select Gender',
+    content_ar: 'اختر النوع',
+    description: 'Gender field placeholder in registration modal',
+    lastUpdated: new Date().toISOString(),
+    updatedBy: 'system'
+  },
+  {
+    id: 'registration_modal_male',
+    key: 'registration_modal_male',
+    section: CMS_SECTIONS.GENERAL,
+    content_en: 'Male',
+    content_ar: 'ذكر',
+    description: 'Male option in gender selection',
+    lastUpdated: new Date().toISOString(),
+    updatedBy: 'system'
+  },
+  {
+    id: 'registration_modal_female',
+    key: 'registration_modal_female',
+    section: CMS_SECTIONS.GENERAL,
+    content_en: 'Female',
+    content_ar: 'أنثى',
+    description: 'Female option in gender selection',
+    lastUpdated: new Date().toISOString(),
+    updatedBy: 'system'
+  },
+  {
+    id: 'registration_modal_certificate',
+    key: 'registration_modal_certificate',
+    section: CMS_SECTIONS.GENERAL,
+    content_en: 'Certificate of Interest',
+    content_ar: 'الشهادة المهتم بها',
+    description: 'Certificate field label in registration modal',
+    lastUpdated: new Date().toISOString(),
+    updatedBy: 'system'
+  },
+  {
+    id: 'registration_modal_select_certificate',
+    key: 'registration_modal_select_certificate',
+    section: CMS_SECTIONS.GENERAL,
+    content_en: 'Select Certificate',
+    content_ar: 'الشهادة المهتم بها',
+    description: 'Certificate field placeholder in registration modal',
+    lastUpdated: new Date().toISOString(),
+    updatedBy: 'system'
+  },
+  {
+    id: 'registration_modal_certificate_mba',
+    key: 'registration_modal_certificate_mba',
+    section: CMS_SECTIONS.GENERAL,
+    content_en: 'Master of Business Administration (MBA)',
+    content_ar: 'ماجستير إدارة الأعمال (MBA)',
+    description: 'MBA option in certificate selection',
+    lastUpdated: new Date().toISOString(),
+    updatedBy: 'system'
+  },
+  {
+    id: 'registration_modal_certificate_phd',
+    key: 'registration_modal_certificate_phd',
+    section: CMS_SECTIONS.GENERAL,
+    content_en: 'Doctor of Business Administration (DBA/PHD)',
+    content_ar: 'دكتوراه في إدارة الأعمال (DBA/PHD)',
+    description: 'PHD/DBA option in certificate selection',
+    lastUpdated: new Date().toISOString(),
+    updatedBy: 'system'
+  },
+  {
+    id: 'registration_modal_certificate_diploma',
+    key: 'registration_modal_certificate_diploma',
+    section: CMS_SECTIONS.GENERAL,
+    content_en: 'Diploma',
+    content_ar: 'دبلوم',
+    description: 'Diploma option in certificate selection',
+    lastUpdated: new Date().toISOString(),
+    updatedBy: 'system'
+  },
+  {
+    id: 'registration_modal_certificate_course',
+    key: 'registration_modal_certificate_course',
+    section: CMS_SECTIONS.GENERAL,
+    content_en: 'Course',
+    content_ar: 'دورة تدريبية',
+    description: 'Course option in certificate selection',
+    lastUpdated: new Date().toISOString(),
+    updatedBy: 'system'
+  },
+  {
+    id: 'registration_modal_certificate_other',
+    key: 'registration_modal_certificate_other',
+    section: CMS_SECTIONS.GENERAL,
+    content_en: 'Other',
+    content_ar: 'أخرى',
+    description: 'Other option in certificate selection',
+    lastUpdated: new Date().toISOString(),
+    updatedBy: 'system'
+  },
+  {
+    id: 'registration_modal_submit',
+    key: 'registration_modal_submit',
+    section: CMS_SECTIONS.GENERAL,
+    content_en: 'Submit',
+    content_ar: 'إرسال',
+    description: 'Submit button text in registration modal',
+    lastUpdated: new Date().toISOString(),
+    updatedBy: 'system'
+  },
+  {
+    id: 'registration_modal_submitting',
+    key: 'registration_modal_submitting',
+    section: CMS_SECTIONS.GENERAL,
+    content_en: 'Submitting...',
+    content_ar: 'جاري الإرسال...',
+    description: 'Submitting state text in registration modal',
+    lastUpdated: new Date().toISOString(),
+    updatedBy: 'system'
+  },
+  {
+    id: 'registration_modal_success_title',
+    key: 'registration_modal_success_title',
+    section: CMS_SECTIONS.GENERAL,
+    content_en: 'Thank You!',
+    content_ar: 'شكراً لك!',
+    description: 'Success page title in registration modal',
+    lastUpdated: new Date().toISOString(),
+    updatedBy: 'system'
+  },
+  {
+    id: 'registration_modal_success_message',
+    key: 'registration_modal_success_message',
+    section: CMS_SECTIONS.GENERAL,
+    content_en: 'Your interest has been registered successfully. We will contact you soon.',
+    content_ar: 'تم تسجيل اهتمامك بنجاح. سنتواصل معك قريباً.',
+    description: 'Success message in registration modal',
+    lastUpdated: new Date().toISOString(),
+    updatedBy: 'system'
+  },
+  {
+    id: 'registration_modal_close',
+    key: 'registration_modal_close',
+    section: CMS_SECTIONS.GENERAL,
+    content_en: 'Close',
+    content_ar: 'إغلاق',
+    description: 'Close button text in registration modal',
+    lastUpdated: new Date().toISOString(),
+    updatedBy: 'system'
+  },
+
   // PROGRAMS OVERVIEW CONTENT
   {
     id: 'programs_overview_title',

@@ -18,6 +18,7 @@ interface CMSContextType {
   getContentBySection: (section: CMSSectionKey) => CMSContent[];
   refreshContent: () => Promise<void>;
   changeLanguage: (language: 'en' | 'ar') => void;
+  forceRepopulateContent: () => Promise<{ success: number; errors: number; }>;
 }
 
 const CMSContext = createContext<CMSContextType | undefined>(undefined);
@@ -64,28 +65,50 @@ export const CMSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     }
   };
 
-  // Automatically populate database if empty
+  // Automatically populate database if empty or missing content
+  // This works for all users (authenticated and anonymous) to ensure consistent translations
   const populateIfEmpty = async () => {
     try {
       const contentCollection = collection(db, 'cms_content');
       const snapshot = await getDocs(contentCollection);
       
-      // If database is empty or has less than 10 items, populate it
-      if (snapshot.size < 10) {
-        console.log('CMS database is empty or incomplete, populating with default content...');
+      // Check if we have essential content
+      const existingKeys = new Set<string>();
+      snapshot.forEach(doc => {
+        const data = doc.data();
+        existingKeys.add(data.key);
+      });
+      
+      // Check for missing content (prioritize essential and filter content)
+      const missingContent = extractedContent.filter(item => !existingKeys.has(item.key));
+      
+      // If database is empty, has less than 50 items, or missing essential content, populate it
+      if (snapshot.size < 50 || missingContent.length > 0) {
+        console.log(`CMS auto-population: Adding ${missingContent.length} missing items...`);
         
-        for (const item of extractedContent) {
+        let successCount = 0;
+        let errorCount = 0;
+        
+        for (const item of missingContent) {
           try {
             await setDoc(doc(contentCollection, item.id), item);
-          } catch (error) {
-            console.error(`Error adding content item ${item.key}:`, error);
+            successCount++;
+          } catch (error: any) {
+            errorCount++;
+            // Only log errors in development, continue silently in production
+            if (process.env.NODE_ENV === 'development') {
+              console.warn(`Failed to add ${item.key}:`, error?.message || error);
+            }
           }
         }
         
-        console.log(`Populated CMS database with ${extractedContent.length} items`);
+        console.log(`CMS auto-population completed: ${successCount} added, ${errorCount} failed`);
       }
     } catch (error) {
-      console.error('Error checking/populating CMS database:', error);
+      // Silently handle errors to not break the user experience
+      if (process.env.NODE_ENV === 'development') {
+        console.error('CMS auto-population error:', error);
+      }
     }
   };
 
@@ -149,13 +172,23 @@ export const CMSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     };
   }, []);
 
-  // Get content by key
+  // Get content by key with robust fallbacks
   const getContent = (key: string, language?: 'en' | 'ar'): string => {
     const lang = language || currentLanguage;
     const item = content.get(key);
     
     if (!item) {
-      console.warn(`CMS content not found for key: ${key}`);
+      // Try to find content in the static extract as fallback
+      const extractItem = extractedContent.find(extract => extract.key === key);
+      if (extractItem) {
+        const fallbackValue = lang === 'ar' ? extractItem.content_ar : extractItem.content_en;
+        return fallbackValue || key;
+      }
+      
+      // Only log in development to avoid console spam
+      if (process.env.NODE_ENV === 'development') {
+        console.warn(`CMS content not found for key: ${key}`);
+      }
       return key; // Return the key as fallback
     }
     
@@ -163,7 +196,9 @@ export const CMSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     
     // Ensure we return a string, not an object
     if (typeof contentValue === 'object') {
-      console.error(`CMS content for key "${key}" is an object, expected string:`, contentValue);
+      if (process.env.NODE_ENV === 'development') {
+        console.error(`CMS content for key "${key}" is an object, expected string:`, contentValue);
+      }
       return key; // Return the key as fallback
     }
     
@@ -217,6 +252,38 @@ export const CMSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     await loadContent();
   };
 
+  // Force refresh and repopulate content (for admin use or system initialization)
+  const forceRepopulateContent = async () => {
+    try {
+      console.log('Force repopulating CMS content...');
+      const contentCollection = collection(db, 'cms_content');
+      
+      let successCount = 0;
+      let errorCount = 0;
+      
+      // Add/update all content from extract script
+      for (const item of extractedContent) {
+        try {
+          await setDoc(doc(contentCollection, item.id), item);
+          successCount++;
+        } catch (error: any) {
+          errorCount++;
+          if (process.env.NODE_ENV === 'development') {
+            console.warn(`Failed to update ${item.key}:`, error?.message || error);
+          }
+        }
+      }
+      
+      console.log(`Force repopulation completed: ${successCount} updated, ${errorCount} failed`);
+      await loadContent(); // Reload after update
+      
+      return { success: successCount, errors: errorCount };
+    } catch (error) {
+      console.error('Error force repopulating CMS database:', error);
+      return { success: 0, errors: extractedContent.length };
+    }
+  };
+
   useEffect(() => {
     loadContent();
   }, []);
@@ -233,7 +300,8 @@ export const CMSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         getAllContent,
         getContentBySection,
         refreshContent,
-        changeLanguage
+        changeLanguage,
+        forceRepopulateContent
       }}
     >
       {children}

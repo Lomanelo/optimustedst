@@ -95,10 +95,16 @@ service cloud.firestore {
       allow write: if hasPermission('settings'); // Users with settings permission can modify settings
     }
     
-    // CMS Content collection - allow reading for all users, writing for users with cms permission
+    // CMS Content collection - allow reading for all users, system auto-population, admin management
     match /cms_content/{contentId} {
-      allow read: if true; // Allow all users to read CMS content (needed for website display)
-      allow create, update, delete: if hasPermission('cms'); // Users with cms permission can modify CMS content
+      allow read, list: if true; // Allow all users (including anonymous) to read CMS content
+      
+      // Allow system auto-population - no auth required for initial content creation
+      // This enables the system to populate missing translations automatically
+      allow create: if true;
+      
+      // Allow users with cms permission to update and delete CMS content (admin management)
+      allow update, delete: if hasPermission('cms');
     }
     
     // Legal Documents collection - allow reading active documents for all users, writing for users with terms permission

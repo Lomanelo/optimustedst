@@ -1,11 +1,12 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import { ArrowRight } from 'lucide-react';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { useAuth } from '../contexts/auth-context';
 import { useCMS } from '../contexts/cms-context';
+import RegistrationModal from './RegistrationModal';
 
 // LTR wrapper component that completely isolates content from RTL influence
 const LtrTextContainer: React.FC<{children: React.ReactNode; className?: string}> = ({children, className = ""}) => {
@@ -27,6 +28,7 @@ const LtrTextContainer: React.FC<{children: React.ReactNode; className?: string}
 const Hero: React.FC = () => {
   const { currentUser } = useAuth();
   const { getContent } = useCMS();
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   return (
     <section 
@@ -60,15 +62,22 @@ const Hero: React.FC = () => {
             </Link>
             {/* Only show register button for non-logged-in users */}
             {!currentUser && (
-              <Link href="/coming-soon">
-                <button className="bg-white hover:bg-gray-100 text-primary font-medium py-3 px-6 rounded-md transition-colors duration-300">
-                  {getContent('hero_cta_register')}
-                </button>
-              </Link>
+              <button 
+                onClick={() => setIsModalOpen(true)}
+                className="bg-white hover:bg-gray-100 text-primary font-medium py-3 px-6 rounded-md transition-colors duration-300"
+              >
+                {getContent('hero_cta_register')}
+              </button>
             )}
           </div>
         </div>
       </div>
+      
+      {/* Registration Modal */}
+      <RegistrationModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+      />
     </section>
   );
 };

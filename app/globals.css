@@ -194,6 +194,33 @@ footer {
   font-family: 'Cairo', sans-serif;
 }
 
+/* RTL Component support */
+.rtl-component {
+  direction: ltr; /* default */
+}
+
+[data-language="ar"] .rtl-component {
+  direction: rtl;
+  text-align: right;
+  font-family: 'Cairo', sans-serif;
+}
+
+/* Specific text alignment utilities for Arabic */
+[data-language="ar"] .text-right-rtl {
+  text-align: right !important;
+  direction: rtl;
+}
+
+[data-language="ar"] .text-left-rtl {
+  text-align: left !important;
+  direction: ltr;
+}
+
+/* Center text should remain centered in both languages */
+[data-language="ar"] .text-center-rtl {
+  text-align: center !important;
+}
+
 /* Arabic punctuation and text direction fixes */
 [data-language="ar"] {
   /* Ensure proper text direction for Arabic */
@@ -232,6 +259,36 @@ footer {
   direction: rtl;
   unicode-bidi: isolate;
   text-align: right;
+}
+
+/* Direction utility classes for components */
+.dir-rtl {
+  direction: rtl;
+}
+
+.dir-ltr {
+  direction: ltr;
+}
+
+/* Enhanced RTL support for form elements and cards */
+.dir-rtl input,
+.dir-rtl select,
+.dir-rtl textarea {
+  text-align: right;
+}
+
+.dir-rtl .text-left {
+  text-align: right;
+}
+
+.dir-rtl .text-right {
+  text-align: left;
+}
+
+/* Maintain center alignment in both directions */
+.dir-rtl .text-center,
+.dir-ltr .text-center {
+  text-align: center;
 }
 
  

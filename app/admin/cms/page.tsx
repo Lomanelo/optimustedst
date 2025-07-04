@@ -35,7 +35,8 @@ export default function AdminCMSPage() {
     getContentBySection, 
     updateContent, 
     loading: cmsLoading,
-    refreshContent 
+    refreshContent,
+    forceRepopulateContent 
   } = useCMS();
   
   const [selectedSection, setSelectedSection] = useState<CMSSectionKey>(CMS_SECTIONS.NAVBAR);
@@ -114,6 +115,7 @@ export default function AdminCMSPage() {
       [CMS_SECTIONS.ABOUT_PAGE]: 'About Page',
       [CMS_SECTIONS.CONTACT_PAGE]: 'Contact Page',
       [CMS_SECTIONS.PROGRAMS_PAGE]: 'Programs Page',
+      [CMS_SECTIONS.PROGRAMS]: 'Programs',
       [CMS_SECTIONS.LOGIN_PAGE]: 'Login Page',
       [CMS_SECTIONS.REGISTER_PAGE]: 'Register Page',
       [CMS_SECTIONS.DASHBOARD]: 'Dashboard',
@@ -126,7 +128,8 @@ export default function AdminCMSPage() {
       [CMS_SECTIONS.SUCCESS_MESSAGES]: 'Success Messages',
       [CMS_SECTIONS.FORM_LABELS]: 'Form Labels',
       [CMS_SECTIONS.BUTTONS]: 'Buttons',
-      [CMS_SECTIONS.METADATA]: 'Metadata & SEO'
+      [CMS_SECTIONS.METADATA]: 'Metadata & SEO',
+      [CMS_SECTIONS.GENERAL]: 'General'
     };
     return labels[section] || section;
   };
@@ -181,6 +184,13 @@ export default function AdminCMSPage() {
               >
                 <Upload size={16} className="mr-2" />
                 Refresh
+              </button>
+              <button
+                onClick={() => forceRepopulateContent()}
+                className="inline-flex items-center px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors"
+              >
+                <Database size={16} className="mr-2" />
+                Update Translations
               </button>
               <button
                 onClick={exportContent}

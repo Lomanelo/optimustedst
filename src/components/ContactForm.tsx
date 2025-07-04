@@ -13,7 +13,12 @@ interface FormData {
 }
 
 const ContactForm: React.FC = () => {
-  const { getContent } = useCMS();
+  const { getContent, currentLanguage } = useCMS();
+  
+  // Helper function to get text alignment classes based on language
+  const getTextAlignClass = () => {
+    return currentLanguage === 'ar' ? 'text-right' : 'text-left';
+  };
   
   const [formData, setFormData] = useState<FormData>({
     name: '',
@@ -90,13 +95,15 @@ const ContactForm: React.FC = () => {
   if (isSubmitted) {
     return (
       <div className="bg-white rounded-lg shadow-md p-6 md:p-8">
-        <div className="text-center">
+        <div className={`text-center ${getTextAlignClass()}`}>
           <CheckCircle className="mx-auto text-green-500 mb-4" size={64} />
-          <h3 className="text-2xl font-bold text-primary mb-4">Thank You!</h3>
-          <p className="text-gray-600 mb-4">
-            Your message has been sent successfully. We'll get back to you within 24 hours.
+          <h3 className={`text-2xl font-bold text-primary mb-4 ${getTextAlignClass()}`}>
+            {getContent('contact_form_success') || 'Thank You!'}
+          </h3>
+          <p className={`text-gray-600 mb-4 ${getTextAlignClass()}`}>
+            {getContent('contact_form_success') || 'Your message has been sent successfully. We\'ll get back to you within 24 hours.'}
           </p>
-          <p className="text-sm text-gray-500">
+          <p className={`text-sm text-gray-500 ${getTextAlignClass()}`}>
             Check your email for a confirmation message.
           </p>
           <button
@@ -112,20 +119,20 @@ const ContactForm: React.FC = () => {
 
   return (
     <div className="bg-white rounded-lg shadow-md p-6 md:p-8">
-      <h3 className="text-xl font-bold text-primary mb-6">
+      <h3 className={`text-xl font-bold text-primary mb-6 ${getTextAlignClass()}`}>
         {getContent('contact_form_title') || 'Send a Message'}
       </h3>
       
       {submitError && (
         <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-md">
-          <p className="text-red-600 text-sm">{submitError}</p>
+          <p className={`text-red-600 text-sm ${getTextAlignClass()}`}>{submitError}</p>
         </div>
       )}
       
       <form onSubmit={handleSubmit}>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
           <div>
-            <label htmlFor="name" className="block text-gray-700 font-medium mb-2">
+            <label htmlFor="name" className={`block text-gray-700 font-medium mb-2 ${getTextAlignClass()}`}>
               {getContent('contact_form_name_label') || 'Full Name'}*
             </label>
             <input
@@ -135,13 +142,13 @@ const ContactForm: React.FC = () => {
               value={formData.name}
               onChange={handleChange}
               required
-              className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-accent focus:border-transparent"
+              className={`w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-accent focus:border-transparent ${getTextAlignClass()}`}
               placeholder={getContent('contact_form_name_placeholder') || 'Enter your full name'}
             />
           </div>
           
           <div>
-            <label htmlFor="email" className="block text-gray-700 font-medium mb-2">
+            <label htmlFor="email" className={`block text-gray-700 font-medium mb-2 ${getTextAlignClass()}`}>
               {getContent('contact_form_email_label') || 'Email Address'}*
             </label>
             <input
@@ -151,13 +158,13 @@ const ContactForm: React.FC = () => {
               value={formData.email}
               onChange={handleChange}
               required
-              className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-accent focus:border-transparent"
+              className={`w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-accent focus:border-transparent ${getTextAlignClass()}`}
               placeholder={getContent('contact_form_email_placeholder') || 'Enter your email address'}
             />
           </div>
           
           <div>
-            <label htmlFor="phone" className="block text-gray-700 font-medium mb-2">
+            <label htmlFor="phone" className={`block text-gray-700 font-medium mb-2 ${getTextAlignClass()}`}>
               {getContent('contact_form_phone_label') || 'Phone Number'}
             </label>
             <input
@@ -166,13 +173,13 @@ const ContactForm: React.FC = () => {
               name="phone"
               value={formData.phone}
               onChange={handleChange}
-              className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-accent focus:border-transparent"
+              className={`w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-accent focus:border-transparent ${getTextAlignClass()}`}
               placeholder={getContent('contact_form_phone_placeholder') || 'Enter your phone number'}
             />
           </div>
           
           <div>
-            <label htmlFor="inquiryType" className="block text-gray-700 font-medium mb-2">
+            <label htmlFor="inquiryType" className={`block text-gray-700 font-medium mb-2 ${getTextAlignClass()}`}>
               {getContent('contact_form_inquiry_type') || 'Inquiry Type'}*
             </label>
             <select
@@ -181,7 +188,7 @@ const ContactForm: React.FC = () => {
               value={formData.inquiryType}
               onChange={handleChange}
               required
-              className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-accent focus:border-transparent"
+              className={`w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-accent focus:border-transparent ${getTextAlignClass()}`}
             >
               <option value="">{getContent('contact_form_select_inquiry') || 'Select inquiry type'}</option>
               {inquiryTypes.map((type) => (
@@ -194,7 +201,7 @@ const ContactForm: React.FC = () => {
         </div>
         
         <div className="mb-6">
-          <label htmlFor="message" className="block text-gray-700 font-medium mb-2">
+          <label htmlFor="message" className={`block text-gray-700 font-medium mb-2 ${getTextAlignClass()}`}>
             {getContent('contact_form_message_label') || 'Message'}*
           </label>
           <textarea
@@ -204,7 +211,7 @@ const ContactForm: React.FC = () => {
             onChange={handleChange}
             rows={4}
             required
-            className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-accent focus:border-transparent"
+            className={`w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-accent focus:border-transparent ${getTextAlignClass()}`}
             placeholder={getContent('contact_form_message_placeholder') || 'Please describe your inquiry in detail...'}
           ></textarea>
         </div>
@@ -229,7 +236,7 @@ const ContactForm: React.FC = () => {
       </form>
       
       <div className="mt-6 pt-6 border-t border-gray-200">
-        <p className="text-sm text-gray-600 text-center">
+        <p className={`text-sm text-gray-600 text-center ${getTextAlignClass()}`}>
           {getContent('contact_form_disclaimer') || 'By submitting this form, you agree to receive communications from Optimus Education. We respect your privacy and will never share your information with third parties.'}
         </p>
       </div>
