@@ -123,14 +123,9 @@ const Navbar: React.FC = () => {
                 </button>
               </div>
             ) : (
-              <>
-                <Link href="/login" className="font-medium text-primary hover:text-primary-dark">
-                  {getContent('navbar_login')}
-                </Link>
-                            <Link href="/coming-soon">
-                  <Button variant="accent" size="md">{getContent('navbar_register')}</Button>
-                </Link>
-              </>
+              <Link href="/coming-soon">
+                <Button variant="accent" size="md">{getContent('navbar_register')}</Button>
+              </Link>
             )}
           </div>
 
@@ -174,14 +169,9 @@ const Navbar: React.FC = () => {
               </button>
             </>
           ) : (
-            <>
-              <Link href="/login" className="block font-medium text-primary hover:text-primary-dark py-2">
-                {getContent('navbar_login')}
-              </Link>
-              <Link href="/coming-soon" className="block w-full mt-2">
-                <Button variant="accent" size="md" className="w-full">{getContent('navbar_register')}</Button>
-              </Link>
-            </>
+            <Link href="/coming-soon" className="block w-full mt-2">
+              <Button variant="accent" size="md" className="w-full">{getContent('navbar_register')}</Button>
+            </Link>
           )}
         </div>
       </div>

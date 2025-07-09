@@ -11,7 +11,7 @@ interface Step {
 }
 
 const HowItWorks: React.FC = () => {
-  const { getContent, loading: cmsLoading } = useCMS();
+  const { getContent, getFormattedContent, currentLanguage, loading: cmsLoading } = useCMS();
   
   const steps: Step[] = [
     {
@@ -71,7 +71,7 @@ const HowItWorks: React.FC = () => {
         >
           <h2 className="text-3xl md:text-4xl font-bold text-[#2B1F4F] mb-4">{getContent('how_it_works_title')}</h2>
           <p className="text-gray-600 max-w-2xl mx-auto">
-            {getContent('how_it_works_subtitle')}
+            {getFormattedContent('how_it_works_subtitle')}
           </p>
         </motion.div>
         
@@ -109,7 +109,7 @@ const HowItWorks: React.FC = () => {
                     {step.number}
                   </motion.div>
                   <h3 className="text-xl font-bold text-[#2B1F4F] mb-2 text-center">{getContent(step.titleKey)}</h3>
-                  <p className="text-gray-600 text-center">{getContent(step.descriptionKey)}</p>
+                  <p className="text-gray-600 text-center">{getFormattedContent(step.descriptionKey)}</p>
                 </div>
                 
                 {/* Arrow for mobile view */}

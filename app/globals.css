@@ -172,13 +172,601 @@
   font-size: 1.4rem;
 }
 
-/* Force LTR for navigation and header components */
-nav,
-.navbar-container,
-.language-switcher,
-#hero,
-.hero-content,
-footer {
+/* Force LTR for specific components only */
+.language-switcher {
+  direction: ltr !important;
+  text-align: left !important;
+}
+
+/* Header/Navigation RTL Support */
+[data-language="ar"] nav,
+[data-language="ar"] .navbar-container {
+  direction: rtl !important;
+  text-align: right !important;
+}
+
+[data-language="ar"] nav .flex {
+  flex-direction: row-reverse !important;
+}
+
+[data-language="ar"] nav .gap-4 {
+  gap: 1rem;
+  flex-direction: row-reverse !important;
+}
+
+[data-language="ar"] nav .gap-6 {
+  gap: 1.5rem;
+  flex-direction: row-reverse !important;
+}
+
+[data-language="ar"] nav a {
+  text-align: right !important;
+}
+
+/* Hero RTL Support with higher specificity */
+[data-language="ar"] #hero {
+  direction: rtl !important;
+  text-align: right !important;
+}
+
+[data-language="ar"] #hero .hero-content {
+  direction: rtl !important;
+  text-align: right !important;
+  margin-left: auto !important;
+  margin-right: 0 !important;
+}
+
+[data-language="ar"] #hero .hero-content * {
+  text-align: right !important;
+  direction: rtl !important;
+}
+
+[data-language="ar"] #hero .hero-content h1,
+[data-language="ar"] #hero .hero-content h2,
+[data-language="ar"] #hero .hero-content p,
+[data-language="ar"] #hero .hero-content span {
+  text-align: right !important;
+  direction: rtl !important;
+}
+
+[data-language="ar"] #hero .hero-content .flex {
+  justify-content: flex-end !important;
+  flex-direction: row-reverse !important;
+}
+
+/* Also target by HTML dir attribute as fallback */
+html[dir="rtl"] #hero,
+html[dir="rtl"] .hero-content {
+  direction: rtl !important;
+  text-align: right !important;
+}
+
+html[dir="rtl"] #hero .hero-content {
+  margin-left: auto !important;
+  margin-right: 0 !important;
+}
+
+html[dir="rtl"] #hero .hero-content *,
+html[dir="rtl"] #hero .hero-content h1,
+html[dir="rtl"] #hero .hero-content h2,
+html[dir="rtl"] #hero .hero-content p,
+html[dir="rtl"] #hero .hero-content span {
+  text-align: right !important;
+}
+
+html[dir="rtl"] #hero .hero-content .flex {
+  justify-content: flex-end !important;
+  flex-direction: row-reverse !important;
+}
+
+html[dir="rtl"] nav {
+  direction: rtl !important;
+  text-align: right !important;
+}
+
+html[dir="rtl"] nav .flex {
+  flex-direction: row-reverse !important;
+}
+
+/* Force Arabic text to be right-aligned */
+[data-language="ar"] * {
+  font-family: inherit;
+}
+
+[data-language="ar"] #hero .text-4xl,
+[data-language="ar"] #hero .text-5xl,
+[data-language="ar"] #hero .text-6xl,
+[data-language="ar"] #hero .text-xl,
+[data-language="ar"] #hero .text-2xl,
+[data-language="ar"] #hero .text-lg {
+  text-align: right !important;
+  direction: rtl !important;
+  letter-spacing: normal !important;
+}
+
+/* Remove letter spacing from all Arabic text elements */
+[data-language="ar"] #hero h1,
+[data-language="ar"] #hero h2,
+[data-language="ar"] #hero p,
+[data-language="ar"] #hero span {
+  letter-spacing: normal !important;
+  tracking: none !important;
+}
+
+/* Specifically target the hero badge/title elements */
+[data-language="ar"] #hero .tracking-widest,
+[data-language="ar"] #hero .font-extrabold,
+[data-language="ar"] #hero .uppercase {
+  letter-spacing: normal !important;
+  text-transform: none !important;
+}
+
+/* Remove any tracking classes for Arabic */
+[data-language="ar"] .tracking-tight,
+[data-language="ar"] .tracking-normal,
+[data-language="ar"] .tracking-wide,
+[data-language="ar"] .tracking-wider,
+[data-language="ar"] .tracking-widest {
+  letter-spacing: normal !important;
+}
+
+/* Global Arabic text spacing fixes */
+[data-language="ar"] * {
+  letter-spacing: normal !important;
+}
+
+/* Ensure proper Arabic text rendering */
+html[dir="rtl"] h1,
+html[dir="rtl"] h2,
+html[dir="rtl"] h3,
+html[dir="rtl"] h4,
+html[dir="rtl"] h5,
+html[dir="rtl"] h6,
+html[dir="rtl"] p,
+html[dir="rtl"] span {
+  letter-spacing: normal !important;
+}
+
+/* Override any uppercase or tracking for Arabic content */
+[data-language="ar"] .uppercase {
+  text-transform: none !important;
+}
+
+[data-language="ar"] nav .font-medium,
+[data-language="ar"] nav a {
+  text-align: right !important;
+  direction: rtl !important;
+  letter-spacing: normal !important;
+}
+
+/* Comprehensive header RTL support */
+[data-language="ar"] nav,
+[data-language="ar"] .navbar-container,
+[data-language="ar"] nav * {
+  letter-spacing: normal !important;
+  text-align: right !important;
+}
+
+/* Navigation menu items */
+[data-language="ar"] nav .hidden.md\\:flex,
+[data-language="ar"] nav .gap-6,
+[data-language="ar"] nav .gap-4 {
+  flex-direction: row-reverse !important;
+  text-align: right !important;
+}
+
+/* Mobile navigation */
+[data-language="ar"] nav .md\\:hidden,
+[data-language="ar"] nav .space-y-3 {
+  text-align: right !important;
+}
+
+[data-language="ar"] nav .space-y-3 a {
+  text-align: right !important;
+  direction: rtl !important;
+}
+
+/* Navigation buttons and links */
+[data-language="ar"] nav button,
+[data-language="ar"] nav .font-medium {
+  text-align: right !important;
+  letter-spacing: normal !important;
+}
+
+/* Container alignment for header */
+[data-language="ar"] nav .container,
+[data-language="ar"] nav .mx-auto {
+  direction: rtl !important;
+}
+
+/* Force header layout to reverse */
+[data-language="ar"] nav .justify-between {
+  direction: rtl !important;
+  flex-direction: row-reverse !important;
+  justify-content: space-between !important;
+}
+
+/* Force the main header flex container to reverse */
+[data-language="ar"] nav > div > div.flex {
+  flex-direction: row-reverse !important;
+  direction: rtl !important;
+}
+
+/* Target the specific header structure */
+[data-language="ar"] nav .flex.justify-between.items-center {
+  flex-direction: row-reverse !important;
+  direction: rtl !important;
+}
+
+/* Navigation menu container */
+[data-language="ar"] nav .hidden.md\\:flex.gap-6 {
+  order: 2 !important;
+  flex-direction: row-reverse !important;
+  direction: rtl !important;
+}
+
+/* Right side items (language switcher, auth) */
+[data-language="ar"] nav .hidden.md\\:flex.items-center.gap-4 {
+  order: 1 !important;
+  flex-direction: row-reverse !important;
+  direction: rtl !important;
+}
+
+/* Logo/brand area */
+[data-language="ar"] nav .flex.items-center:first-child {
+  order: 3 !important;
+  direction: ltr !important;
+}
+
+/* More aggressive header reordering */
+html[dir="rtl"] nav .flex.justify-between.items-center {
+  flex-direction: row-reverse !important;
+}
+
+html[dir="rtl"] nav .hidden.md\\:flex {
+  flex-direction: row-reverse !important;
+}
+
+/* Force complete RTL layout for nav */
+[data-language="ar"] nav {
+  direction: rtl !important;
+}
+
+[data-language="ar"] nav * {
+  direction: inherit !important;
+}
+
+/* Keep language switcher LTR */
+[data-language="ar"] nav .language-switcher,
+[data-language="ar"] nav .language-switcher * {
+  direction: ltr !important;
+}
+
+/* Mobile menu button positioning */
+[data-language="ar"] nav .md\\:hidden {
+  order: 1 !important;
+}
+
+/* Desktop navigation items order */
+[data-language="ar"] nav .container > .flex > div:nth-child(1) {
+  order: 3 !important; /* Logo moves to right */
+}
+
+[data-language="ar"] nav .container > .flex > div:nth-child(2) {
+  order: 2 !important; /* Navigation items in middle */
+}
+
+[data-language="ar"] nav .container > .flex > div:nth-child(3) {
+  order: 1 !important; /* Auth/language switcher moves to left */
+}
+
+/* Alternative targeting for flex children */
+[data-language="ar"] nav .justify-between > *:first-child {
+  order: 3 !important;
+}
+
+[data-language="ar"] nav .justify-between > *:last-child {
+  order: 1 !important;
+}
+
+/* Mobile menu RTL layout */
+[data-language="ar"] nav .md\\:hidden.block {
+  direction: rtl !important;
+  text-align: right !important;
+}
+
+[data-language="ar"] nav .md\\:hidden.block .space-y-3 {
+  direction: rtl !important;
+}
+
+[data-language="ar"] nav .md\\:hidden.block .space-y-3 > * {
+  text-align: right !important;
+  direction: rtl !important;
+}
+
+/* Ensure proper text direction inheritance */
+html[dir="rtl"] nav,
+html[dir="rtl"] nav .container,
+html[dir="rtl"] nav .flex {
+  direction: rtl !important;
+}
+
+/* Override any conflicting styles */
+[data-language="ar"] nav .container .flex.justify-between {
+  direction: rtl !important;
+  display: flex !important;
+  justify-content: space-between !important;
+  align-items: center !important;
+}
+
+/* Force RTL for all nav flex containers */
+[data-language="ar"] nav .flex:not(.language-switcher):not(.language-switcher *) {
+  direction: rtl !important;
+}
+
+/* Additional mobile navigation fixes */
+[data-language="ar"] nav button.md\\:hidden {
+  order: 1 !important;
+}
+
+/* Header text elements */
+[data-language="ar"] nav h1,
+[data-language="ar"] nav h2,
+[data-language="ar"] nav h3,
+[data-language="ar"] nav span,
+[data-language="ar"] nav p {
+  text-align: right !important;
+  letter-spacing: normal !important;
+  direction: rtl !important;
+}
+
+/* User profile and auth elements */
+[data-language="ar"] nav .items-center:not(.language-switcher) {
+  flex-direction: row-reverse !important;
+}
+
+/* HTML dir attribute support for nav */
+html[dir="rtl"] nav,
+html[dir="rtl"] nav * {
+  text-align: right !important;
+  letter-spacing: normal !important;
+}
+
+html[dir="rtl"] nav .flex:not(.language-switcher) {
+  flex-direction: row-reverse !important;
+}
+
+html[dir="rtl"] nav .justify-between {
+  flex-direction: row-reverse !important;
+}
+
+html[dir="rtl"] nav .gap-4,
+html[dir="rtl"] nav .gap-6 {
+  flex-direction: row-reverse !important;
+}
+
+/* Mobile menu specific RTL fixes */
+[data-language="ar"] nav .md\\:hidden .space-y-3 {
+  direction: rtl !important;
+}
+
+[data-language="ar"] nav .md\\:hidden .space-y-3 > * {
+  text-align: right !important;
+  direction: rtl !important;
+}
+
+/* Header brand/logo area - keep LTR but position correctly */
+[data-language="ar"] nav .logo,
+[data-language="ar"] nav .brand {
+  direction: ltr !important;
+  text-align: left !important;
+}
+
+/* Ensure header containers flow RTL */
+[data-language="ar"] nav .px-4,
+[data-language="ar"] nav .px-6,
+[data-language="ar"] nav .container {
+  direction: rtl !important;
+}
+
+/* Fix for responsive breakpoints */
+[data-language="ar"] nav .md\\:px-6,
+[data-language="ar"] nav .sm\\:px-6,
+[data-language="ar"] nav .lg\\:px-8 {
+  direction: rtl !important;
+}
+
+/* Navigation sticky/fixed positioning */
+[data-language="ar"] nav.sticky,
+[data-language="ar"] nav.fixed {
+  direction: rtl !important;
+}
+
+/* Header shadow and background elements */
+[data-language="ar"] nav .shadow-md,
+[data-language="ar"] nav .shadow-sm {
+  direction: rtl !important;
+}
+
+/* Auth and user elements in header */
+[data-language="ar"] nav .items-center .gap-2,
+[data-language="ar"] nav .items-center .gap-4 {
+  flex-direction: row-reverse !important;
+}
+
+/* Dropdown and menu positioning */
+[data-language="ar"] nav .relative .absolute {
+  right: 0 !important;
+  left: auto !important;
+}
+
+/* Additional force for container alignment */
+html[dir="rtl"] .container {
+  direction: rtl !important;
+}
+
+html[dir="rtl"] .max-w-2xl {
+  direction: rtl !important;
+}
+
+/* Force all text elements in hero to be RTL when Arabic */
+[data-language="ar"] #hero .container,
+[data-language="ar"] #hero .max-w-2xl,
+[data-language="ar"] #hero .hero-content {
+  direction: rtl !important;
+  text-align: right !important;
+}
+
+/* Ensure buttons align properly in RTL */
+[data-language="ar"] #hero .flex {
+  justify-content: flex-start !important;
+}
+
+html[dir="rtl"] #hero .flex {
+  justify-content: flex-start !important;
+}
+
+/* Default LTR positioning for English */
+[data-language="en"] .hero-content,
+:not([data-language="ar"]) .hero-content {
+  margin-left: 0;
+  margin-right: auto;
+  text-align: left;
+}
+
+/* Footer RTL Support */
+[data-language="ar"] footer {
+  direction: rtl;
+  text-align: right;
+}
+
+[data-language="ar"] footer .flex {
+  flex-direction: row-reverse;
+}
+
+[data-language="ar"] footer .grid {
+  text-align: right;
+}
+
+/* Footer logo and social media alignment */
+[data-language="ar"] footer .flex.flex-col.items-start {
+  align-items: flex-start !important;
+  direction: rtl;
+}
+
+[data-language="ar"] footer .flex.flex-col.items-start > div:first-child {
+  align-self: flex-start;
+  direction: ltr;
+}
+
+[data-language="ar"] footer .flex.flex-col.items-start > div:last-child {
+  align-self: flex-start;
+  direction: rtl;
+}
+
+/* Ensure social media icons align properly under logo in Arabic */
+[data-language="ar"] footer .SocialMediaLinks,
+[data-language="ar"] footer .mt-6 {
+  align-self: flex-start !important;
+  direction: rtl;
+}
+
+/* Force proper alignment for footer logo container */
+html[dir="rtl"] footer .flex.flex-col.items-start {
+  align-items: flex-start !important;
+}
+
+html[dir="rtl"] footer .flex.flex-col.items-start > div:first-child {
+  align-self: flex-start;
+}
+
+html[dir="rtl"] footer .flex.flex-col.items-start > div:last-child {
+  align-self: flex-start;
+}
+
+/* Ensure social media icons are UNDER the logo, not beside it */
+[data-language="ar"] footer .flex.flex-col.items-start {
+  flex-direction: column !important;
+}
+
+[data-language="ar"] footer .flex.flex-col.items-start > div {
+  width: 100% !important;
+}
+
+/* Override any RTL flex direction that might cause horizontal layout */
+[data-language="ar"] footer .flex.flex-col {
+  flex-direction: column !important;
+}
+
+html[dir="rtl"] footer .flex.flex-col {
+  flex-direction: column !important;
+}
+
+/* Move logo and social media icons to the right in Arabic for better spacing */
+[data-language="ar"] footer .grid > div:first-child {
+  padding-right: 2rem !important;
+  margin-right: 1rem !important;
+}
+
+[data-language="ar"] footer .flex.flex-col.items-start {
+  padding-right: 1rem !important;
+}
+
+/* Alternative approach using margin-left for Arabic */
+[data-language="ar"] footer .grid > div:first-child {
+  margin-left: 2rem !important;
+}
+
+html[dir="rtl"] footer .grid > div:first-child {
+  margin-left: 2rem !important;
+}
+
+/* Additional RTL spacing adjustments */
+[data-language="ar"] .space-x-4 > :not([hidden]) ~ :not([hidden]) {
+  --tw-space-x-reverse: 1;
+  margin-right: calc(1rem * var(--tw-space-x-reverse));
+  margin-left: calc(1rem * calc(1 - var(--tw-space-x-reverse)));
+}
+
+[data-language="ar"] .space-x-6 > :not([hidden]) ~ :not([hidden]) {
+  --tw-space-x-reverse: 1;
+  margin-right: calc(1.5rem * var(--tw-space-x-reverse));
+  margin-left: calc(1.5rem * calc(1 - var(--tw-space-x-reverse)));
+}
+
+/* Margin adjustments for RTL */
+[data-language="ar"] .ml-4 { margin-left: 0; margin-right: 1rem; }
+[data-language="ar"] .mr-4 { margin-right: 0; margin-left: 1rem; }
+[data-language="ar"] .ml-6 { margin-left: 0; margin-right: 1.5rem; }
+[data-language="ar"] .mr-6 { margin-right: 0; margin-left: 1.5rem; }
+
+/* Footer specific RTL adjustments */
+[data-language="ar"] footer h3 {
+  text-align: right;
+}
+
+[data-language="ar"] footer ul {
+  text-align: right;
+}
+
+[data-language="ar"] footer .flex:not(.no-rtl-flip) {
+  flex-direction: row-reverse;
+}
+
+[data-language="ar"] footer .rounded-l-lg {
+  border-radius: 0 0.5rem 0.5rem 0;
+}
+
+[data-language="ar"] footer .rounded-r-lg {
+  border-radius: 0.5rem 0 0 0.5rem;
+}
+
+/* Keep certain footer elements LTR */
+.no-rtl-flip {
+  direction: ltr !important;
+}
+
+[data-language="ar"] .no-rtl-flip {
   direction: ltr !important;
   text-align: left !important;
 }

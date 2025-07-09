@@ -13,7 +13,7 @@ interface FormData {
 }
 
 const ContactForm: React.FC = () => {
-  const { getContent, currentLanguage } = useCMS();
+  const { getContent, getFormattedContent, currentLanguage } = useCMS();
   
   // Helper function to get text alignment classes based on language
   const getTextAlignClass = () => {
@@ -216,30 +216,41 @@ const ContactForm: React.FC = () => {
           ></textarea>
         </div>
         
-        <button
-          type="submit"
-          disabled={isSubmitting}
-          className="bg-accent hover:bg-accent-dark text-white px-6 py-3 rounded-md font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center"
-        >
-          {isSubmitting ? (
-            <>
-              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-              {getContent('contact_form_sending') || 'Sending...'}
-            </>
-          ) : (
-            <>
-              <Send className="mr-2" size={16} />
-              {getContent('contact_form_submit_button') || 'Send Message'}
-            </>
-          )}
-        </button>
+        <div className={`flex flex-row items-start gap-4 ${currentLanguage === 'ar' ? 'ml-auto' : ''}`}>
+          <button
+            type="submit"
+            disabled={isSubmitting}
+            className="bg-accent hover:bg-accent-dark text-white px-6 py-3 rounded-md font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center shrink-0"
+          >
+            {isSubmitting ? (
+              <>
+                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                {getContent('contact_form_sending') || 'Sending...'}
+              </>
+            ) : (
+              <>
+                <Send className="mr-2" size={16} />
+                {getContent('contact_form_submit_button') || 'Send Message'}
+              </>
+            )}
+          </button>
+          
+          <div className={`text-xs text-gray-500 ${getTextAlignClass()}`}>
+            <p className="mb-1">
+              {currentLanguage === 'ar' 
+                ? 'بإرسال هذا النموذج، فإنك توافق على تلقي رسائل من أوبتيموس للتعليم.'
+                : 'By submitting this form, you agree to receive communications from Optimus Education.'
+              }
+            </p>
+            <p>
+              {currentLanguage === 'ar'
+                ? 'نحن نحترم خصوصيتك ولن نشارك معلوماتك مع أطراف ثالثة.'
+                : 'We respect your privacy and will never share your information with third parties.'
+              }
+            </p>
+          </div>
+        </div>
       </form>
-      
-      <div className="mt-6 pt-6 border-t border-gray-200">
-        <p className={`text-sm text-gray-600 text-center ${getTextAlignClass()}`}>
-          {getContent('contact_form_disclaimer') || 'By submitting this form, you agree to receive communications from Optimus Education. We respect your privacy and will never share your information with third parties.'}
-        </p>
-      </div>
     </div>
   );
 };

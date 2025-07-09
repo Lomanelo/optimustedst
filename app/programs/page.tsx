@@ -136,9 +136,14 @@ interface PageProps {
 
 // Create a component that uses useSearchParams
 function ProgramsContent({ searchParams }: { searchParams: Record<string, string | string[] | undefined> }) {
+  const { getContent, currentLanguage } = useCMS();
+  
+  // Helper function to get text alignment classes based on language
+  const getTextAlignClass = () => {
+    return currentLanguage === 'ar' ? 'text-right' : 'text-left';
+  };
   const router = useRouter();
   const queryParams = useSearchParams();
-  const { getContent } = useCMS();
   const [allPrograms, setAllPrograms] = useState<Program[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -366,8 +371,8 @@ function ProgramsContent({ searchParams }: { searchParams: Record<string, string
           <div className="lg:w-1/4">
             <div className="bg-white rounded-lg shadow-md p-6 sticky top-4">
               <div className="flex items-center justify-between mb-4">
-                <h2 className="text-lg font-semibold text-primary flex items-center">
-                  <Filter className="w-5 h-5 mr-2" />
+                <h2 className={`text-lg font-semibold text-primary flex items-center ${getTextAlignClass()}`}>
+                  <Filter className={`w-5 h-5 ${currentLanguage === 'ar' ? 'ml-2' : 'mr-2'}`} />
                   {getContent('programs_page_filters_title')}
                 </h2>
                 {(selectedProgramTypes.length > 0 || selectedSpecialities.length > 0 || 
@@ -375,9 +380,9 @@ function ProgramsContent({ searchParams }: { searchParams: Record<string, string
                   selectedAccreditations.length > 0 || selectedAcademicPartnerships.length > 0) && (
                   <button
                     onClick={clearAllFilters}
-                    className="text-sm text-red-600 hover:text-red-800 flex items-center"
+                    className={`text-sm text-red-600 hover:text-red-800 flex items-center ${getTextAlignClass()}`}
                   >
-                    <X className="w-4 h-4 mr-1" />
+                    <X className={`w-4 h-4 ${currentLanguage === 'ar' ? 'ml-1' : 'mr-1'}`} />
                     {getContent('programs_page_clear_all')}
                   </button>
                 )}
@@ -395,14 +400,14 @@ function ProgramsContent({ searchParams }: { searchParams: Record<string, string
                 {openFilters.programType && (
                   <div className="mt-2 space-y-2">
                     {programTypeOptions.map(programType => (
-                      <label key={programType} className="flex items-center">
+                      <label key={programType} className={`flex items-center ${getTextAlignClass()}`}>
                         <input
                           type="checkbox"
                           checked={selectedProgramTypes.includes(programType)}
                           onChange={() => handleProgramTypeChange(programType)}
                           className="rounded border-gray-300 text-accent focus:ring-accent"
                         />
-                        <span className="ml-2 text-sm text-gray-600">{getFilterOptionText(getContent, 'programType', programType)}</span>
+                        <span className={`text-sm text-gray-600 ${currentLanguage === 'ar' ? 'mr-2' : 'ml-2'}`}>{getFilterOptionText(getContent, 'programType', programType)}</span>
                       </label>
                     ))}
                   </div>
@@ -421,14 +426,14 @@ function ProgramsContent({ searchParams }: { searchParams: Record<string, string
                 {openFilters.speciality && (
                   <div className="mt-2 space-y-2 max-h-48 overflow-y-auto">
                     {specialityOptions.map(spec => (
-                      <label key={spec} className="flex items-center">
+                      <label key={spec} className={`flex items-center ${getTextAlignClass()}`}>
                         <input
                           type="checkbox"
                           checked={selectedSpecialities.includes(spec)}
                           onChange={() => handleSpecialityChange(spec)}
                           className="rounded border-gray-300 text-accent focus:ring-accent"
                         />
-                        <span className="ml-2 text-sm text-gray-600">{getFilterOptionText(getContent, 'speciality', spec)}</span>
+                        <span className={`text-sm text-gray-600 ${currentLanguage === 'ar' ? 'mr-2' : 'ml-2'}`}>{getFilterOptionText(getContent, 'speciality', spec)}</span>
                       </label>
                     ))}
                   </div>
@@ -447,14 +452,14 @@ function ProgramsContent({ searchParams }: { searchParams: Record<string, string
                 {openFilters.studyTime && (
                   <div className="mt-2 space-y-2">
                     {studyTimeOptions.map(studyTime => (
-                      <label key={studyTime} className="flex items-center">
+                      <label key={studyTime} className={`flex items-center ${getTextAlignClass()}`}>
                         <input
                           type="checkbox"
                           checked={selectedStudyTimes.includes(studyTime)}
                           onChange={() => handleStudyTimeChange(studyTime)}
                           className="rounded border-gray-300 text-accent focus:ring-accent"
                         />
-                        <span className="ml-2 text-sm text-gray-600">{getFilterOptionText(getContent, 'studyTime', studyTime)}</span>
+                        <span className={`text-sm text-gray-600 ${currentLanguage === 'ar' ? 'mr-2' : 'ml-2'}`}>{getFilterOptionText(getContent, 'studyTime', studyTime)}</span>
                       </label>
                     ))}
                   </div>
@@ -473,14 +478,14 @@ function ProgramsContent({ searchParams }: { searchParams: Record<string, string
                 {openFilters.category && (
                   <div className="mt-2 space-y-2">
                     {categoryOptions.map(category => (
-                      <label key={category} className="flex items-center">
+                      <label key={category} className={`flex items-center ${getTextAlignClass()}`}>
                         <input
                           type="checkbox"
                           checked={selectedCategories.includes(category)}
                           onChange={() => handleCategoryChange(category)}
                           className="rounded border-gray-300 text-accent focus:ring-accent"
                         />
-                        <span className="ml-2 text-sm text-gray-600">{getFilterOptionText(getContent, 'category', category)}</span>
+                        <span className={`text-sm text-gray-600 ${currentLanguage === 'ar' ? 'mr-2' : 'ml-2'}`}>{getFilterOptionText(getContent, 'category', category)}</span>
                       </label>
                     ))}
                   </div>
@@ -499,14 +504,14 @@ function ProgramsContent({ searchParams }: { searchParams: Record<string, string
                 {openFilters.accreditation && (
                   <div className="mt-2 space-y-2 max-h-48 overflow-y-auto">
                     {accreditationOptions.map(accreditation => (
-                      <label key={accreditation} className="flex items-center">
+                      <label key={accreditation} className={`flex items-center ${getTextAlignClass()}`}>
                         <input
                           type="checkbox"
                           checked={selectedAccreditations.includes(accreditation)}
                           onChange={() => handleAccreditationChange(accreditation)}
                           className="rounded border-gray-300 text-accent focus:ring-accent"
                         />
-                        <span className="ml-2 text-sm text-gray-600">{getFilterOptionText(getContent, 'accreditation', accreditation)}</span>
+                        <span className={`text-sm text-gray-600 ${currentLanguage === 'ar' ? 'mr-2' : 'ml-2'}`}>{getFilterOptionText(getContent, 'accreditation', accreditation)}</span>
                       </label>
                     ))}
                   </div>
@@ -525,14 +530,14 @@ function ProgramsContent({ searchParams }: { searchParams: Record<string, string
                 {openFilters.academicPartnership && (
                   <div className="mt-2 space-y-2">
                     {academicPartnershipOptions.map(partnership => (
-                      <label key={partnership} className="flex items-center">
+                      <label key={partnership} className={`flex items-center ${getTextAlignClass()}`}>
                         <input
                           type="checkbox"
                           checked={selectedAcademicPartnerships.includes(partnership)}
                           onChange={() => handleAcademicPartnershipChange(partnership)}
                           className="rounded border-gray-300 text-accent focus:ring-accent"
                         />
-                        <span className="ml-2 text-sm text-gray-600">{getFilterOptionText(getContent, 'partnership', partnership)}</span>
+                        <span className={`text-sm text-gray-600 ${currentLanguage === 'ar' ? 'mr-2' : 'ml-2'}`}>{getFilterOptionText(getContent, 'partnership', partnership)}</span>
                       </label>
                     ))}
                   </div>
@@ -546,13 +551,13 @@ function ProgramsContent({ searchParams }: { searchParams: Record<string, string
           {/* Programs Grid */}
           <div className="lg:w-3/4">
             <div className="mb-4 flex items-center justify-between">
-              <p className="text-gray-600">
+              <p className={`text-gray-600 ${getTextAlignClass()}`}>
                 {getContent('programs_page_showing_count').replace('{count}', filteredPrograms.length.toString()).replace('{total}', allPrograms.length.toString())}
               </p>
             </div>
 
             {filteredPrograms.length === 0 ? (
-              <div className="text-center py-12">
+              <div className={`py-12 ${getTextAlignClass()}`}>
                 <p className="text-gray-500 text-lg">{getContent('programs_page_no_results')}</p>
                 <button
                   onClick={clearAllFilters}

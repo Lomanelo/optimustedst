@@ -7,12 +7,58 @@ import { CMSContent, CMSSectionKey } from '../../src/types/cms';
 import { useAuth } from './auth-context';
 import { extractedContent } from '../../scripts/extract-website-content';
 
+// Utility function to format text content with proper line breaks and paragraphs
+const formatTextContent = (text: string): React.ReactNode => {
+  if (!text) return text;
+  
+  // Split by double line breaks (paragraphs)
+  const paragraphs = text.split('\n\n').filter(p => p.trim());
+  
+  if (paragraphs.length <= 1) {
+    // Single paragraph, just handle line breaks
+    const lines = text.split('\n').filter(line => line.trim());
+    if (lines.length <= 1) {
+      return text; // Single line, return as is
+    }
+    return (
+      <>
+        {lines.map((line, index) => (
+          <React.Fragment key={index}>
+            {line}
+            {index < lines.length - 1 && <br />}
+          </React.Fragment>
+        ))}
+      </>
+    );
+  }
+  
+  // Multiple paragraphs
+  return (
+    <>
+      {paragraphs.map((paragraph, pIndex) => {
+        const lines = paragraph.split('\n').filter(line => line.trim());
+        return (
+          <p key={pIndex} className={pIndex > 0 ? 'mt-4' : ''}>
+            {lines.map((line, lIndex) => (
+              <React.Fragment key={lIndex}>
+                {line}
+                {lIndex < lines.length - 1 && <br />}
+              </React.Fragment>
+            ))}
+          </p>
+        );
+      })}
+    </>
+  );
+};
+
 interface CMSContextType {
   content: Map<string, CMSContent>;
   loading: boolean;
   error: string | null;
   currentLanguage: 'en' | 'ar';
   getContent: (key: string, language?: 'en' | 'ar') => string;
+  getFormattedContent: (key: string, language?: 'en' | 'ar') => React.ReactNode;
   updateContent: (key: string, content_en: string, content_ar: string) => Promise<void>;
   getAllContent: () => CMSContent[];
   getContentBySection: (section: CMSSectionKey) => CMSContent[];
@@ -44,9 +90,15 @@ export const CMSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       const savedLanguage = localStorage.getItem('language') as 'en' | 'ar';
       if (savedLanguage) {
         setCurrentLanguage(savedLanguage);
-        // Set initial language attributes without changing document direction
+        // Set initial language attributes including direction
         document.documentElement.lang = savedLanguage;
+        document.documentElement.dir = savedLanguage === 'ar' ? 'rtl' : 'ltr';
         document.documentElement.setAttribute('data-language', savedLanguage);
+      } else {
+        // Set default attributes even if no saved language
+        document.documentElement.lang = 'en';
+        document.documentElement.dir = 'ltr';
+        document.documentElement.setAttribute('data-language', 'en');
       }
     }
   }, []);
@@ -56,11 +108,11 @@ export const CMSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     setCurrentLanguage(language);
     if (typeof window !== 'undefined') {
       localStorage.setItem('language', language);
-      // Only update document language, not direction
-      // Direction should be handled at component level for content areas
+      // Update document language and direction
       document.documentElement.lang = language;
+      document.documentElement.dir = language === 'ar' ? 'rtl' : 'ltr';
       
-      // Add a data attribute for CSS styling if needed
+      // Add a data attribute for CSS styling
       document.documentElement.setAttribute('data-language', language);
     }
   };
@@ -205,6 +257,39 @@ export const CMSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     return contentValue || key;
   };
 
+  // Get formatted content (for rich text rendering)
+  const getFormattedContent = (key: string, language?: 'en' | 'ar'): React.ReactNode => {
+    const lang = language || currentLanguage;
+    const item = content.get(key);
+
+    if (!item) {
+      // Try to find content in the static extract as fallback
+      const extractItem = extractedContent.find(extract => extract.key === key);
+      if (extractItem) {
+        const fallbackValue = lang === 'ar' ? extractItem.content_ar : extractItem.content_en;
+        return formatTextContent(fallbackValue || key);
+      }
+      
+      // Only log in development to avoid console spam
+      if (process.env.NODE_ENV === 'development') {
+        console.warn(`CMS formatted content not found for key: ${key}`);
+      }
+      return key; // Return the key as fallback
+    }
+
+    const contentValue = lang === 'ar' ? item.content_ar : item.content_en;
+
+    // Ensure we return a string, not an object
+    if (typeof contentValue === 'object') {
+      if (process.env.NODE_ENV === 'development') {
+        console.error(`CMS formatted content for key "${key}" is an object, expected string:`, contentValue);
+      }
+      return key; // Return the key as fallback
+    }
+
+    return formatTextContent(contentValue || key);
+  };
+
   // Update content (admin only)
   const updateContent = async (key: string, content_en: string, content_ar: string) => {
     if (!currentUser) {
@@ -296,6 +381,7 @@ export const CMSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         error,
         currentLanguage,
         getContent,
+        getFormattedContent,
         updateContent,
         getAllContent,
         getContentBySection,

@@ -1792,26 +1792,6 @@ export const extractedContent: CMSContent[] = [
 
   // ACCREDITATIONS SECTION CONTENT
   {
-    id: 'accreditations_title',
-    key: 'accreditations_title',
-    section: CMS_SECTIONS.ACCREDITATIONS,
-    content_en: 'Accreditations & Partnerships',
-    content_ar: 'الاعتمادات والشراكات',
-    description: 'Accreditations page main title',
-    lastUpdated: new Date().toISOString(),
-    updatedBy: 'system'
-  },
-  {
-    id: 'accreditations_subtitle',
-    key: 'accreditations_subtitle',
-    section: CMS_SECTIONS.ACCREDITATIONS,
-    content_en: 'Our programs are recognized by leading educational institutions and industry bodies worldwide.',
-    content_ar: 'برامجنا معترف بها من قبل المؤسسات التعليمية الرائدة والهيئات الصناعية في جميع أنحاء العالم.',
-    description: 'Accreditations page subtitle',
-    lastUpdated: new Date().toISOString(),
-    updatedBy: 'system'
-  },
-  {
     id: 'accreditations_main_title',
     key: 'accreditations_main_title',
     section: CMS_SECTIONS.ACCREDITATIONS,
@@ -2317,16 +2297,7 @@ export const extractedContent: CMSContent[] = [
     lastUpdated: new Date().toISOString(),
     updatedBy: 'system'
   },
-  {
-    id: 'blog_noBlogPostsDescription',
-    key: 'blog_noBlogPostsDescription',
-    section: CMS_SECTIONS.BLOG_PAGE,
-    content_en: 'Learn more about Optimus Education and our mission to shape tomorrow\'s leaders.',
-    content_ar: 'تعلم المزيد عن أوبتيموس للتعليم ومهمتنا لتشكيل قادة المستقبل',
-    description: 'Description text for about page and when no blog posts found',
-    lastUpdated: new Date().toISOString(),
-    updatedBy: 'system'
-  },
+
   {
     id: 'blog_readMore',
     key: 'blog_readMore',

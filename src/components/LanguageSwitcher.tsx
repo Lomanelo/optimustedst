@@ -1,7 +1,6 @@
 'use client';
 
 import React from 'react';
-import { Globe } from 'lucide-react';
 import { useCMS } from '../../app/contexts/cms-context';
 
 const LanguageSwitcher: React.FC = () => {
@@ -13,7 +12,6 @@ const LanguageSwitcher: React.FC = () => {
 
   return (
     <div className="flex items-center gap-2" dir="ltr">
-      <Globe size={16} className="text-gray-600" />
       <div className="flex bg-gray-100 rounded-lg p-1">
         <button
           onClick={() => handleLanguageChange('en')}

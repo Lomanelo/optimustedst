@@ -7,6 +7,7 @@ import {
 } from 'lucide-react';
 import { SiTiktok, SiSnapchat } from 'react-icons/si';
 import { useSettings } from '../../app/contexts/settings-context';
+import { useCMS } from '../../app/contexts/cms-context';
 
 interface SocialMediaLinksProps {
   className?: string;
@@ -22,6 +23,8 @@ export default function SocialMediaLinks({
   variant = 'default'
 }: SocialMediaLinksProps) {
   const { socialMedia, isLoading } = useSettings();
+  const { currentLanguage } = useCMS();
+  const isRTL = currentLanguage === 'ar';
 
   if (isLoading) {
     return null;
@@ -74,15 +77,19 @@ export default function SocialMediaLinks({
     return null;
   }
 
+  // Use RTL-aware spacing
+  const spacingClass = isRTL ? 'gap-4' : 'space-x-4';
+  const labelSpacingClass = isRTL ? 'gap-2' : 'space-x-2';
+
   return (
-    <div className={`flex items-center space-x-4 ${className}`}>
+    <div className={`flex items-center ${spacingClass} ${className}`}>
       {activeSocialMedia.map(([platform, url]) => (
         <a
           key={platform}
           href={url}
           target="_blank"
           rel="noopener noreferrer"
-          className={`${showLabels ? 'flex items-center space-x-2' : ''} transition-transform hover:scale-110`}
+          className={`${showLabels ? `flex items-center ${labelSpacingClass}` : ''} transition-transform hover:scale-110`}
           title={`Follow us on ${getPlatformLabel(platform)}`}
         >
           {getSocialIcon(platform, url)}

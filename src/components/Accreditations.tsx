@@ -3,26 +3,24 @@ import { useCMS } from '../../app/contexts/cms-context';
 import { accreditations, partnerships } from '../data/optimus-data';
 
 const Accreditations: React.FC = () => {
-    const { getContent } = useCMS();
+    const { getContent, getFormattedContent, currentLanguage } = useCMS();
+
+    // Helper function to get text alignment classes based on language
+    const getTextAlignClass = () => {
+        return currentLanguage === 'ar' ? 'text-right' : 'text-left';
+    };
 
     return (
         <section className="py-20 md:py-24 bg-white">
             <div className="container mx-auto px-4 md:px-6">
-                <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-center mb-6 text-primary">
-                    {getContent('accreditations_title') || 'Accreditations & Partnerships'}
-                </h2>
-                <p className="text-center mb-20 text-gray-600 max-w-3xl mx-auto text-lg">
-                    {getContent('accreditations_subtitle') || 'Our programs are recognized by leading educational institutions and industry bodies worldwide.'}
-                </p>
-                
                 {/* Accreditations Section - PRIORITY */}
                 <div className="mb-24">
                     <h3 className="text-4xl md:text-5xl font-bold text-center mb-6 text-primary">
                         {getContent('accreditations_main_title') || 'Accreditations'}
                     </h3>
-                    <p className="text-center mb-16 text-gray-600 max-w-2xl mx-auto text-xl">
-                        {getContent('accreditations_main_subtitle') || 'Officially recognized and accredited by leading international bodies'}
-                    </p>
+                    <div className="text-center text-gray-600 mb-16 max-w-2xl mx-auto text-xl">
+                        {getFormattedContent('accreditations_main_subtitle')}
+                    </div>
                     <div className="flex justify-center items-center gap-8 md:gap-12 max-w-3xl mx-auto">
                     {accreditations.map((accreditation) => {
                         // Map accreditation IDs to CMS keys
@@ -52,9 +50,9 @@ const Accreditations: React.FC = () => {
                     <h3 className="text-3xl md:text-4xl font-bold text-center mb-4 text-primary">
                         {getContent('accreditations_partnerships_title') || 'Academic Partnerships'}
                     </h3>
-                    <p className="text-center mb-12 text-gray-600 max-w-2xl mx-auto text-lg">
-                        {getContent('accreditations_partnerships_subtitle') || 'Collaborating with prestigious institutions to deliver exceptional education'}
-                    </p>
+                    <div className="text-center text-gray-600 mb-12 max-w-2xl mx-auto text-lg">
+                        {getFormattedContent('accreditations_partnerships_subtitle')}
+                    </div>
                     <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6 items-center max-w-6xl mx-auto">
                         {partnerships.map((partnership) => (
                             <div key={partnership.name} className="bg-white p-6 rounded-xl shadow-md hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1 flex items-center justify-center group border border-gray-100 hover:border-gray-200">

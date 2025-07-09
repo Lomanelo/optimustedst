@@ -7,10 +7,19 @@ import FlowingShape from './FlowingShape';
 import SocialMediaLinks from './SocialMediaLinks';
 
 const Footer: React.FC = () => {
-  const { getContent, loading: cmsLoading, currentLanguage } = useCMS();
+  const { getContent, getFormattedContent, loading: cmsLoading, currentLanguage } = useCMS();
   const { contactInfo } = useContact();
   const isArabic = currentLanguage === 'ar';
   const logoSrc = isArabic ? "/whitelogoArabic.png" : "/OptimusLogoOnPurple.png";
+  
+  // Helper function to format phone number for RTL
+  const formatPhoneNumber = (phoneNumber: string) => {
+    if (isArabic) {
+      // For Arabic, ensure the plus sign appears on the left
+      return phoneNumber.replace(/^\+/, '') + '+';
+    }
+    return phoneNumber;
+  };
   
   // Don't render if CMS is still loading
   if (cmsLoading) {
@@ -59,7 +68,7 @@ const Footer: React.FC = () => {
       
       <div className="container mx-auto px-4 md:px-6 py-12 relative z-10">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-8">
-          <div>
+          <div className="flex flex-col items-start">
             <div className="mb-4 inline-block rounded">
               <img src={logoSrc} alt="Optimus Logo" className="h-14" style={{ width: 'auto' }} />
             </div>
@@ -68,7 +77,7 @@ const Footer: React.FC = () => {
               <SocialMediaLinks 
                 variant="footer" 
                 iconSize={24}
-                className="justify-start"
+                className={isArabic ? "justify-start" : "justify-start"}
               />
             </div>
           </div>
@@ -87,7 +96,7 @@ const Footer: React.FC = () => {
             <h3 className="text-lg font-bold mb-4">{getContent('footer_contact_info_title')}</h3>
             <ul className="space-y-2">
               <li className="text-white/80">{getContent('footer_address')}</li>
-              <li className="text-white/80">{contactInfo.phoneNumber}</li>
+              <li className="text-white/80">{formatPhoneNumber(contactInfo.phoneNumber)}</li>
               <li className="text-white/80">{contactInfo.generalInquiriesEmail}</li>
               <li><a href="/contact" className="text-accent hover:underline">{getContent('footer_get_in_touch')}</a></li>
             </ul>
@@ -96,29 +105,33 @@ const Footer: React.FC = () => {
           <div>
             <h3 className="text-lg font-bold mb-4">{getContent('footer_newsletter_title')}</h3>
             <p className="text-white/80 text-sm mb-4">
-              {getContent('footer_newsletter_description')}
+              {getFormattedContent('footer_newsletter_description')}
             </p>
-            <div className="flex">
+            <div className={`flex ${isArabic ? 'flex-row-reverse' : 'flex-row'}`}>
               <input
                 type="email"
                 placeholder={getContent('footer_newsletter_placeholder')}
-                className="flex-1 px-3 py-2 rounded-l-lg text-gray-900 text-sm focus:outline-none"
+                className={`flex-1 px-3 py-2 text-gray-900 text-sm focus:outline-none ${
+                  isArabic ? 'rounded-r-lg' : 'rounded-l-lg'
+                }`}
               />
-              <button className="bg-accent hover:bg-accent-dark px-4 py-2 rounded-r-lg text-sm font-medium transition-colors">
+              <button className={`bg-accent hover:bg-accent-dark px-4 py-2 text-sm font-medium transition-colors ${
+                isArabic ? 'rounded-l-lg' : 'rounded-r-lg'
+              }`}>
                 {getContent('footer_newsletter_subscribe')}
               </button>
             </div>
           </div>
         </div>
         
-        <div className="pt-8 border-t border-white/20 flex flex-col md:flex-row justify-between items-center no-rtl-flip">
-          <p className="text-white/60 text-sm mb-4 md:mb-0">
+        <div className="pt-8 border-t border-white/20 flex flex-row justify-between items-center no-rtl-flip">
+          <div className="flex flex-nowrap gap-6 no-rtl-flip">
+            <a href="/privacy" className="text-white/60 hover:text-white text-sm transition-colors whitespace-nowrap">{getContent('footer_privacy_policy')}</a>
+            <a href="/terms" className="text-white/60 hover:text-white text-sm transition-colors whitespace-nowrap">{getContent('footer_terms_of_service')}</a>
+          </div>
+          <p className="text-white/60 text-sm">
             © {currentYear} {getContent('footer_copyright')}
           </p>
-          <div className="flex space-x-6 no-rtl-flip">
-            <a href="/privacy" className="text-white/60 hover:text-white text-sm transition-colors">{getContent('footer_privacy_policy')}</a>
-            <a href="/terms" className="text-white/60 hover:text-white text-sm transition-colors">{getContent('footer_terms_of_service')}</a>
-          </div>
         </div>
       </div>
     </footer>

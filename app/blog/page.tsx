@@ -142,9 +142,6 @@ function BlogContent() {
         <h1 className="text-4xl font-bold text-primary mb-4">
           {currentLanguage === 'ar' ? 'المدونة والرؤى' : 'Blog & Insights'}
         </h1>
-        <p className="text-xl text-gray-600">
-          {currentLanguage === 'ar' ? 'آخر الأخبار والتحديثات والرؤى التعليمية' : 'Latest news, updates and educational insights'}
-        </p>
       </div>
       
       {/* Featured Posts */}

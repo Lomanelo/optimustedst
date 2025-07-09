@@ -27,7 +27,7 @@ const LtrTextContainer: React.FC<{children: React.ReactNode; className?: string}
 
 const Hero: React.FC = () => {
   const { currentUser } = useAuth();
-  const { getContent } = useCMS();
+  const { getContent, getFormattedContent, currentLanguage } = useCMS();
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   return (
@@ -41,7 +41,7 @@ const Hero: React.FC = () => {
       
       {/* Content */}
       <div className="container mx-auto px-4 md:px-6 relative z-20">
-        <div className="hero-content max-w-2xl ml-0 mr-auto text-left" style={{direction: 'ltr'}}>
+        <div className="hero-content max-w-2xl">
           <span className="text-accent text-lg font-bold tracking-widest uppercase mb-2 block">
             {getContent('hero_badge')}
           </span>
@@ -51,23 +51,44 @@ const Hero: React.FC = () => {
           </h1>
           
           <p className="text-white/90 text-xl md:text-2xl mb-6 font-sans">
-            {getContent('hero_subtitle')}
+            {getFormattedContent('hero_subtitle')}
           </p>
           
-          <div className="flex flex-wrap gap-4 mt-8">
-            <Link href="/programs">
-              <button className="bg-accent hover:bg-accent-dark text-white font-medium py-3 px-6 rounded-md transition-colors duration-300">
-                {getContent('hero_cta_explore')}
-              </button>
-            </Link>
-            {/* Only show register button for non-logged-in users */}
-            {!currentUser && (
-              <button 
-                onClick={() => setIsModalOpen(true)}
-                className="bg-white hover:bg-gray-100 text-primary font-medium py-3 px-6 rounded-md transition-colors duration-300"
-              >
-                {getContent('hero_cta_register')}
-              </button>
+          <div className="flex gap-4 mt-8">
+            {currentLanguage === 'ar' ? (
+              <>
+                {/* Only show register button for non-logged-in users */}
+                {!currentUser && (
+                  <button 
+                    onClick={() => setIsModalOpen(true)}
+                    className="bg-white hover:bg-gray-100 text-primary font-medium py-3 px-6 rounded-md transition-colors duration-300"
+                  >
+                    {getContent('hero_cta_register')}
+                  </button>
+                )}
+                <Link href="/programs">
+                  <button className="bg-accent hover:bg-accent-dark text-white font-medium py-3 px-6 rounded-md transition-colors duration-300">
+                    {getContent('hero_cta_explore')}
+                  </button>
+                </Link>
+              </>
+            ) : (
+              <>
+                <Link href="/programs">
+                  <button className="bg-accent hover:bg-accent-dark text-white font-medium py-3 px-6 rounded-md transition-colors duration-300">
+                    {getContent('hero_cta_explore')}
+                  </button>
+                </Link>
+                {/* Only show register button for non-logged-in users */}
+                {!currentUser && (
+                  <button 
+                    onClick={() => setIsModalOpen(true)}
+                    className="bg-white hover:bg-gray-100 text-primary font-medium py-3 px-6 rounded-md transition-colors duration-300"
+                  >
+                    {getContent('hero_cta_register')}
+                  </button>
+                )}
+              </>
             )}
           </div>
         </div>

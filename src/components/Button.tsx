@@ -1,5 +1,6 @@
 import React from 'react';
-import { ChevronRight } from 'lucide-react';
+import { ChevronRight, ChevronLeft } from 'lucide-react';
+import { useCMS } from '../../app/contexts/cms-context';
 
 interface ButtonProps {
   children: React.ReactNode;
@@ -22,6 +23,9 @@ const Button: React.FC<ButtonProps> = ({
   onClick,
   type = 'button',
 }) => {
+  const { currentLanguage } = useCMS();
+  const isRTL = currentLanguage === 'ar';
+  
   const baseClasses = 'rounded-md font-medium transition-colors inline-flex items-center justify-center';
   
   const variantClasses = {
@@ -48,11 +52,14 @@ const Button: React.FC<ButtonProps> = ({
       {icon && iconPosition === 'left' && (
         <span className="transition-transform group-hover:-translate-x-0.5">{icon}</span>
       )}
+      {!icon && variant === 'accent' && isRTL && (
+        <ChevronLeft size={20} className="transition-transform group-hover:-translate-x-1 mr-1" />
+      )}
       {children}
       {icon && iconPosition === 'right' && (
         <span className="transition-transform group-hover:translate-x-0.5">{icon}</span>
       )}
-      {!icon && variant === 'accent' && (
+      {!icon && variant === 'accent' && !isRTL && (
         <ChevronRight size={20} className="transition-transform group-hover:translate-x-1 ml-1" />
       )}
     </button>

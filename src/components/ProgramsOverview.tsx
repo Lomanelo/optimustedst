@@ -7,13 +7,13 @@ import FlowingShape from './FlowingShape';
 
 interface ProgramCardProps {
   title: string;
-  description: string;
+  description: React.ReactNode;
   icon: React.ReactNode;
   link?: string;
 }
 
 const ProgramCard: React.FC<ProgramCardProps> = ({ title, description, icon, link = "#" }) => {
-  const { getContent, loading: cmsLoading } = useCMS();
+  const { getContent, getFormattedContent, loading: cmsLoading } = useCMS();
   
   return (
     <div className="bg-white rounded-lg shadow-lg p-6 transform transition duration-300 hover:-translate-y-2 hover:shadow-xl">
@@ -21,7 +21,7 @@ const ProgramCard: React.FC<ProgramCardProps> = ({ title, description, icon, lin
         <div className="text-primary">{icon}</div>
       </div>
       <h3 className="text-xl font-bold text-primary mb-3">{title}</h3>
-      <p className="text-gray-600 mb-4">{description}</p>
+      <div className="text-gray-600 mb-4">{description}</div>
       <a 
         href={link} 
         className="text-accent font-medium inline-flex items-center hover:underline"
@@ -33,7 +33,7 @@ const ProgramCard: React.FC<ProgramCardProps> = ({ title, description, icon, lin
 };
 
 const ProgramsOverview: React.FC = () => {
-  const { getContent, loading: cmsLoading } = useCMS();
+  const { getContent, getFormattedContent, loading: cmsLoading } = useCMS();
   
   // Don't render if CMS is still loading
   if (cmsLoading) {
@@ -79,7 +79,7 @@ const ProgramsOverview: React.FC = () => {
         <div className="text-center mb-12 animate-fade-in">
           <h2 className="text-3xl md:text-4xl font-bold text-primary mb-4">{getContent('programs_overview_title')}</h2>
           <p className="text-gray-600 max-w-2xl mx-auto">
-            {getContent('programs_overview_subtitle')}
+            {getFormattedContent('programs_overview_subtitle')}
           </p>
         </div>
         
@@ -87,19 +87,19 @@ const ProgramsOverview: React.FC = () => {
           <ProgramCard 
             title={getContent('programs_bachelor_title')} 
             icon={<GraduationCap size={28} />}
-            description={getContent('programs_bachelor_description')}
+            description={getFormattedContent('programs_bachelor_description')}
             link="/programs#bachelor"
           />
           <ProgramCard 
             title={getContent('programs_mba_title')} 
             icon={<Briefcase size={28} />}
-            description={getContent('programs_mba_description')}
+            description={getFormattedContent('programs_mba_description')}
             link="/programs#mba"
           />
           <ProgramCard 
             title={getContent('programs_doctorate_title')} 
             icon={<BookOpen size={28} />}
-            description={getContent('programs_doctorate_description')}
+            description={getFormattedContent('programs_doctorate_description')}
             link="/programs#doctorate"
           />
         </div>

@@ -299,204 +299,210 @@ const RegistrationModal: React.FC<RegistrationModalProps> = ({ isOpen, onClose }
 
   return (
     <div className="fixed inset-0 z-50 overflow-y-auto" dir={isRTL ? 'rtl' : 'ltr'}>
-      <div className="flex items-center justify-center min-h-screen px-4 py-4">
-        {/* Background overlay */}
-        <div 
-          className="fixed inset-0 bg-black bg-opacity-50 transition-opacity"
+      {/* Background overlay */}
+      <div 
+        className="fixed inset-0 bg-black bg-opacity-50 transition-opacity"
+        onClick={onClose}
+      ></div>
+
+      {/* Modal panel - Absolute center positioning */}
+      <div 
+        className="absolute w-full max-w-md p-6 overflow-hidden transition-all transform bg-white shadow-xl rounded-2xl sm:max-w-lg"
+        style={{
+          left: '50%',
+          top: '50%',
+          transform: 'translate(-50%, -50%)',
+          textAlign: isRTL ? 'right' : 'left'
+        }}
+      >
+        {/* Close button */}
+        <button
           onClick={onClose}
-        ></div>
+          className={`absolute top-4 ${isRTL ? 'left-4' : 'right-4'} text-gray-400 hover:text-gray-600`}
+        >
+          <X size={24} />
+        </button>
 
-        {/* Modal panel */}
-        <div className="relative w-full max-w-md p-6 overflow-hidden text-left align-middle transition-all transform bg-white shadow-xl rounded-2xl sm:max-w-lg">
-          {/* Close button */}
-          <button
-            onClick={onClose}
-            className={`absolute top-4 ${isRTL ? 'left-4' : 'right-4'} text-gray-400 hover:text-gray-600`}
-          >
-            <X size={24} />
-          </button>
+        {!isSubmitted ? (
+          <>
+            {/* Modal Header */}
+            <div className="mb-6">
+              <h3 className="text-2xl font-bold text-primary mb-2">
+                {getModalContent('title')}
+              </h3>
+              <p className="text-gray-600">
+                {getModalContent('subtitle')}
+              </p>
+            </div>
 
-          {!isSubmitted ? (
-            <>
-              {/* Modal Header */}
-              <div className="mb-6">
-                <h3 className={`text-2xl font-bold text-primary mb-2 ${isRTL ? 'text-right' : 'text-left'}`}>
-                  {getModalContent('title')}
-                </h3>
-                <p className={`text-gray-600 ${isRTL ? 'text-right' : 'text-left'}`}>
-                  {getModalContent('subtitle')}
-                </p>
-              </div>
-
-              {/* DYNAMIC FORM SUBMISSION - BYPASSES CORS RESTRICTIONS */}
-              <form onSubmit={handleSubmit} className="space-y-4">
-                {/* Name fields */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div>
-                    <input
-                      type="text"
-                      name="firstName"
-                      placeholder={getModalContent('first_name')}
-                      value={formData.firstName}
-                      onChange={handleInputChange}
-                      required
-                      className={`w-full px-4 py-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-colors ${isRTL ? 'text-right' : 'text-left'}`}
-                      dir={isRTL ? 'rtl' : 'ltr'}
-                    />
-                  </div>
-                  <div>
-                    <input
-                      type="text"
-                      name="lastName"
-                      placeholder={getModalContent('last_name')}
-                      value={formData.lastName}
-                      onChange={handleInputChange}
-                      required
-                      className={`w-full px-4 py-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-colors ${isRTL ? 'text-right' : 'text-left'}`}
-                      dir={isRTL ? 'rtl' : 'ltr'}
-                    />
-                  </div>
-                </div>
-
-                {/* Phone field */}
-                <div>
-                  <div className="flex gap-2" dir="ltr">
-                    <select
-                      name="countryCode"
-                      value={countryCode}
-                      onChange={handleCountryCodeChange}
-                      className="px-3 py-3 pr-8 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-colors bg-white font-normal appearance-none text-gray-500 flex-shrink-0"
-                      style={{ 
-                        backgroundImage: `url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e")`,
-                        backgroundPosition: 'right 0.5rem center',
-                        backgroundRepeat: 'no-repeat',
-                        backgroundSize: '1.25em 1.25em'
-                      }}
-                    >
-                      <option value="+966">🇸🇦 +966</option>
-                      <option value="+971">🇦🇪 +971</option>
-                      <option value="+973">🇧🇭 +973</option>
-                      <option value="+965">🇰🇼 +965</option>
-                      <option value="+974">🇶🇦 +974</option>
-                      <option value="+968">🇴🇲 +968</option>
-                      <option value="+1">🇺🇸 +1</option>
-                      <option value="+44">🇬🇧 +44</option>
-                    </select>
-                    <input
-                      type="tel"
-                      name="phone"
-                      placeholder="5xxxxxxx"
-                      value={formData.phone}
-                      onChange={(e) => {
-                        const value = e.target.value.replace(/\D/g, '');
-                        if (value.length <= 10) {
-                          handleInputChange({
-                            target: {
-                              name: 'phone',
-                              value: value
-                            }
-                          } as React.ChangeEvent<HTMLInputElement>);
-                        }
-                      }}
-                      required
-                      maxLength={10}
-                      className="flex-1 min-w-0 px-3 py-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-colors text-left"
-                      dir="ltr"
-                    />
-                  </div>
-                </div>
-
-                {/* Email field */}
+            {/* DYNAMIC FORM SUBMISSION - BYPASSES CORS RESTRICTIONS */}
+            <form onSubmit={handleSubmit} className="space-y-4">
+              {/* Name fields */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <input
-                    type="email"
-                    name="email"
-                    placeholder={getModalContent('email')}
-                    value={formData.email}
+                    type="text"
+                    name="firstName"
+                    placeholder={getModalContent('first_name')}
+                    value={formData.firstName}
                     onChange={handleInputChange}
                     required
                     className={`w-full px-4 py-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-colors ${isRTL ? 'text-right' : 'text-left'}`}
                     dir={isRTL ? 'rtl' : 'ltr'}
                   />
                 </div>
-
-                {/* Gender field */}
                 <div>
-                  <select
-                    name="gender"
-                    value={formData.gender}
+                  <input
+                    type="text"
+                    name="lastName"
+                    placeholder={getModalContent('last_name')}
+                    value={formData.lastName}
                     onChange={handleInputChange}
                     required
-                    className={`w-full px-4 py-3 pr-10 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-colors bg-white font-normal ${isRTL ? 'text-right pl-10 pr-4' : 'text-left'} appearance-none ${formData.gender ? 'text-gray-900' : 'text-gray-500'}`}
-                    style={{ 
-                      backgroundImage: `url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e")`,
-                      backgroundPosition: isRTL ? 'left 0.75rem center' : 'right 0.75rem center',
-                      backgroundRepeat: 'no-repeat',
-                      backgroundSize: '1.5em 1.5em'
-                    }}
+                    className={`w-full px-4 py-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-colors ${isRTL ? 'text-right' : 'text-left'}`}
                     dir={isRTL ? 'rtl' : 'ltr'}
-                  >
-                    <option value="">{getModalContent('select_gender')}</option>
-                    <option value="male">{getModalContent('male')}</option>
-                    <option value="female">{getModalContent('female')}</option>
-                  </select>
+                  />
                 </div>
-
-                {/* Certificate field */}
-                <div>
-                  <select
-                    name="certificate"
-                    value={formData.certificate}
-                    onChange={handleInputChange}
-                    required
-                    className={`w-full px-4 py-3 pr-10 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-colors bg-white font-normal ${isRTL ? 'text-right pl-10 pr-4' : 'text-left'} appearance-none ${formData.certificate ? 'text-gray-900' : 'text-gray-500'}`}
-                    style={{ 
-                      backgroundImage: `url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e")`,
-                      backgroundPosition: isRTL ? 'left 0.75rem center' : 'right 0.75rem center',
-                      backgroundRepeat: 'no-repeat',
-                      backgroundSize: '1.5em 1.5em'
-                    }}
-                    dir={isRTL ? 'rtl' : 'ltr'}
-                  >
-                    <option value="">{getModalContent('select_certificate')}</option>
-                    <option value="MBA">{getModalContent('certificate_mba')}</option>
-                    <option value="PHD/BDA">{getModalContent('certificate_phd')}</option>
-                    <option value="Diploma">{getModalContent('certificate_diploma')}</option>
-                    <option value="Course">{getModalContent('certificate_course')}</option>
-                    <option value="Other">{getModalContent('certificate_other')}</option>
-                  </select>
-                </div>
-
-                {/* Submit button */}
-                <button
-                  type="submit"
-                  className="w-full bg-accent hover:bg-accent-dark text-white font-semibold py-4 px-6 rounded-md transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  {getModalContent('submit')}
-                </button>
-              </form>
-            </>
-          ) : (
-            /* Success state */
-            <div className={`text-center py-8 ${isRTL ? 'text-right' : 'text-left'}`}>
-              <div className="flex justify-center mb-4">
-                <CheckCircle className="text-green-500" size={64} />
               </div>
-              <h3 className="text-2xl font-bold text-primary mb-4">
-                {getModalContent('success_title')}
-              </h3>
-              <p className="text-gray-600 mb-6">
-                {getModalContent('success_message')}
-              </p>
+
+              {/* Phone field */}
+              <div>
+                <div className="flex gap-2" dir="ltr">
+                  <select
+                    name="countryCode"
+                    value={countryCode}
+                    onChange={handleCountryCodeChange}
+                    className="px-3 py-3 pr-8 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-colors bg-white font-normal appearance-none text-gray-500 flex-shrink-0"
+                    style={{ 
+                      backgroundImage: `url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e")`,
+                      backgroundPosition: 'right 0.5rem center',
+                      backgroundRepeat: 'no-repeat',
+                      backgroundSize: '1.25em 1.25em'
+                    }}
+                  >
+                    <option value="+966">🇸🇦 +966</option>
+                    <option value="+971">🇦🇪 +971</option>
+                    <option value="+973">🇧🇭 +973</option>
+                    <option value="+965">🇰🇼 +965</option>
+                    <option value="+974">🇶🇦 +974</option>
+                    <option value="+968">🇴🇲 +968</option>
+                    <option value="+1">🇺🇸 +1</option>
+                    <option value="+44">🇬🇧 +44</option>
+                  </select>
+                  <input
+                    type="tel"
+                    name="phone"
+                    placeholder="5xxxxxxx"
+                    value={formData.phone}
+                    onChange={(e) => {
+                      const value = e.target.value.replace(/\D/g, '');
+                      if (value.length <= 10) {
+                        handleInputChange({
+                          target: {
+                            name: 'phone',
+                            value: value
+                          }
+                        } as React.ChangeEvent<HTMLInputElement>);
+                      }
+                    }}
+                    required
+                    maxLength={10}
+                    className="flex-1 min-w-0 px-3 py-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-colors text-left"
+                    dir="ltr"
+                  />
+                </div>
+              </div>
+
+              {/* Email field */}
+              <div>
+                <input
+                  type="email"
+                  name="email"
+                  placeholder={getModalContent('email')}
+                  value={formData.email}
+                  onChange={handleInputChange}
+                  required
+                  className={`w-full px-4 py-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-colors ${isRTL ? 'text-right' : 'text-left'}`}
+                  dir={isRTL ? 'rtl' : 'ltr'}
+                />
+              </div>
+
+              {/* Gender field */}
+              <div>
+                <select
+                  name="gender"
+                  value={formData.gender}
+                  onChange={handleInputChange}
+                  required
+                  className={`w-full px-4 py-3 pr-10 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-colors bg-white font-normal ${isRTL ? 'text-right pl-10 pr-4' : 'text-left'} appearance-none ${formData.gender ? 'text-gray-900' : 'text-gray-500'}`}
+                  style={{ 
+                    backgroundImage: `url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e")`,
+                    backgroundPosition: isRTL ? 'left 0.75rem center' : 'right 0.75rem center',
+                    backgroundRepeat: 'no-repeat',
+                    backgroundSize: '1.5em 1.5em'
+                  }}
+                  dir={isRTL ? 'rtl' : 'ltr'}
+                >
+                  <option value="">{getModalContent('select_gender')}</option>
+                  <option value="male">{getModalContent('male')}</option>
+                  <option value="female">{getModalContent('female')}</option>
+                </select>
+              </div>
+
+              {/* Certificate field */}
+              <div>
+                <select
+                  name="certificate"
+                  value={formData.certificate}
+                  onChange={handleInputChange}
+                  required
+                  className={`w-full px-4 py-3 pr-10 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-colors bg-white font-normal ${isRTL ? 'text-right pl-10 pr-4' : 'text-left'} appearance-none ${formData.certificate ? 'text-gray-900' : 'text-gray-500'}`}
+                  style={{ 
+                    backgroundImage: `url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e")`,
+                    backgroundPosition: isRTL ? 'left 0.75rem center' : 'right 0.75rem center',
+                    backgroundRepeat: 'no-repeat',
+                    backgroundSize: '1.5em 1.5em'
+                  }}
+                  dir={isRTL ? 'rtl' : 'ltr'}
+                >
+                  <option value="">{getModalContent('select_certificate')}</option>
+                  <option value="MBA">{getModalContent('certificate_mba')}</option>
+                  <option value="PHD/BDA">{getModalContent('certificate_phd')}</option>
+                  <option value="Diploma">{getModalContent('certificate_diploma')}</option>
+                  <option value="Course">{getModalContent('certificate_course')}</option>
+                  <option value="Other">{getModalContent('certificate_other')}</option>
+                </select>
+              </div>
+
+              {/* Submit button */}
               <button
-                onClick={onClose}
-                className="bg-accent hover:bg-accent-dark text-white font-semibold py-3 px-6 rounded-md transition-colors"
+                type="submit"
+                className="w-full bg-accent hover:bg-accent-dark text-white font-semibold py-4 px-6 rounded-md transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {getModalContent('close')}
+                {getModalContent('submit')}
               </button>
+            </form>
+          </>
+        ) : (
+          /* Success state */
+          <div className="text-center py-8">
+            <div className="flex justify-center mb-4">
+              <CheckCircle className="text-green-500" size={64} />
             </div>
-          )}
-        </div>
+            <h3 className="text-2xl font-bold text-primary mb-4">
+              {getModalContent('success_title')}
+            </h3>
+            <p className="text-gray-600 mb-6">
+              {getModalContent('success_message')}
+            </p>
+            <button
+              onClick={onClose}
+              className="bg-accent hover:bg-accent-dark text-white font-semibold py-3 px-6 rounded-md transition-colors"
+            >
+              {getModalContent('close')}
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );
