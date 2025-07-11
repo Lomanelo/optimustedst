@@ -16,6 +16,8 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
+import LanguageSwitcher from '../../src/components/LanguageSwitcher';
+import { useCMS } from '../contexts/cms-context';
 
 export default function AdminLayout({
   children,
@@ -26,6 +28,7 @@ export default function AdminLayout({
   const router = useRouter();
   const pathname = usePathname();
   const hasRedirectedRef = useRef(false);
+  const { currentLanguage } = useCMS();
 
   // Memoize the permission check to prevent unnecessary re-renders
   const hasAnyAdminPermission = useMemo(() => {
@@ -71,16 +74,54 @@ export default function AdminLayout({
     }
   };
 
+  // Translations object
+  const translations = {
+    en: {
+      admin_section: 'ADMIN',
+      student_section: 'STUDENT AREA',
+      dashboard: 'Dashboard',
+      programs: 'Programs',
+      blog: 'Blog',
+      cms: 'CMS (Text Content)',
+      contacts: 'Contacts & Emails',
+      terms: 'Terms & Privacy',
+      users: 'Users',
+      settings: 'Social Media Links',
+      student_dashboard: 'Student Dashboard',
+      logout: 'Logout',
+      view_profile: 'View Profile',
+      admin_user: 'Admin'
+    },
+    ar: {
+      admin_section: 'الإدارة',
+      student_section: 'منطقة الطالب',
+      dashboard: 'لوحة التحكم',
+      programs: 'البرامج',
+      blog: 'المدونة',
+      cms: 'إدارة المحتوى',
+      contacts: 'جهات الاتصال والإيميلات',
+      terms: 'الشروط والخصوصية',
+      users: 'المستخدمين',
+      settings: 'روابط وسائل التواصل',
+      student_dashboard: 'لوحة الطالب',
+      logout: 'تسجيل الخروج',
+      view_profile: 'عرض الملف الشخصي',
+      admin_user: 'مدير'
+    }
+  };
+
+  const t = (key: keyof typeof translations.en) => translations[currentLanguage][key];
+
   // Dynamic menu items based on permissions
   const adminMenuItems = [
-    { href: '/admin/dashboard', label: 'Dashboard', icon: BarChart3, permission: 'dashboard' as const },
-    { href: '/admin/programs', label: 'Programs', icon: Layers, permission: 'programs' as const },
-    { href: '/admin/blog', label: 'Blog', icon: FileText, permission: 'blog' as const },
-    { href: '/admin/cms', label: 'CMS (Text Content)', icon: FileText, permission: 'cms' as const },
-    { href: '/admin/contacts', label: 'Contacts & Emails', icon: Mail, permission: 'contacts' as const },
-    { href: '/admin/terms', label: 'Terms & Privacy', icon: BookOpen, permission: 'terms' as const },
-    { href: '/admin/users', label: 'Users', icon: Users, permission: 'users' as const },
-    { href: '/admin/settings', label: 'Social Media Links', icon: ExternalLink, permission: 'settings' as const },
+    { href: '/admin/dashboard', label: t('dashboard'), icon: BarChart3, permission: 'dashboard' as const },
+    { href: '/admin/programs', label: t('programs'), icon: Layers, permission: 'programs' as const },
+    { href: '/admin/blog', label: t('blog'), icon: FileText, permission: 'blog' as const },
+    { href: '/admin/cms', label: t('cms'), icon: FileText, permission: 'cms' as const },
+    { href: '/admin/contacts', label: t('contacts'), icon: Mail, permission: 'contacts' as const },
+    { href: '/admin/terms', label: t('terms'), icon: BookOpen, permission: 'terms' as const },
+    { href: '/admin/users', label: t('users'), icon: Users, permission: 'users' as const },
+    { href: '/admin/settings', label: t('settings'), icon: ExternalLink, permission: 'settings' as const },
   ].filter(item => hasPermission(item.permission) || userRole === 'admin');
 
   const isActiveRoute = (href: string) => {
@@ -108,7 +149,7 @@ export default function AdminLayout({
   }
 
   return (
-    <div className="flex h-screen bg-gray-50">
+    <div className="flex h-screen bg-gray-50" dir={currentLanguage === 'ar' ? 'rtl' : 'ltr'}>
       {/* Static Admin Sidebar */}
       <div className="w-64 bg-[#2B1F4F] text-white flex flex-col fixed h-full">
         {/* Logo */}
@@ -124,6 +165,10 @@ export default function AdminLayout({
             />
           </Link>
         </div>
+        {/* Language Switcher */}
+        <div className="p-4 border-b border-white/10 flex justify-center">
+          <LanguageSwitcher />
+        </div>
 
         {/* User Profile */}
         <div className="p-4 border-b border-white/10">
@@ -134,8 +179,8 @@ export default function AdminLayout({
               </span>
             </div>
             <div>
-              <p className="text-sm font-medium">{currentUser?.displayName || 'Admin'}</p>
-              <p className="text-xs text-white/60">View Profile</p>
+              <p className="text-sm font-medium">{currentUser?.displayName || t('admin_user')}</p>
+              <p className="text-xs text-white/60">{t('view_profile')}</p>
             </div>
           </div>
         </div>
@@ -144,7 +189,7 @@ export default function AdminLayout({
         <div className="flex-1 overflow-y-auto">
           {/* Admin Section */}
           <div className="p-4">
-            <p className="text-xs text-white/40 uppercase tracking-wider mb-3">ADMIN</p>
+            <p className="text-xs text-white/40 uppercase tracking-wider mb-3">{t('admin_section')}</p>
             <ul className="space-y-2">
               {adminMenuItems.map((item) => {
                 const Icon = item.icon;
@@ -171,7 +216,7 @@ export default function AdminLayout({
 
           {/* Student Section */}
           <div className="p-4 border-t border-white/10">
-            <p className="text-xs text-white/40 uppercase tracking-wider mb-3">STUDENT AREA</p>
+            <p className="text-xs text-white/40 uppercase tracking-wider mb-3">{t('student_section')}</p>
             <ul className="space-y-2">
               <li>
                 <Link
@@ -179,7 +224,7 @@ export default function AdminLayout({
                   className="flex items-center space-x-3 px-3 py-2 rounded-lg text-sm text-white/70 hover:bg-white/5 hover:text-white transition-colors"
                 >
                   <BarChart3 size={20} />
-                  <span>Student Dashboard</span>
+                  <span>{t('student_dashboard')}</span>
                 </Link>
               </li>
             </ul>
@@ -193,14 +238,14 @@ export default function AdminLayout({
             className="w-full flex items-center space-x-3 px-3 py-2 rounded-lg text-sm text-white/70 hover:bg-white/5 hover:text-white transition-colors"
           >
             <LogOut size={20} />
-            <span>Logout</span>
+            <span>{t('logout')}</span>
           </button>
         </div>
       </div>
 
       {/* Main Content */}
       <div className="flex-1 flex flex-col overflow-auto bg-gray-50 ml-64">
-        <main className="flex-1">
+        <main className={`flex-1 ${currentLanguage === 'ar' ? 'text-right' : 'text-left'}`}>
           {children}
         </main>
       </div>

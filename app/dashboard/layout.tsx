@@ -13,6 +13,8 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
+import LanguageSwitcher from '../../src/components/LanguageSwitcher';
+import { useCMS } from '../contexts/cms-context';
 
 export default function DashboardLayout({
   children,
@@ -21,6 +23,7 @@ export default function DashboardLayout({
 }) {
   const { currentUser, userRole, hasPermission, isLoading, logout } = useAuth();
   const router = useRouter();
+  const { currentLanguage } = useCMS();
 
   useEffect(() => {
     // If not loading and no user, redirect to login
@@ -39,16 +42,44 @@ export default function DashboardLayout({
     }
   };
 
+  // Translations object
+  const translations = {
+    en: {
+      student_section: 'STUDENT',
+      admin_section: 'ADMIN',
+      dashboard: 'Dashboard',
+      admin_dashboard: 'Admin Dashboard',
+      manage_programs: 'Manage Programs',
+      manage_users: 'Manage Users',
+      logout: 'Log out',
+      view_profile: 'View Profile',
+      student_user: 'Student'
+    },
+    ar: {
+      student_section: 'الطالب',
+      admin_section: 'الإدارة',
+      dashboard: 'لوحة التحكم',
+      admin_dashboard: 'لوحة الإدارة',
+      manage_programs: 'إدارة البرامج',
+      manage_users: 'إدارة المستخدمين',
+      logout: 'تسجيل الخروج',
+      view_profile: 'عرض الملف الشخصي',
+      student_user: 'طالب'
+    }
+  };
+
+  const t = (key: keyof typeof translations.en) => translations[currentLanguage][key];
+
   // Static menu items for students
   const studentMenuItems = [
-    { href: '/dashboard', label: 'Dashboard', icon: BarChart3 },
+    { href: '/dashboard', label: t('dashboard'), icon: BarChart3 },
   ];
 
   // Admin menu items (shown based on permissions)
   const adminMenuItems = [
-    { href: '/admin/dashboard', label: 'Admin Dashboard', icon: BarChart3, permission: 'dashboard' as const },
-    { href: '/admin/programs', label: 'Manage Programs', icon: BookOpen, permission: 'programs' as const },
-    { href: '/admin/users', label: 'Manage Users', icon: Users, permission: 'users' as const }
+    { href: '/admin/dashboard', label: t('admin_dashboard'), icon: BarChart3, permission: 'dashboard' as const },
+    { href: '/admin/programs', label: t('manage_programs'), icon: BookOpen, permission: 'programs' as const },
+    { href: '/admin/users', label: t('manage_users'), icon: Users, permission: 'users' as const }
   ].filter(item => hasPermission(item.permission) || userRole === 'admin');
 
   if (isLoading) {
@@ -64,7 +95,7 @@ export default function DashboardLayout({
   }
 
   return (
-    <div className="flex h-screen bg-gray-50">
+    <div className="flex h-screen bg-gray-50" dir={currentLanguage === 'ar' ? 'rtl' : 'ltr'}>
       {/* Static Student Sidebar */}
       <div className="w-64 bg-[#2B1F4F] text-white flex flex-col fixed h-full">
         {/* Logo */}
@@ -90,8 +121,8 @@ export default function DashboardLayout({
               </span>
             </div>
             <div>
-              <p className="text-sm font-medium">{currentUser?.displayName || 'Student'}</p>
-              <p className="text-xs text-white/60">View Profile</p>
+              <p className="text-sm font-medium">{currentUser?.displayName || t('student_user')}</p>
+              <p className="text-xs text-white/60">{t('view_profile')}</p>
             </div>
           </div>
         </div>
@@ -100,7 +131,7 @@ export default function DashboardLayout({
         <div className="flex-1 overflow-y-auto">
           {/* Student Section */}
           <div className="p-4">
-            <p className="text-xs text-white/40 uppercase tracking-wider mb-3">STUDENT</p>
+            <p className="text-xs text-white/40 uppercase tracking-wider mb-3">{t('student_section')}</p>
             <ul className="space-y-2">
               {studentMenuItems.map((item) => {
                 const Icon = item.icon;
@@ -123,7 +154,7 @@ export default function DashboardLayout({
           {/* Admin Section - show if user has any admin permissions */}
           {adminMenuItems.length > 0 && (
             <div className="p-4 border-t border-white/10">
-              <p className="text-xs text-white/40 uppercase tracking-wider mb-3">ADMIN</p>
+              <p className="text-xs text-white/40 uppercase tracking-wider mb-3">{t('admin_section')}</p>
               <ul className="space-y-2">
                 {adminMenuItems.map((item) => {
                   const Icon = item.icon;
@@ -148,13 +179,13 @@ export default function DashboardLayout({
         {/* Language & Logout */}
         <div className="p-4 border-t border-white/10">
           <div className="flex items-center justify-between">
-            <button className="text-sm text-white/70 hover:text-white">العربية</button>
+            <LanguageSwitcher />
             <button 
               onClick={handleLogout}
               className="flex items-center space-x-2 text-sm text-white/70 hover:text-white"
             >
               <LogOut size={16} />
-              <span>Log out</span>
+              <span>{t('logout')}</span>
             </button>
           </div>
         </div>
@@ -162,7 +193,7 @@ export default function DashboardLayout({
 
       {/* Main Content */}
       <div className="flex-1 flex flex-col overflow-auto bg-gray-50 ml-64">
-        <main className="flex-1">
+        <main className={`flex-1 ${currentLanguage === 'ar' ? 'text-right' : 'text-left'}`}>
           {children}
         </main>
       </div>

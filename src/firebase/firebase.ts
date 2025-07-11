@@ -55,6 +55,16 @@ try {
   auth = getAuth(app);
   db = getFirestore(app);
   storage = getStorage(app);
+  
+  // Configure storage with custom settings
+  if (typeof window !== 'undefined' && window.location.hostname === 'localhost') {
+    console.log("Development environment detected, configuring storage for local use");
+    // The storage bucket URL with CORS headers
+    storage = getStorage(app, `gs://${firebaseConfig.storageBucket}`);
+  } else {
+    storage = getStorage(app);
+  }
+  
   functions = getFunctions(app);
   
   // Set persistence to LOCAL (keeps user logged in even after browser restart)
@@ -107,6 +117,30 @@ if (typeof window !== 'undefined' && db) {
 // Helper function for file uploads that handles CORS issues
 export const uploadFile = async (file: File, path: string): Promise<string> => {
   try {
+    // Check if we're in development mode
+    const isDevelopment = typeof window !== 'undefined' && 
+      (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1');
+    
+    // For development, use a data URL approach to avoid CORS issues
+    if (isDevelopment) {
+      console.log('Development environment detected, using data URL for file upload');
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = (event) => {
+          if (event.target && event.target.result) {
+            resolve(event.target.result as string);
+          } else {
+            reject(new Error('Failed to read file'));
+          }
+        };
+        reader.onerror = (error) => {
+          reject(error);
+        };
+        reader.readAsDataURL(file);
+      });
+    }
+    
+    // Production environment - use Firebase Storage
     const storageRef = ref(storage, path);
     
     // Create metadata with CORS headers

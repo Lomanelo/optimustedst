@@ -4,538 +4,882 @@ import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '../../../contexts/auth-context';
-import { collection, addDoc, serverTimestamp, doc, updateDoc } from 'firebase/firestore';
-import { db } from '../../../../src/firebase/firebase';
-import { uploadImageAsDataUrl, uploadFile } from '../../../../src/services/storageService';
-import { Calendar, DollarSign, Clock, Award, ImagePlus, Plus, Edit, Trash2, BookOpen, Play, FileText, HelpCircle, Clipboard, Save, ArrowLeft, AlertCircle, Check, Globe, Languages, Upload, X } from 'lucide-react';
-import { allAccreditationsAndPartnerships } from '../../../../src/data/optimus-data';
+import { useCMS } from '../../../contexts/cms-context';
+import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
+import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
+import { db, storage } from '../../../../src/firebase/firebase';
+import { uploadFile, uploadImageAsDataUrl, compressImage } from '../../../../src/services/storageService';
+import { Calendar, DollarSign, Clock, Award, Upload, ArrowLeft, AlertCircle, Check, Globe, Languages, X, Plus, Trash2, FileText, Zap, Shield } from 'lucide-react';
 
 export default function CreateProgramPage() {
   const { currentUser, userRole, hasPermission, isLoading } = useAuth();
+  const { currentLanguage } = useCMS();
   const router = useRouter();
   
-  // Bilingual form data
+  // Translations
+  const translations = {
+    en: {
+      create_program: 'Create New Program',
+      back_to_programs: 'Back to Programs',
+      english: 'English',
+      arabic: 'العربية',
+      auto_fill_section: 'AI-Powered Auto-Fill from Text',
+      upload_pdf_auto_fill: 'Paste Brochure Text for AI Analysis',
+      auto_fill_button: 'Organize with AI',
+      auto_filling: 'AI is analyzing text...',
+      auto_fill_success: 'AI successfully organized program data!',
+      auto_fill_error: 'AI analysis failed. Please fill manually.',
+      pdf_processing: 'Processing with AI...',
+      program_title: 'Program Title *',
+      program_tagline: 'Program Tagline *',
+      program_description: 'Program Description *',
+      program_overview: 'Program Overview (Modules) *',
+      career_opportunities: 'Career Opportunities *',
+      key_features: 'Key Features *',
+      duration: 'Duration *',
+      accreditation: 'Accreditation *',
+      accreditation_none: 'None',
+      accreditation_vern: 'VERN University',
+      accreditation_ibas: 'IBAS Business School',
+      accreditation_both: 'VERN & IBAS',
+      program_status: 'Program Status *',
+      status_draft: 'Draft',
+      status_published: 'Published',
+      status_archived: 'Archived',
+      brochure_upload: 'Upload Brochure',
+      thumbnail_upload: 'Program Thumbnail',
+      submit: 'Create Program',
+      submitting: 'Creating...',
+      add_module: 'Add Module',
+      add_career: 'Add Career Opportunity',
+      add_feature: 'Add Key Feature',
+      module_title: 'Module Title',
+      career_title: 'Career Title',
+      feature_title: 'Feature Title',
+      feature_description: 'Feature Description',
+      success_message: 'Program created successfully!',
+      error_message: 'Error creating program',
+      required_field: 'This field is required',
+      enter_module: 'Enter module name',
+      enter_career: 'Enter career opportunity',
+      enter_feature_title: 'Enter feature title',
+      enter_feature_desc: 'Enter feature description',
+      auto_translate: 'Auto-Translate from English',
+      translating: 'Translating...',
+      translate_success: 'Translation completed successfully!',
+      translate_error: 'Translation failed. Please translate manually.'
+    },
+    ar: {
+      create_program: 'إنشاء برنامج جديد',
+      back_to_programs: 'العودة للبرامج',
+      english: 'English',
+      arabic: 'العربية',
+      auto_fill_section: 'الملء التلقائي بالذكاء الاصطناعي من النص',
+      upload_pdf_auto_fill: 'أدخل نص الكتيب للتحليل بالذكاء الاصطناعي',
+      auto_fill_button: 'تنظيم بالذكاء الاصطناعي',
+      auto_filling: 'الذكاء الاصطناعي يحلل النص...',
+      auto_fill_success: 'نجح الذكاء الاصطناعي في تنظيم بيانات البرنامج!',
+      auto_fill_error: 'فشل التحليل بالذكاء الاصطناعي. يرجى الملء يدوياً.',
+      pdf_processing: 'جاري المعالجة بالذكاء الاصطناعي...',
+      program_title: 'عنوان البرنامج *',
+      program_tagline: 'شعار البرنامج *',
+      program_description: 'وصف البرنامج *',
+      program_overview: 'نظرة عامة على البرنامج (الوحدات) *',
+      career_opportunities: 'الفرص المهنية *',
+      key_features: 'الميزات الرئيسية *',
+      duration: 'المدة *',
+      accreditation: 'الاعتماد الأكاديمي *',
+      accreditation_none: 'لا يوجد',
+      accreditation_vern: 'جامعة فيرن',
+      accreditation_ibas: 'مدرسة آيباس للأعمال',
+      accreditation_both: 'فيرن وآيباس',
+      program_status: 'حالة البرنامج *',
+      status_draft: 'مسودة',
+      status_published: 'منشور',
+      status_archived: 'مؤرشف',
+      brochure_upload: 'رفع الكتيب',
+      thumbnail_upload: 'صورة البرنامج',
+      submit: 'إنشاء البرنامج',
+      submitting: 'جاري الإنشاء...',
+      add_module: 'إضافة وحدة',
+      add_career: 'إضافة فرصة مهنية',
+      add_feature: 'إضافة ميزة رئيسية',
+      module_title: 'عنوان الوحدة',
+      career_title: 'المسمى الوظيفي',
+      feature_title: 'عنوان الميزة',
+      feature_description: 'وصف الميزة',
+      success_message: 'تم إنشاء البرنامج بنجاح!',
+      error_message: 'خطأ في إنشاء البرنامج',
+      required_field: 'هذا الحقل مطلوب',
+      enter_module: 'أدخل اسم الوحدة',
+      enter_career: 'أدخل الفرصة المهنية',
+      enter_feature_title: 'أدخل عنوان الميزة',
+      enter_feature_desc: 'أدخل وصف الميزة',
+      auto_translate: 'ترجمة من الإنجليزية تلقائياً',
+      translating: 'جاري الترجمة...',
+      translate_success: 'تم اكتمال الترجمة بنجاح!',
+      translate_error: 'فشل الترجمة. يرجى الترجمة يدوياً.'
+    }
+  };
+
+  const t = (key: keyof typeof translations.en) => translations[currentLanguage][key];
+
+  // Form data based on brochure template
   const [formData, setFormData] = useState({
     // English fields
     title: '',
+    tagline: '',
     description: '',
-    shortDescription: '',
-    category: '',
-    programType: '',
-    speciality: '',
-    studyTime: '',
-    price: '',
-    accreditations: [] as string[],
-    requirements: '',
-    benefits: '',
-    status: 'draft',
+    modules: [] as string[],
+    careerOpportunities: [] as string[],
+    keyFeatures: [] as { title: string; description: string }[],
+    duration: '',
+    accreditation: 'none', // none, vern, ibas, both
+    status: 'draft', // draft, published, archived
+    brochure_en: '',
+    
     // Arabic fields
     title_ar: '',
+    tagline_ar: '',
     description_ar: '',
-    shortDescription_ar: '',
-    category_ar: '',
-    programType_ar: '',
-    speciality_ar: '',
-    studyTime_ar: '',
-    requirements_ar: '',
-    benefits_ar: '',
-    brochure_en: '', // URL for English brochure
-    brochure_ar: '', // URL for Arabic brochure
+    modules_ar: [] as string[],
+    careerOpportunities_ar: [] as string[],
+    keyFeatures_ar: [] as { title: string; description: string }[],
+    duration_ar: '',
+    brochure_ar: ''
   });
 
   const [activeLanguage, setActiveLanguage] = useState<'en' | 'ar'>('en');
-  
-  // Module management state
-  const [modules, setModules] = useState<Array<{
-    id: string;
-    title: string;
-    title_ar?: string;
-    description: string;
-    description_ar?: string;
-    order: number;
-    lessons: Array<{
-      id: string;
-      title: string;
-      title_ar?: string;
-      description: string;
-      description_ar?: string;
-      duration: number; // in minutes
-      type: 'video' | 'text' | 'quiz' | 'assignment';
-      content: string;
-      content_ar?: string;
-      order: number;
-    }>;
-  }>>([]);
-  
-  const [currentModule, setCurrentModule] = useState({
-    title: '',
-    title_ar: '',
-    description: '',
-    description_ar: ''
-  });
-  
-  const [currentLesson, setCurrentLesson] = useState({
-    title: '',
-    title_ar: '',
-    description: '',
-    description_ar: '',
-    duration: 0,
-    type: 'video' as 'video' | 'text' | 'quiz' | 'assignment',
-    content: '',
-    content_ar: ''
-  });
-  
-  const [editingModuleId, setEditingModuleId] = useState<string | null>(null);
-  const [editingLessonId, setEditingLessonId] = useState<string | null>(null);
-  const [showModuleForm, setShowModuleForm] = useState(false);
-  const [showLessonForm, setShowLessonForm] = useState<string | null>(null);
-  const [thumbnailFile, setThumbnailFile] = useState<File | null>(null);
-  const [brochureEnFile, setBrochureEnFile] = useState<File | null>(null);
-  const [brochureArFile, setBrochureArFile] = useState<File | null>(null);
-  const [thumbnailPreview, setThumbnailPreview] = useState<string>('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
-  const [uploadProgress, setUploadProgress] = useState<{[key: string]: number}>({});
-  const [isUploading, setIsUploading] = useState(false);
-  const [debugInfo, setDebugInfo] = useState<string>('');
+  const [brochureEnFile, setBrochureEnFile] = useState<File | null>(null);
+  const [brochureArFile, setBrochureArFile] = useState<File | null>(null);
+  const [thumbnailFile, setThumbnailFile] = useState<File | null>(null);
+  const [thumbnailPreview, setThumbnailPreview] = useState<string>('');
+
+  // Auto-fill states
+  const [autoFillText, setAutoFillText] = useState('');
+  const [autoFilling, setAutoFilling] = useState(false);
+  const [autoFillSuccess, setAutoFillSuccess] = useState('');
+
+  // Translation states
+  const [translating, setTranslating] = useState(false);
+  const [translateSuccess, setTranslateSuccess] = useState('');
+
+  // Input states for adding items
+  const [newModule, setNewModule] = useState('');
+  const [newCareer, setNewCareer] = useState('');
+  const [newFeature, setNewFeature] = useState({ title: '', description: '' });
 
   useEffect(() => {
-    // If not loading and no user, redirect to admin login
     if (!isLoading && !currentUser) {
       router.push('/admin/login');
       return;
     }
 
-    // If user doesn't have programs permission, redirect to admin login
     if (!isLoading && currentUser && userRole !== 'admin' && !hasPermission('programs')) {
       router.push('/admin/login');
     }
+  }, [currentUser, userRole, isLoading, router, hasPermission]);
 
-    // Debug admin permissions
-    const checkAdminRole = async () => {
-      try {
-        if (currentUser && userRole) {
-          const roleStr = String(userRole);
-          // For debugging purposes only
-          setDebugInfo(`User ID: ${currentUser.uid}, Role: "${roleStr}" (${roleStr.length} chars)`);
-          
-          // Log the exact bytes for debugging
-          const bytes = [];
-          for (let i = 0; i < roleStr.length; i++) {
-            bytes.push(roleStr.charCodeAt(i));
+  // Extract data from pasted brochure text using ChatGPT
+  const extractDataFromText = async (brochureText: string) => {
+    try {
+      console.log('Using ChatGPT API for brochure text analysis...');
+      console.log('Brochure text length:', brochureText.length);
+      
+      const apiKey = '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';
+      
+      console.log('API Key (first 10 chars):', apiKey.substring(0, 10) + '...');
+      
+      const requestBody = {
+        model: 'gpt-4o-mini',
+        messages: [
+          {
+            role: 'system',
+            content: `You are an expert at organizing educational program information from brochure text. 
+
+            CRITICAL RULE: You MUST ONLY extract text that actually exists in the provided brochure content. DO NOT generate, create, or write any new content.
+
+            IMPORTANT: You MUST respond ONLY with a valid JSON object, no markdown formatting, no explanations, no extra text.
+
+            Your task is to find and extract the EXACT text from the brochure for these fields:
+
+            1. PROGRAM TITLE: Find the exact title as written (usually contains "MBA", "Dual-Accredited", etc.)
+            
+            2. TAGLINE/SLOGAN: Find the exact marketing text or slogan as written
+            
+            3. PROGRAM DESCRIPTION: 
+               Look for the main program description paragraph.
+               Copy this text WORD FOR WORD exactly as it appears.
+               DO NOT paraphrase, rewrite, or create new text.
+               If you cannot find a clear description, return an empty string "".
+            
+            4. DURATION: Find the exact duration text (e.g., "1 Academic Year")
+            
+            5. MODULES: Find the exact module/course names as listed
+            
+            6. CAREER OPPORTUNITIES: Find the exact job titles as listed
+            
+            7. KEY FEATURES: Find the exact feature names and descriptions as written
+            
+            8. ACCREDITATION: Look for IBAS, VERN, or similar institutions
+
+            REMEMBER: 
+            - ONLY extract text that actually exists in the brochure
+            - DO NOT create or generate any content
+            - Copy text exactly as written
+            - If you cannot find something, use empty string "" or empty array []
+
+            Return this exact JSON structure:
+            {
+              "title": "exact program title as found in brochure",
+              "tagline": "exact marketing tagline as found in brochure", 
+              "description": "EXACT program description as found in brochure - word for word",
+              "duration": "exact duration as found in brochure",
+              "modules": ["exact module names as found in brochure"],
+              "careerOpportunities": ["exact career titles as found in brochure"],
+              "keyFeatures": [{"title": "Exact Feature Name from brochure", "description": "Exact feature description from brochure"}],
+              "accreditation": "vern, ibas, both, or none"
+            }`
+          },
+          {
+            role: 'user',
+            content: `Please organize this brochure text and extract the program information. Use ONLY the exact text provided, do not generate new content:
+
+            ${brochureText}`
           }
-          console.log('Role bytes:', bytes);
-        }
-      } catch (error) {
-        console.error('Error checking admin role:', error);
-        setDebugInfo('Error checking role: ' + (error instanceof Error ? error.message : String(error)));
+        ],
+        temperature: 0.1,
+        max_tokens: 3000
+      };
+      
+      console.log('Request body created, making API call...');
+      
+      const response = await fetch('https://api.openai.com/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${apiKey}`
+        },
+        body: JSON.stringify(requestBody)
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error('ChatGPT API error response:', errorText);
+        throw new Error(`ChatGPT API error: ${response.status} ${response.statusText} - ${errorText}`);
       }
-    };
 
-    if (currentUser) {
-      checkAdminRole();
+      const data = await response.json();
+      console.log('Full ChatGPT API response:', JSON.stringify(data, null, 2));
+      
+      // Validate API response structure
+      if (!data.choices || !Array.isArray(data.choices) || data.choices.length === 0) {
+        throw new Error('Invalid API response: no choices array found');
+      }
+      
+      const choice = data.choices[0];
+      if (!choice || !choice.message) {
+        throw new Error('Invalid API response: no message found in choice');
+      }
+      
+      const extractedContent = choice.message.content;
+
+      if (!extractedContent) {
+        throw new Error('No content received from ChatGPT API - message content is empty');
+      }
+
+      console.log('ChatGPT raw response:', extractedContent);
+
+      // Parse the JSON response with improved extraction
+      let parsedData;
+      try {
+        // Clean the response to extract JSON - try multiple methods
+        let jsonString = extractedContent.trim();
+        
+        // Remove markdown code blocks if present
+        jsonString = jsonString.replace(/```json\s*/g, '').replace(/```\s*/g, '');
+        
+        // Try to find JSON object boundaries more robustly
+        const jsonMatch = jsonString.match(/\{[\s\S]*\}/);
+        if (jsonMatch) {
+          jsonString = jsonMatch[0];
+        }
+        
+        // Additional cleaning
+        jsonString = jsonString.trim();
+        
+        console.log('Cleaned JSON string:', jsonString.substring(0, 200) + '...');
+        
+        parsedData = JSON.parse(jsonString);
+        
+      } catch (parseError) {
+        console.error('JSON parsing error:', parseError);
+        console.error('Failed to parse:', extractedContent);
+        
+        // Try a more aggressive approach - extract just the content between first { and last }
+        try {
+          const firstBrace = extractedContent.indexOf('{');
+          const lastBrace = extractedContent.lastIndexOf('}');
+          
+          if (firstBrace !== -1 && lastBrace !== -1 && lastBrace > firstBrace) {
+            const jsonSubstring = extractedContent.substring(firstBrace, lastBrace + 1);
+            console.log('Attempting to parse aggressive extraction:', jsonSubstring.substring(0, 200) + '...');
+            parsedData = JSON.parse(jsonSubstring);
+          } else {
+            throw new Error('No valid JSON object boundaries found in response');
+          }
+        } catch (secondParseError) {
+          console.error('Second JSON parsing attempt failed:', secondParseError);
+          throw new Error('Failed to parse ChatGPT response as JSON. Response may be malformed.');
+        }
+      }
+
+      // Validate that we have a valid object
+      if (!parsedData || typeof parsedData !== 'object') {
+        throw new Error('ChatGPT response did not contain a valid JSON object');
+      }
+
+      // Validate and structure the data
+      const result = {
+        title: parsedData.title || 'MBA Program',
+        tagline: parsedData.tagline || 'Excellence in Business Education',
+        description: parsedData.description || 'This comprehensive program prepares professionals for leadership roles.',
+        duration: parsedData.duration || '1 Academic Year',
+        modules: Array.isArray(parsedData.modules) ? parsedData.modules : [],
+        careerOpportunities: Array.isArray(parsedData.careerOpportunities) ? parsedData.careerOpportunities : [],
+        keyFeatures: Array.isArray(parsedData.keyFeatures) ? parsedData.keyFeatures : [],
+        accreditation: parsedData.accreditation || 'none'
+      };
+
+      console.log('ChatGPT parsing result:', {
+        title: result.title,
+        tagline: result.tagline.substring(0, 50) + '...',
+        description: result.description.substring(0, 100) + '...',
+        duration: result.duration,
+        modulesCount: result.modules.length,
+        modules: result.modules,
+        careersCount: result.careerOpportunities.length,
+        careers: result.careerOpportunities,
+        featuresCount: result.keyFeatures.length,
+        features: result.keyFeatures,
+        accreditation: result.accreditation
+      });
+
+      console.log('Full extracted description:', result.description);
+
+      return result;
+
+    } catch (error) {
+      console.error('ChatGPT extraction error:', error);
+      throw new Error(`ChatGPT parsing failed: ${(error as Error).message}`);
     }
-  }, [currentUser, userRole, isLoading, router]);
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
   };
 
-  const handleAccreditationToggle = (accreditation: string) => {
+  
+
+  const handleAutoFill = async () => {
+    if (!autoFillText.trim()) {
+      setError('Please paste your brochure text first');
+      return;
+    }
+
+    setAutoFilling(true);
+    setError('');
+    setAutoFillSuccess('');
+
+    try {
+      console.log('Starting text analysis...');
+      
+      // Use ChatGPT API for intelligent text parsing
+      const parsedData = await extractDataFromText(autoFillText);
+      console.log('ChatGPT parsed data:', parsedData);
+
+      // Update form with AI-extracted data
+      setFormData(prev => ({
+        ...prev,
+        title: parsedData.title || prev.title,
+        tagline: parsedData.tagline || prev.tagline,
+        description: parsedData.description || prev.description,
+        duration: parsedData.duration || prev.duration,
+        modules: parsedData.modules || prev.modules,
+        careerOpportunities: parsedData.careerOpportunities || prev.careerOpportunities,
+        keyFeatures: parsedData.keyFeatures || prev.keyFeatures,
+        accreditation: parsedData.accreditation || prev.accreditation,
+        status: 'draft'
+      }));
+
+      setAutoFillSuccess(`${t('auto_fill_success')} Detected accreditation: ${(parsedData.accreditation || 'none').toUpperCase()}`);
+      
+      // Clear the auto-fill text after successful extraction
+      setAutoFillText('');
+      
+    } catch (err) {
+      console.error('Error in text parsing:', err);
+      setError(t('auto_fill_error'));
+    } finally {
+      setAutoFilling(false);
+    }
+  };
+
+  // Auto-translate English content to Arabic using ChatGPT
+  const handleAutoTranslate = async () => {
+    // Check if there's English content to translate
+    if (!formData.title && !formData.tagline && !formData.description && 
+        formData.modules.length === 0 && formData.careerOpportunities.length === 0 && 
+        formData.keyFeatures.length === 0 && !formData.duration) {
+      setError('No English content available to translate. Please fill the English version first.');
+      return;
+    }
+    
+    setTranslating(true);
+    setError('');
+    setTranslateSuccess('');
+
+    try {
+      console.log('Starting auto-translation from English to Arabic...');
+
+      const apiKey = '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';
+      
+      const contentToTranslate = {
+        title: formData.title,
+        tagline: formData.tagline,
+        description: formData.description,
+        duration: formData.duration,
+        modules: formData.modules,
+        careerOpportunities: formData.careerOpportunities,
+        keyFeatures: formData.keyFeatures
+      };
+
+      const response = await fetch('https://api.openai.com/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${apiKey}`
+        },
+        body: JSON.stringify({
+          model: 'gpt-4o-mini',
+          messages: [
+            {
+              role: 'system',
+              content: `You are a professional Arabic translator specializing in educational content. 
+
+              IMPORTANT: You MUST respond ONLY with a valid JSON object, no markdown formatting, no explanations, no extra text.
+
+              Translate the following educational program content from English to Arabic:
+              - Maintain professional, academic tone
+              - Use proper Arabic terminology for business and educational concepts
+              - Preserve the exact meaning and structure
+              - For modules and features, translate each item individually
+              - Keep the same JSON structure
+              
+              Return this exact JSON structure:
+              {
+                "title": "Arabic translation of title",
+                "tagline": "Arabic translation of tagline", 
+                "description": "Arabic translation of description",
+                "duration": "Arabic translation of duration",
+                "modules": ["Arabic translation of module1", "Arabic translation of module2", ...],
+                "careerOpportunities": ["Arabic translation of career1", "Arabic translation of career2", ...],
+                "keyFeatures": [{"title": "Arabic translation of feature title", "description": "Arabic translation of feature description"}, ...]
+              }`
+            },
+            {
+              role: 'user',
+              content: `Translate this educational program content to Arabic:
+
+              ${JSON.stringify(contentToTranslate, null, 2)}`
+            }
+          ],
+          temperature: 0.1,
+          max_tokens: 3000
+        })
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error('Translation API error:', errorText);
+        throw new Error(`Translation API error: ${response.status} ${response.statusText}`);
+      }
+
+      const data = await response.json();
+      console.log('Translation API response:', data);
+      
+      // Validate API response structure
+      if (!data.choices || !Array.isArray(data.choices) || data.choices.length === 0) {
+        throw new Error('Invalid translation response: no choices array found');
+      }
+      
+      const choice = data.choices[0];
+      if (!choice || !choice.message) {
+        throw new Error('Invalid translation response: no message found in choice');
+      }
+      
+      const translatedContent = choice.message.content;
+
+      if (!translatedContent) {
+        throw new Error('No translated content received from API');
+      }
+
+      console.log('Raw translation response:', translatedContent);
+
+      // Parse the JSON response
+      let parsedTranslation;
+      try {
+        // Clean the response to extract JSON
+        let jsonString = translatedContent.trim();
+        
+        // Remove markdown code blocks if present
+        jsonString = jsonString.replace(/```json\s*/g, '').replace(/```\s*/g, '');
+        
+        // Try to find JSON object boundaries
+        const jsonMatch = jsonString.match(/\{[\s\S]*\}/);
+        if (jsonMatch) {
+          jsonString = jsonMatch[0];
+        }
+        
+        jsonString = jsonString.trim();
+        console.log('Cleaned translation JSON:', jsonString.substring(0, 200) + '...');
+        
+        parsedTranslation = JSON.parse(jsonString);
+        
+      } catch (parseError) {
+        console.error('Translation JSON parsing error:', parseError);
+        throw new Error('Failed to parse translation response as JSON');
+      }
+
+      // Validate and apply translations
+      const updatedFormData = { ...formData };
+      
+      if (parsedTranslation.title) updatedFormData.title_ar = parsedTranslation.title;
+      if (parsedTranslation.tagline) updatedFormData.tagline_ar = parsedTranslation.tagline;
+      if (parsedTranslation.description) updatedFormData.description_ar = parsedTranslation.description;
+      if (parsedTranslation.duration) updatedFormData.duration_ar = parsedTranslation.duration;
+      
+      if (Array.isArray(parsedTranslation.modules)) {
+        updatedFormData.modules_ar = parsedTranslation.modules;
+      }
+      
+      if (Array.isArray(parsedTranslation.careerOpportunities)) {
+        updatedFormData.careerOpportunities_ar = parsedTranslation.careerOpportunities;
+      }
+      
+      if (Array.isArray(parsedTranslation.keyFeatures)) {
+        updatedFormData.keyFeatures_ar = parsedTranslation.keyFeatures;
+      }
+
+      setFormData(updatedFormData);
+      setTranslateSuccess(t('translate_success'));
+      
+      console.log('Translation completed successfully:', {
+        title: parsedTranslation.title,
+        modulesCount: parsedTranslation.modules?.length || 0,
+        careersCount: parsedTranslation.careerOpportunities?.length || 0,
+        featuresCount: parsedTranslation.keyFeatures?.length || 0
+      });
+
+    } catch (err) {
+      console.error('Translation error:', err);
+      setError(t('translate_error'));
+    } finally {
+      setTranslating(false);
+    }
+  };
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: value }));
+    // Clear success messages when user starts editing
+    setAutoFillSuccess('');
+    setTranslateSuccess('');
+  };
+
+  const addModule = () => {
+    if (!newModule.trim()) return;
+    const field = activeLanguage === 'ar' ? 'modules_ar' : 'modules';
     setFormData(prev => ({
       ...prev,
-      accreditations: prev.accreditations.includes(accreditation)
-        ? prev.accreditations.filter(a => a !== accreditation)
-        : [...prev.accreditations, accreditation]
+      [field]: [...prev[field], newModule.trim()]
+    }));
+    setNewModule('');
+  };
+
+  const removeModule = (index: number) => {
+    const field = activeLanguage === 'ar' ? 'modules_ar' : 'modules';
+    setFormData(prev => ({
+      ...prev,
+      [field]: prev[field].filter((_, i) => i !== index)
     }));
   };
 
-  // Module management functions
-  const generateId = () => Math.random().toString(36).substr(2, 9);
-
-  const addModule = () => {
-    if (!currentModule.title.trim()) return;
-    
-    const newModule = {
-      id: generateId(),
-      title: currentModule.title,
-      description: currentModule.description,
-      order: modules.length + 1,
-      lessons: []
-    };
-    
-    setModules([...modules, newModule]);
-    setCurrentModule({ title: '', title_ar: '', description: '', description_ar: '' });
-    setShowModuleForm(false);
+  const addCareer = () => {
+    if (!newCareer.trim()) return;
+    const field = activeLanguage === 'ar' ? 'careerOpportunities_ar' : 'careerOpportunities';
+    setFormData(prev => ({
+      ...prev,
+      [field]: [...prev[field], newCareer.trim()]
+    }));
+    setNewCareer('');
   };
 
-  const updateModule = (moduleId: string) => {
-    setModules(modules.map(module => 
-      module.id === moduleId 
-        ? { ...module, title: currentModule.title, description: currentModule.description }
-        : module
-    ));
-    setCurrentModule({ title: '', title_ar: '', description: '', description_ar: '' });
-    setEditingModuleId(null);
+  const removeCareer = (index: number) => {
+    const field = activeLanguage === 'ar' ? 'careerOpportunities_ar' : 'careerOpportunities';
+    setFormData(prev => ({
+      ...prev,
+      [field]: prev[field].filter((_, i) => i !== index)
+    }));
   };
 
-  const deleteModule = (moduleId: string) => {
-    setModules(modules.filter(module => module.id !== moduleId));
+  const addFeature = () => {
+    if (!newFeature.title.trim() || !newFeature.description.trim()) return;
+    const field = activeLanguage === 'ar' ? 'keyFeatures_ar' : 'keyFeatures';
+    setFormData(prev => ({
+      ...prev,
+      [field]: [...prev[field], { ...newFeature }]
+    }));
+    setNewFeature({ title: '', description: '' });
   };
 
-  const addLesson = (moduleId: string) => {
-    if (!currentLesson.title.trim()) return;
-    
-    const newLesson = {
-      id: generateId(),
-      title: currentLesson.title,
-      description: currentLesson.description,
-      duration: currentLesson.duration,
-      type: currentLesson.type,
-      content: currentLesson.content,
-      order: modules.find(m => m.id === moduleId)?.lessons.length || 0 + 1
-    };
-    
-    setModules(modules.map(module => 
-      module.id === moduleId 
-        ? { ...module, lessons: [...module.lessons, newLesson] }
-        : module
-    ));
-    
-    setCurrentLesson({ title: '', title_ar: '', description: '', description_ar: '', duration: 0, type: 'video', content: '', content_ar: '' });
-    setShowLessonForm(null);
+  const removeFeature = (index: number) => {
+    const field = activeLanguage === 'ar' ? 'keyFeatures_ar' : 'keyFeatures';
+    setFormData(prev => ({
+      ...prev,
+      [field]: prev[field].filter((_, i) => i !== index)
+    }));
   };
 
-  const updateLesson = (moduleId: string, lessonId: string) => {
-    setModules(modules.map(module => 
-      module.id === moduleId 
-        ? {
-            ...module,
-            lessons: module.lessons.map(lesson =>
-              lesson.id === lessonId
-                ? { ...lesson, ...currentLesson }
-                : lesson
-            )
-          }
-        : module
-    ));
-    setCurrentLesson({ title: '', title_ar: '', description: '', description_ar: '', duration: 0, type: 'video', content: '', content_ar: '' });
-    setEditingLessonId(null);
-  };
-
-  const deleteLesson = (moduleId: string, lessonId: string) => {
-    setModules(modules.map(module => 
-      module.id === moduleId 
-        ? { ...module, lessons: module.lessons.filter(lesson => lesson.id !== lessonId) }
-        : module
-    ));
-  };
-
-  const startEditingModule = (module: any) => {
-    setCurrentModule({ 
-      title: module.title || '', 
-      title_ar: module.title_ar || '',
-      description: module.description || '',
-      description_ar: module.description_ar || ''
-    });
-    setEditingModuleId(module.id);
-  };
-
-  const startEditingLesson = (lesson: any) => {
-    setCurrentLesson({
-      title: lesson.title || '',
-      title_ar: lesson.title_ar || '',
-      description: lesson.description || '',
-      description_ar: lesson.description_ar || '',
-      duration: lesson.duration || 0,
-      type: lesson.type || 'video',
-      content: lesson.content || '',
-      content_ar: lesson.content_ar || ''
-    });
-    setEditingLessonId(lesson.id);
-  };
-
-  const getLessonIcon = (type: string) => {
-    switch (type) {
-      case 'video': return <Play size={16} className="text-blue-500" />;
-      case 'text': return <FileText size={16} className="text-green-500" />;
-      case 'quiz': return <HelpCircle size={16} className="text-purple-500" />;
-      case 'assignment': return <Clipboard size={16} className="text-orange-500" />;
-      default: return <BookOpen size={16} className="text-gray-500" />;
+  const handleBrochureChange = (e: React.ChangeEvent<HTMLInputElement>, language: 'en' | 'ar') => {
+    const file = e.target.files?.[0];
+    if (file) {
+      if (language === 'en') {
+        setBrochureEnFile(file);
+          } else {
+        setBrochureArFile(file);
+      }
     }
   };
 
   const handleThumbnailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      // Validate file size (10MB limit)
-      if (file.size > 10 * 1024 * 1024) {
-        setError('Image file must be less than 10MB');
-        return;
-      }
-
       // Validate file type
       if (!file.type.startsWith('image/')) {
         setError('Please select a valid image file');
         return;
       }
 
-        setThumbnailFile(file);
-        
-      // Create preview
-        const reader = new FileReader();
+      setThumbnailFile(file);
+      
+      // Create preview - this will be used as a fallback in development
+      const reader = new FileReader();
       reader.onload = (e) => {
-        setThumbnailPreview(e.target?.result as string);
-        };
-        reader.readAsDataURL(file);
+        if (e.target?.result) {
+          const previewUrl = e.target.result as string;
+          setThumbnailPreview(previewUrl);
+          console.log('Thumbnail preview created successfully');
+        }
+      };
+      reader.onerror = (error) => {
+        console.error('Error creating thumbnail preview:', error);
+      };
+      reader.readAsDataURL(file);
       setError('');
     }
-  };
-
-  // Add file handlers for brochures
-  const handleBrochureEnChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file && file.type === 'application/pdf') {
-      setBrochureEnFile(file);
-      setError('');
-    } else {
-      alert('Please select a PDF file');
-    }
-  };
-
-  const handleBrochureArChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file && file.type === 'application/pdf') {
-      setBrochureArFile(file);
-      setError('');
-    } else {
-      alert('Please select a PDF file');
-    }
-  };
-
-  // Function to save file locally and return public URL
-  const saveFileLocally = async (file: File, programId: string, language: 'en' | 'ar'): Promise<string> => {
-    const formData = new FormData();
-    formData.append('file', file);
-    formData.append('programId', programId);
-    formData.append('language', language);
-
-    const response = await fetch('/api/upload-brochure', {
-      method: 'POST',
-      body: formData,
-    });
-
-    if (!response.ok) {
-      throw new Error('Failed to upload brochure');
-    }
-
-    const result = await response.json();
-    return result.url;
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
-    if (!currentUser) {
-      setError('You must be logged in to create a program');
-      return;
-    }
-    
     setLoading(true);
     setError('');
-    setSuccess('');
-    setIsUploading(true);
-    setUploadProgress({});
 
     try {
-      const numericPrice = typeof formData.price === 'string' 
-        ? parseFloat(formData.price.replace(/[^0-9.]/g, '')) 
-        : formData.price;
+      let brochureEnUrl = '';
+      let brochureArUrl = '';
+      let thumbnailUrl = '';
+      
+      // Upload files if provided - make uploads optional to avoid blocking form submission
+      try {
+        if (brochureEnFile) {
+          const timestamp = Date.now();
+          const brochurePath = `brochures/${timestamp}-en.pdf`;
+          console.log(`Uploading EN brochure: ${brochurePath}`);
+          
+          try {
+            brochureEnUrl = await uploadFile(brochureEnFile, brochurePath);
+            console.log('EN brochure uploaded successfully');
+            
+            // If it's a base64 string and too large for Firestore
+            if (brochureEnUrl.startsWith('data:') && brochureEnUrl.length > 900000) {
+              console.log('EN brochure too large for Firestore, using placeholder');
+              brochureEnUrl = 'development-placeholder-en-brochure';
+            }
+          } catch (storageError) {
+            console.error('EN brochure upload failed:', storageError);
+            brochureEnUrl = 'development-placeholder-en-brochure';
+          }
+        }
+      } catch (uploadErr) {
+        console.warn('English brochure upload failed:', uploadErr);
+        brochureEnUrl = 'development-placeholder-en-brochure';
+        // Continue without blocking
+      }
+      
+      try {
+        if (brochureArFile) {
+          const timestamp = Date.now();
+          const brochurePath = `brochures/${timestamp}-ar.pdf`;
+          console.log(`Uploading AR brochure: ${brochurePath}`);
+          
+          try {
+            brochureArUrl = await uploadFile(brochureArFile, brochurePath);
+            console.log('AR brochure uploaded successfully');
+            
+            // If it's a base64 string and too large for Firestore
+            if (brochureArUrl.startsWith('data:') && brochureArUrl.length > 900000) {
+              console.log('AR brochure too large for Firestore, using placeholder');
+              brochureArUrl = 'development-placeholder-ar-brochure';
+            }
+          } catch (storageError) {
+            console.error('AR brochure upload failed:', storageError);
+            brochureArUrl = 'development-placeholder-ar-brochure';
+          }
+        }
+      } catch (uploadErr) {
+        console.warn('Arabic brochure upload failed:', uploadErr);
+        brochureArUrl = 'development-placeholder-ar-brochure';
+        // Continue without blocking
+      }
+      
+      try {
+        if (thumbnailFile) {
+          const timestamp = Date.now();
+          const fileExtension = thumbnailFile.type.split('/')[1] || 'png';
+          const thumbnailPath = `thumbnails/${timestamp}-thumbnail.${fileExtension}`;
+          console.log(`Uploading thumbnail: ${thumbnailPath} with original quality`);
+          
+          // Always preserve original quality for thumbnails
+          try {
+            // We'll use the original file without any compression
+            thumbnailUrl = await uploadFile(thumbnailFile, thumbnailPath);
+            console.log('Thumbnail uploaded successfully with original quality');
+            
+            // For Firestore size limits in development mode only
+            if (window.location.hostname === 'localhost' && 
+                thumbnailUrl.startsWith('data:image') && 
+                thumbnailUrl.length > 900000) {
+              
+              console.log('Development mode: Base64 thumbnail URL is too large for Firestore');
+              
+              // Instead of trying to upload to Firebase Storage (which causes CORS issues),
+              // we'll use a compressed version or a placeholder
+              try {
+                // Try to compress the thumbnail more aggressively
+                const compressedBlob = await compressImage(thumbnailFile, 400, 0.4);
+                const smallerBase64 = await uploadImageAsDataUrl(compressedBlob);
+                
+                if (smallerBase64.length < 900000) {
+                  console.log('Successfully compressed thumbnail to fit in Firestore');
+                  thumbnailUrl = smallerBase64;
+                } else {
+                  // If still too large, use the thumbnail preview which is already smaller
+                  console.log('Using thumbnail preview as fallback');
+                  thumbnailUrl = thumbnailPreview || 'https://via.placeholder.com/800x600?text=Thumbnail+Placeholder';
+                }
+              } catch (compressionError) {
+                console.error('Error compressing thumbnail:', compressionError);
+                thumbnailUrl = thumbnailPreview || 'https://via.placeholder.com/800x600?text=Thumbnail+Placeholder';
+              }
+            }
+          } catch (storageError) {
+            console.error('Firebase Storage upload failed:', storageError);
+            
+            // In development, use the preview but try to maintain quality
+            if (window.location.hostname === 'localhost' && thumbnailPreview) {
+              console.log('Using high-quality thumbnail preview in development');
+              thumbnailUrl = thumbnailPreview;
+            } else {
+              // Use a placeholder URL as last resort
+              thumbnailUrl = 'https://via.placeholder.com/800x600?text=Thumbnail+Placeholder';
+              console.log('Using placeholder thumbnail after upload failure');
+            }
+          }
+        }
+      } catch (uploadErr) {
+        console.warn('Thumbnail upload failed:', uploadErr);
+        // Use a placeholder URL
+        thumbnailUrl = 'https://via.placeholder.com/800x600?text=Thumbnail+Placeholder';
+        console.log('Using placeholder thumbnail after upload failure');
+        // Continue without blocking
+      }
 
-      let programData = {
-        // English fields
-        title: formData.title,
-        description: formData.description,
-        shortDescription: formData.shortDescription,
-        category: formData.category,
-        level: formData.programType,
-        type: formData.programType,
-        specialization: formData.speciality,
-        duration: formData.studyTime,
-        price: isNaN(numericPrice) ? 0 : numericPrice,
-        requirements: formData.requirements ? [formData.requirements] : [],
-        whatYouWillLearn: formData.benefits ? [formData.benefits] : [],
-        status: formData.status,
-        // Arabic fields
-        title_ar: formData.title_ar,
-        description_ar: formData.description_ar,
-        shortDescription_ar: formData.shortDescription_ar,
-        category_ar: formData.category_ar,
-        type_ar: formData.programType_ar,
-        specialization_ar: formData.speciality_ar,
-        duration_ar: formData.studyTime_ar,
-        requirements_ar: formData.requirements_ar ? [formData.requirements_ar] : [],
-        whatYouWillLearn_ar: formData.benefits_ar ? [formData.benefits_ar] : [],
-        // Common fields
-        languages: ['en', 'ar'] as ('en' | 'ar')[],
-        durationWeeks: 12, // Default value
-        createdBy: currentUser.uid,
+      const programData = {
+        ...formData,
+        brochure_en: brochureEnUrl,
+        brochure_ar: brochureArUrl,
+        thumbnail: thumbnailUrl,
         createdAt: serverTimestamp(),
         updatedAt: serverTimestamp(),
-        enrollments: 0,
-        thumbnail: 'https://via.placeholder.com/300x200?text=Program+Image'
+        createdBy: currentUser?.uid
       };
+
+      // Check for Firestore document size limits (1MB per document)
+      // If we're using base64 data URLs, they can be large
+      const estimatedSize = JSON.stringify(programData).length;
+      console.log(`Estimated document size: ${estimatedSize} bytes`);
+      
+      if (estimatedSize > 900000) { // Close to 1MB limit
+        console.warn('Document size approaching Firestore limit, using placeholders for large fields');
+        
+        // Replace large base64 strings with placeholders
+        if (thumbnailUrl?.startsWith('data:image') && thumbnailUrl.length > 200000) {
+          programData.thumbnail = thumbnailPreview || 'https://via.placeholder.com/800x600?text=Thumbnail+Placeholder';
+        }
+        
+        // Check again after replacements
+        const newSize = JSON.stringify(programData).length;
+        console.log(`New document size after replacements: ${newSize} bytes`);
+        
+        if (newSize > 900000) {
+          throw new Error('Document size too large for Firestore. Please reduce the amount of content or use smaller images.');
+        }
+      }
 
       const docRef = await addDoc(collection(db, 'programs'), programData);
       
-      // Upload files
-      const updateData: any = {};
-      
-      // Upload thumbnail
-      if (thumbnailFile) {
-        try {
-          setUploadProgress(prev => ({...prev, thumbnail: 0}));
-          if (thumbnailFile.size <= 100 * 1024) {
-            const dataUrl = await uploadImageAsDataUrl(thumbnailFile);
-            updateData.thumbnail = dataUrl;
-            setUploadProgress(prev => ({...prev, thumbnail: 100}));
-          } else {
-            setError('Note: Image was too large. Program created with placeholder image.');
-          }
-        } catch (uploadError) {
-          console.error('Error uploading thumbnail:', uploadError);
-          setError('Program created, but failed to upload image. You can edit the program to add an image later.');
-        }
-      }
-
-          // Upload brochures locally and get download URLs
-      if (brochureEnFile) {
-        try {
-        setUploadProgress(prev => ({...prev, brochure_en: 0}));
-        const brochureEnUrl = await saveFileLocally(brochureEnFile, docRef.id, 'en');
-          updateData.brochure_en = brochureEnUrl;
-        setUploadProgress(prev => ({...prev, brochure_en: 100}));
-        console.log('English brochure uploaded successfully:', brochureEnUrl);
-      } catch (uploadError: any) {
-          console.error('Error uploading English brochure:', uploadError);
-        setError(`Program created, but failed to upload English brochure: ${uploadError.message}`);
-        }
-      }
-
-      if (brochureArFile) {
-        try {
-        setUploadProgress(prev => ({...prev, brochure_ar: 0}));
-        const brochureArUrl = await saveFileLocally(brochureArFile, docRef.id, 'ar');
-          updateData.brochure_ar = brochureArUrl;
-        setUploadProgress(prev => ({...prev, brochure_ar: 100}));
-        console.log('Arabic brochure uploaded successfully:', brochureArUrl);
-      } catch (uploadError: any) {
-          console.error('Error uploading Arabic brochure:', uploadError);
-        setError(`Program created, but failed to upload Arabic brochure: ${uploadError.message}`);
-        }
-      }
-
-      // Update document with uploaded files
-      if (Object.keys(updateData).length > 0) {
-        await updateDoc(doc(db, 'programs', docRef.id), updateData);
-      console.log('Program updated with uploaded files');
-      }
-      
-      setSuccess(`Program "${formData.title}" created successfully!`);
-      
-      // Reset form
-      setFormData({
-        title: '',
-        description: '',
-        shortDescription: '',
-        category: '',
-        programType: '',
-        speciality: '',
-        studyTime: '',
-        price: '',
-        accreditations: [] as string[],
-        requirements: '',
-        benefits: '',
-        status: 'draft',
-        // Arabic fields
-        title_ar: '',
-        description_ar: '',
-        shortDescription_ar: '',
-        category_ar: '',
-        programType_ar: '',
-        speciality_ar: '',
-        studyTime_ar: '',
-        requirements_ar: '',
-        benefits_ar: '',
-        brochure_en: '',
-        brochure_ar: ''
-      });
-      setThumbnailFile(null);
-      setThumbnailPreview('');
-      setBrochureEnFile(null);
-      setBrochureArFile(null);
-      setUploadProgress({});
-      
+      setSuccess(t('success_message'));
       setTimeout(() => {
         router.push('/admin/programs');
       }, 2000);
+
     } catch (err) {
       console.error('Error creating program:', err);
-      setError(err instanceof Error ? `Failed to create program: ${err.message}` : 'Failed to create program. Please try again.');
+      setError(t('error_message'));
     } finally {
       setLoading(false);
-      setIsUploading(false);
     }
   };
 
-  if (isLoading) {
-    return (
-      <div className="flex justify-center items-center h-screen">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
-      </div>
-    );
-  }
+  const getCurrentField = (field: keyof typeof formData): any => {
+    // For language-specific fields, check if Arabic version exists when in Arabic mode
+    if (activeLanguage === 'ar' && `${field}_ar` in formData) {
+      return formData[`${field}_ar` as keyof typeof formData] || '';
+    }
+    // For fields that don't have language variants (accreditation, status), always return the main field
+    return formData[field] || '';
+  };
 
   if (!currentUser) {
-    return null; // This will be redirected by the useEffect
+    return null;
   }
 
-  const getCurrentFields = () => {
-    return activeLanguage === 'en' ? {
-      title: formData.title,
-      description: formData.description,
-      shortDescription: formData.shortDescription,
-      category: formData.category,
-      programType: formData.programType,
-      speciality: formData.speciality,
-      studyTime: formData.studyTime,
-      requirements: formData.requirements,
-      benefits: formData.benefits,
-    } : {
-      title: formData.title_ar,
-      description: formData.description_ar,
-      shortDescription: formData.shortDescription_ar,
-      category: formData.category_ar,
-      programType: formData.programType_ar,
-      speciality: formData.speciality_ar,  
-      studyTime: formData.studyTime_ar,
-      requirements: formData.requirements_ar,
-      benefits: formData.benefits_ar,
-    };
-  };
-
-  const getFieldName = (field: string) => {
-    return activeLanguage === 'ar' ? `${field}_ar` : field;
-  };
-
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8" dir={currentLanguage === 'ar' ? 'rtl' : 'ltr'}>
       <div className="md:flex md:items-center md:justify-between mb-6">
         <div className="flex-1 min-w-0">
           <h2 className="text-2xl font-bold leading-7 text-gray-900 sm:text-3xl sm:truncate">
-            Create New Program
+            {t('create_program')}
           </h2>
         </div>
         <div className="mt-4 flex md:mt-0 md:ml-4">
@@ -543,8 +887,8 @@ export default function CreateProgramPage() {
             href="/admin/programs"
             className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
           >
-            <ArrowLeft size={16} className="mr-2" />
-            Back to Programs
+            <ArrowLeft size={16} className={`${currentLanguage === 'ar' ? 'ml-2 rotate-180' : 'mr-2'}`} />
+            {t('back_to_programs')}
           </Link>
         </div>
       </div>
@@ -552,7 +896,7 @@ export default function CreateProgramPage() {
       {success && (
         <div className="mb-6 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative" role="alert">
           <div className="flex">
-            <Check size={20} className="mr-2" />
+            <Check size={20} className={`${currentLanguage === 'ar' ? 'ml-2' : 'mr-2'}`} />
             <span>{success}</span>
           </div>
         </div>
@@ -569,546 +913,498 @@ export default function CreateProgramPage() {
         <div className="flex space-x-1 mb-6 bg-gray-100 p-1 rounded-lg">
           <button
             type="button"
-            onClick={() => setActiveLanguage('en')}
+            onClick={() => {
+              setActiveLanguage('en');
+              setError('');
+              setTranslateSuccess('');
+              setAutoFillSuccess('');
+            }}
             className={`flex-1 flex items-center justify-center px-3 py-2 rounded-md text-sm font-medium transition-colors ${activeLanguage === 'en' 
               ? 'bg-white text-gray-900 shadow-sm' 
               : 'text-gray-500 hover:text-gray-700'
             }`}
           >
             <Globe size={16} className="mr-2" />
-            English
+            {t('english')}
           </button>
           <button
             type="button"
-            onClick={() => setActiveLanguage('ar')}
+            onClick={() => {
+              setActiveLanguage('ar');
+              setError('');
+              setTranslateSuccess('');
+              setAutoFillSuccess('');
+            }}
             className={`flex-1 flex items-center justify-center px-3 py-2 rounded-md text-sm font-medium transition-colors ${activeLanguage === 'ar' 
               ? 'bg-white text-gray-900 shadow-sm' 
               : 'text-gray-500 hover:text-gray-700'
             }`}
           >
             <Languages size={16} className="mr-2" />
-            العربية
+            {t('arabic')}
           </button>
         </div>
         
-        <form onSubmit={handleSubmit} className="space-y-6" dir={activeLanguage === 'ar' ? 'rtl' : 'ltr'}>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {/* Auto-Translate Section - Only show for Arabic */}
+        {activeLanguage === 'ar' && (
+          <div className="mb-6 bg-green-50 border border-green-200 rounded-lg p-6">
+            <div className="flex items-center mb-4">
+              <Languages size={24} className="mr-3 text-green-600" />
+              <h3 className="text-lg font-semibold text-green-900">
+                ترجمة تلقائية من الإنجليزية
+              </h3>
+            </div>
+            <p className="text-green-700 mb-4">
+              اضغط على الزر أدناه لترجمة المحتوى الإنجليزي تلقائياً إلى العربية باستخدام الذكاء الاصطناعي.
+            </p>
+            
+            <div className="flex items-center gap-4">
+              <button
+                type="button"
+                onClick={handleAutoTranslate}
+                disabled={translating}
+                className="inline-flex items-center px-6 py-3 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                <Languages size={16} className="ml-2" />
+                {translating ? t('translating') : t('auto_translate')}
+                {translating && (
+                  <svg className="animate-spin mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                )}
+              </button>
+              
+              <div className="text-sm text-green-600">
+                يتطلب وجود محتوى في النسخة الإنجليزية أولاً
+              </div>
+            </div>
+
+            {translateSuccess && (
+              <div className="mt-4 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative" role="alert">
+                <div className="flex">
+                  <Check size={20} className="mr-2" />
+                  <span>{translateSuccess}</span>
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+        
+        {/* Auto-Fill Text Section */}
+        <div className="mb-6 bg-blue-50 border border-blue-200 rounded-lg p-6">
+          <div className="flex items-center mb-4">
+            <Zap size={24} className="mr-3 text-blue-600" />
+            <h3 className="text-lg font-semibold text-blue-900">
+              {activeLanguage === 'en' ? 'Auto-Fill from Brochure Text' : 'الملء التلقائي من نص الكتيب'}
+            </h3>
+          </div>
+          <p className="text-blue-700 mb-4">
+            {activeLanguage === 'en' 
+              ? 'Paste your program brochure text below and automatically organize it into the form fields.'
+              : 'أدخل نص كتيب البرنامج أدناه وسيتم تنظيمه تلقائياً في حقول النموذج.'
+            }
+          </p>
+          
+          <div className="space-y-4">
+            <textarea
+              rows={10}
+              placeholder={activeLanguage === 'en' ? 'Paste your complete brochure text here...' : 'أدخل نص الكتيب الكامل هنا...'}
+              value={autoFillText}
+              onChange={(e) => setAutoFillText(e.target.value)}
+              className="block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary focus:border-primary sm:text-sm"
+              dir={activeLanguage === 'ar' ? 'rtl' : 'ltr'}
+            />
+            
+            <div className="flex items-center gap-4">
+              <button
+                type="button"
+                onClick={handleAutoFill}
+                disabled={autoFilling || !autoFillText.trim()}
+                className="inline-flex items-center px-6 py-3 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                <FileText size={16} className="mr-2" />
+                {autoFilling 
+                  ? (activeLanguage === 'en' ? 'Organizing...' : 'جاري التنظيم...')
+                  : (activeLanguage === 'en' ? 'Organize Form' : 'تنظيم النموذج')
+                }
+                {autoFilling && (
+                  <svg className="animate-spin ml-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                )}
+              </button>
+              
+              <div className="text-sm text-blue-600">
+                {activeLanguage === 'en' 
+                  ? 'Paste all your brochure text for best results'
+                  : 'أدخل كامل نص الكتيب للحصول على أفضل النتائج'
+                }
+              </div>
+            </div>
+          </div>
+
+          {autoFillSuccess && (
+            <div className="mt-4 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative" role="alert">
+              <div className="flex">
+                <Check size={20} className="mr-2" />
+                <span>{autoFillSuccess}</span>
+              </div>
+            </div>
+          )}
+        </div>
+
+        <form onSubmit={handleSubmit} className="space-y-6">
+          {/* Program Title */}
             <div>
-              <label htmlFor={getFieldName('title')} className="block text-sm font-medium text-gray-700">
+            <label className="block text-sm font-medium text-gray-700">
                 {activeLanguage === 'en' ? 'Program Title *' : 'عنوان البرنامج *'}
               </label>
               <input
                 type="text"
-                name={getFieldName('title')}
-                id={getFieldName('title')}
+              name={activeLanguage === 'ar' ? 'title_ar' : 'title'}
                 required
-                value={getCurrentFields().title}
+              value={getCurrentField('title')}
                 onChange={handleChange}
                 className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary focus:border-primary sm:text-sm"
-                placeholder={activeLanguage === 'en' ? 'e.g. Master of Business Administration' : 'مثال: ماجستير إدارة الأعمال'}
+              placeholder={activeLanguage === 'en' ? "e.g. DUAL MBA IN ACCOUNTING AND FINANCE" : "مثال: ماجستير إدارة الأعمال المزدوج في المحاسبة والمالية"}
+              dir={activeLanguage === 'ar' ? 'rtl' : 'ltr'}
               />
             </div>
 
+          {/* Program Tagline */}
             <div>
-              <label htmlFor={getFieldName('category')} className="block text-sm font-medium text-gray-700">
-                {activeLanguage === 'en' ? 'Category *' : 'الفئة *'}
+            <label className="block text-sm font-medium text-gray-700">
+              {activeLanguage === 'en' ? 'Program Tagline *' : 'شعار البرنامج *'}
               </label>
-              <select
-                id={getFieldName('category')}
-                name={getFieldName('category')}
+              <input
+                type="text"
+              name={activeLanguage === 'ar' ? 'tagline_ar' : 'tagline'}
                 required
-                value={getCurrentFields().category}
+              value={getCurrentField('tagline')}
                 onChange={handleChange}
                 className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary focus:border-primary sm:text-sm"
-              >
-                <option value="">{activeLanguage === 'en' ? 'Select a category' : 'اختر فئة'}</option>
-                <option value={activeLanguage === 'en' ? 'Business' : 'الأعمال'}>
-                  {activeLanguage === 'en' ? 'Business' : 'الأعمال'}
-                </option>
-                <option value={activeLanguage === 'en' ? 'Technology' : 'التكنولوجيا'}>
-                  {activeLanguage === 'en' ? 'Technology' : 'التكنولوجيا'}
-                </option>
-                <option value={activeLanguage === 'en' ? 'Healthcare' : 'الرعاية الصحية'}>
-                  {activeLanguage === 'en' ? 'Healthcare' : 'الرعاية الصحية'}
-                </option>
-                <option value={activeLanguage === 'en' ? 'Education' : 'التعليم'}>
-                  {activeLanguage === 'en' ? 'Education' : 'التعليم'}
-                </option>
-                <option value={activeLanguage === 'en' ? 'Arts' : 'الفنون'}>
-                  {activeLanguage === 'en' ? 'Arts & Humanities' : 'الفنون والعلوم الإنسانية'}
-                </option>
-              </select>
-            </div>
+              placeholder={activeLanguage === 'en' ? "e.g. Empower Your Future with Internationally Accredited MBA and DBA Programs" : "مثال: عزز مستقبلك ببرامج ماجستير إدارة الأعمال ودكتوراه إدارة الأعمال المعتمدة دولياً"}
+              dir={activeLanguage === 'ar' ? 'rtl' : 'ltr'}
+              />
           </div>
 
+          {/* Program Description */}
           <div>
-            <label htmlFor={getFieldName('shortDescription')} className="block text-sm font-medium text-gray-700">
-              {activeLanguage === 'en' ? 'Short Description *' : 'وصف مختصر *'}
+            <label className="block text-sm font-medium text-gray-700">
+              {activeLanguage === 'en' ? 'Program Description *' : 'وصف البرنامج *'}
             </label>
             <textarea
-              id={getFieldName('shortDescription')}
-              name={getFieldName('shortDescription')}
-              rows={2}
+              name={activeLanguage === 'ar' ? 'description_ar' : 'description'}
+              rows={4}
               required
-              value={getCurrentFields().shortDescription}
+              value={getCurrentField('description')}
               onChange={handleChange}
               className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary focus:border-primary sm:text-sm"
-              placeholder={activeLanguage === 'en' ? 'A brief summary of the program (displayed in listings)' : 'ملخص مختصر للبرنامج (يظهر في القوائم)'}
+              placeholder={activeLanguage === 'en' ? "Detailed description of the program..." : "وصف مفصل للبرنامج..."}
+              dir={activeLanguage === 'ar' ? 'rtl' : 'ltr'}
             />
           </div>
 
+          {/* Duration */}
           <div>
-            <label htmlFor={getFieldName('description')} className="block text-sm font-medium text-gray-700">
-              {activeLanguage === 'en' ? 'Full Description *' : 'الوصف الكامل *'}
-            </label>
-            <textarea
-              id={getFieldName('description')}
-              name={getFieldName('description')}
-              rows={6}
-              required
-              value={getCurrentFields().description}
-              onChange={handleChange}
-              className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary focus:border-primary sm:text-sm"
-              placeholder={activeLanguage === 'en' ? 'Provide a detailed description of the program' : 'قدم وصفاً مفصلاً للبرنامج'}
-            />
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div>
-              <label htmlFor={getFieldName('programType')} className="block text-sm font-medium text-gray-700">
-                {activeLanguage === 'en' ? 'Program Type *' : 'نوع البرنامج *'}
-              </label>
-              <select
-                id={getFieldName('programType')}
-                name={getFieldName('programType')}
-                required
-                value={getCurrentFields().programType}
-                onChange={handleChange}
-                className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary focus:border-primary sm:text-sm"
-              >
-                <option value="">{activeLanguage === 'en' ? 'Select program type' : 'اختر نوع البرنامج'}</option>
-                <option value={activeLanguage === 'en' ? 'MBA' : 'ماجستير إدارة أعمال'}>
-                  {activeLanguage === 'en' ? 'MBA' : 'ماجستير إدارة أعمال'}
-                </option>
-                <option value={activeLanguage === 'en' ? 'PHD' : 'دكتوراه'}>
-                  {activeLanguage === 'en' ? 'PHD' : 'دكتوراه'}
-                </option>
-              </select>
-            </div>
-
-            <div>
-              <label htmlFor={getFieldName('speciality')} className="block text-sm font-medium text-gray-700">
-                {activeLanguage === 'en' ? 'Speciality *' : 'التخصص *'}
-              </label>
-              <select
-                id={getFieldName('speciality')}
-                name={getFieldName('speciality')}
-                required
-                value={getCurrentFields().speciality}
-                onChange={handleChange}
-                className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary focus:border-primary sm:text-sm"
-              >
-                <option value="">{activeLanguage === 'en' ? 'Select speciality' : 'اختر التخصص'}</option>
-                <option value={activeLanguage === 'en' ? 'Digital Transformation' : 'التحول الرقمي'}>
-                  {activeLanguage === 'en' ? 'Digital Transformation' : 'التحول الرقمي'}
-                </option>
-                <option value={activeLanguage === 'en' ? 'Strategic Management' : 'الإدارة الاستراتيجية'}>
-                  {activeLanguage === 'en' ? 'Strategic Management' : 'الإدارة الاستراتيجية'}
-                </option>
-                <option value={activeLanguage === 'en' ? 'Healthcare Management' : 'إدارة الرعاية الصحية'}>
-                  {activeLanguage === 'en' ? 'Healthcare Management' : 'إدارة الرعاية الصحية'}
-                </option>
-                <option value={activeLanguage === 'en' ? 'Project Management' : 'إدارة المشاريع'}>
-                  {activeLanguage === 'en' ? 'Project Management' : 'إدارة المشاريع'}
-                </option>
-                <option value={activeLanguage === 'en' ? 'Accounting & Finance Management' : 'إدارة المحاسبة والمالية'}>
-                  {activeLanguage === 'en' ? 'Accounting & Finance Management' : 'إدارة المحاسبة والمالية'}
-                </option>
-                <option value={activeLanguage === 'en' ? 'Marketing Management' : 'إدارة التسويق'}>
-                  {activeLanguage === 'en' ? 'Marketing Management' : 'إدارة التسويق'}
-                </option>
-                <option value={activeLanguage === 'en' ? 'Logistics & Supply Chain Management' : 'إدارة اللوجستيات وسلسلة التوريد'}>
-                  {activeLanguage === 'en' ? 'Logistics & Supply Chain Management' : 'إدارة اللوجستيات وسلسلة التوريد'}
-                </option>
-                <option value={activeLanguage === 'en' ? 'Human Resources Management' : 'إدارة الموارد البشرية'}>
-                  {activeLanguage === 'en' ? 'Human Resources Management' : 'إدارة الموارد البشرية'}
-                </option>
-                <option value={activeLanguage === 'en' ? 'Quality Management' : 'إدارة الجودة'}>
-                  {activeLanguage === 'en' ? 'Quality Management' : 'إدارة الجودة'}
-                </option>
-                <option value={activeLanguage === 'en' ? 'Accounting & Finance' : 'المحاسبة والمالية'}>
-                  {activeLanguage === 'en' ? 'Accounting & Finance' : 'المحاسبة والمالية'}
-                </option>
-                <option value={activeLanguage === 'en' ? 'Entrepreneurship & Innovation' : 'ريادة الأعمال والابتكار'}>
-                  {activeLanguage === 'en' ? 'Entrepreneurship & Innovation' : 'ريادة الأعمال والابتكار'}
-                </option>
-                <option value={activeLanguage === 'en' ? 'International Business Management' : 'إدارة الأعمال الدولية'}>
-                  {activeLanguage === 'en' ? 'International Business Management' : 'إدارة الأعمال الدولية'}
-                </option>
-                <option value={activeLanguage === 'en' ? 'Sports Management' : 'إدارة الرياضة'}>
-                  {activeLanguage === 'en' ? 'Sports Management' : 'إدارة الرياضة'}
-                </option>
-                <option value={activeLanguage === 'en' ? 'Hospitality & Events Management' : 'إدارة الضيافة والفعاليات'}>
-                  {activeLanguage === 'en' ? 'Hospitality & Events Management' : 'إدارة الضيافة والفعاليات'}
-                </option>
-              </select>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div>
-              <label htmlFor={getFieldName('studyTime')} className="block text-sm font-medium text-gray-700">
+            <label className="block text-sm font-medium text-gray-700">
                 {activeLanguage === 'en' ? 'Duration *' : 'المدة *'}
-              </label>
+            </label>
               <input
                 type="text"
-                name={getFieldName('studyTime')}
-                id={getFieldName('studyTime')}
-                required
-                value={getCurrentFields().studyTime}
-                onChange={handleChange}
-                className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary focus:border-primary sm:text-sm"
-                placeholder={activeLanguage === 'en' ? 'e.g. 12 months' : 'مثال: 12 شهر'}
-              />
-            </div>
+              name={activeLanguage === 'ar' ? 'duration_ar' : 'duration'}
+              required
+              value={getCurrentField('duration')}
+              onChange={handleChange}
+              className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary focus:border-primary sm:text-sm"
+              placeholder={activeLanguage === 'en' ? "e.g. 1 Academic Year" : "مثال: سنة أكاديمية واحدة"}
+              dir={activeLanguage === 'ar' ? 'rtl' : 'ltr'}
+            />
+          </div>
 
+          {/* Accreditation */}
             <div>
-              <label htmlFor="price" className="block text-sm font-medium text-gray-700">
-                {activeLanguage === 'en' ? 'Price (SAR) *' : 'السعر (ريال سعودي) *'}
+            <label className="block text-sm font-medium text-gray-700">
+              {activeLanguage === 'en' ? 'Accreditation *' : 'الاعتماد الأكاديمي *'}
               </label>
-              <input
-                type="text"
-                name="price"
-                id="price"
-                required
-                value={formData.price}
+            <div className="flex items-center gap-4">
+              <label className="flex items-center">
+                <input
+                  type="radio"
+                  name="accreditation"
+                  value="none"
+                  checked={getCurrentField('accreditation') === 'none'}
                 onChange={handleChange}
-                className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary focus:border-primary sm:text-sm"
-                placeholder={activeLanguage === 'en' ? 'e.g. 25000' : 'مثال: 25000'}
+                  className="mr-2"
+                />
+                {t('accreditation_none')}
+              </label>
+              <label className="flex items-center">
+                <input
+                  type="radio"
+                  name="accreditation"
+                  value="vern"
+                  checked={getCurrentField('accreditation') === 'vern'}
+                onChange={handleChange}
+                  className="mr-2"
+                />
+                {t('accreditation_vern')}
+              </label>
+              <label className="flex items-center">
+              <input
+                  type="radio"
+                  name="accreditation"
+                  value="ibas"
+                  checked={getCurrentField('accreditation') === 'ibas'}
+                onChange={handleChange}
+                  className="mr-2"
+                />
+                {t('accreditation_ibas')}
+              </label>
+              <label className="flex items-center">
+              <input
+                  type="radio"
+                  name="accreditation"
+                  value="both"
+                  checked={getCurrentField('accreditation') === 'both'}
+                onChange={handleChange}
+                  className="mr-2"
               />
+                {t('accreditation_both')}
+              </label>
             </div>
           </div>
 
+          {/* Program Status */}
           <div>
-            <label htmlFor={getFieldName('requirements')} className="block text-sm font-medium text-gray-700">
-              {activeLanguage === 'en' ? 'Requirements' : 'المتطلبات'}
+            <label className="block text-sm font-medium text-gray-700">
+              {activeLanguage === 'en' ? 'Program Status *' : 'حالة البرنامج *'}
             </label>
-            <textarea
-              id={getFieldName('requirements')}
-              name={getFieldName('requirements')}
-              rows={3}
-              value={getCurrentFields().requirements}
+            <div className="flex items-center gap-4">
+              <label className="flex items-center">
+                <input
+                  type="radio"
+                  name="status"
+                  value="draft"
+                  checked={getCurrentField('status') === 'draft'}
               onChange={handleChange}
-              className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary focus:border-primary sm:text-sm"
-              placeholder={activeLanguage === 'en' ? 'Prerequisites or requirements for enrollment' : 'المتطلبات المسبقة أو شروط التسجيل'}
-            />
+                  className="mr-2"
+                />
+                {t('status_draft')}
+            </label>
+              <label className="flex items-center">
+                <input
+                  type="radio"
+                  name="status"
+                  value="published"
+                  checked={getCurrentField('status') === 'published'}
+              onChange={handleChange}
+                  className="mr-2"
+                />
+                {t('status_published')}
+              </label>
+              <label className="flex items-center">
+                <input
+                  type="radio"
+                  name="status"
+                  value="archived"
+                  checked={getCurrentField('status') === 'archived'}
+                  onChange={handleChange}
+                  className="mr-2"
+                />
+                {t('status_archived')}
+              </label>
+            </div>
           </div>
 
-          <div>
-            <label htmlFor={getFieldName('benefits')} className="block text-sm font-medium text-gray-700">
-              {activeLanguage === 'en' ? 'Benefits' : 'الفوائد'}
-            </label>
-            <textarea
-              id={getFieldName('benefits')}
-              name={getFieldName('benefits')}
-              rows={3}
-              value={getCurrentFields().benefits}
-              onChange={handleChange}
-              className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary focus:border-primary sm:text-sm"
-              placeholder={activeLanguage === 'en' ? 'What students will gain from this program' : 'ما سيحصل عليه الطلاب من هذا البرنامج'}
-            />
-          </div>
-
-          {/* Accreditations & Partnerships */}
+          {/* Program Overview (Modules) */}
                   <div>
-            <label className="block text-sm font-medium text-gray-700 mb-4">
-              {activeLanguage === 'en' ? 'Accreditations & Partnerships' : 'الاعتمادات والشراكات'}
+            <label className="block text-sm font-medium text-gray-700 mb-3">
+              {activeLanguage === 'en' ? 'Program Overview (Modules) *' : 'نظرة عامة على البرنامج (الوحدات) *'}
             </label>
-            
-            {/* Accreditations First - PRIORITY */}
-            <div className="mb-6">
-              <h4 className="text-lg font-bold text-primary mb-4">
-                {activeLanguage === 'en' ? '🏆 Accreditations (PRIORITY)' : '🏆 الاعتمادات (أولوية)'}
-              </h4>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-6 bg-primary/10 rounded-xl border-2 border-primary/30">
-                {allAccreditationsAndPartnerships.filter(item => item.type === 'accreditation').map((item) => (
-                  <div key={item.id} className="flex items-center bg-white p-4 rounded-lg shadow-md border-2 border-primary/20">
+            <div className="space-y-2">
+              {(activeLanguage === 'ar' ? formData.modules_ar : formData.modules).map((module, index) => (
+                <div key={index} className="flex items-center justify-between bg-gray-50 p-3 rounded-md">
+                  <span dir={activeLanguage === 'ar' ? 'rtl' : 'ltr'}>{module}</span>
+                  <button
+                    type="button"
+                    onClick={() => removeModule(index)}
+                    className="text-red-600 hover:text-red-800"
+                  >
+                    <Trash2 size={16} />
+                  </button>
+                </div>
+              ))}
+              <div className="flex gap-2">
                     <input
-                      id={`accreditation-${item.id}`}
-                      name="accreditations"
-                      type="checkbox"
-                      checked={formData.accreditations.includes(item.name)}
-                      onChange={() => handleAccreditationToggle(item.name)}
-                      className="h-5 w-5 text-primary focus:ring-primary border-gray-300 rounded"
-                    />
-                    <label htmlFor={`accreditation-${item.id}`} className="ml-4 block text-sm text-gray-700 flex items-center font-bold">
-                      <img 
-                        src={item.logo} 
-                        alt={item.name}
-                        className="w-8 h-8 object-contain mr-4"
-                      />
-                      {item.name}
-                    </label>
+                type="text"
+                  value={newModule}
+                  onChange={(e) => setNewModule(e.target.value)}
+                  placeholder={activeLanguage === 'en' ? 'Enter module name' : 'أدخل اسم الوحدة'}
+                  className="flex-1 border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary focus:border-primary sm:text-sm"
+                  dir={activeLanguage === 'ar' ? 'rtl' : 'ltr'}
+                />
+                <button
+                  type="button"
+                  onClick={addModule}
+                  className="inline-flex items-center px-3 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-primary hover:bg-primary-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
+                >
+                  <Plus size={16} />
+                </button>
                   </div>
-                ))}
                   </div>
                 </div>
 
-            {/* Academic Partnerships */}
+          {/* Career Opportunities */}
                   <div>
-              <h4 className="text-sm font-semibold text-gray-600 mb-3">
-                {activeLanguage === 'en' ? '🏛️ Academic Partnerships' : '🏛️ الشراكات الأكاديمية'}
-              </h4>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-                {allAccreditationsAndPartnerships.filter(item => item.type === 'partnership').map((item) => (
-                  <div key={item.id} className="flex items-center p-3 rounded bg-gray-50">
-                    <input
-                      id={`partnership-${item.id}`}
-                      name="accreditations"
-                      type="checkbox"
-                      checked={formData.accreditations.includes(item.name)}
-                      onChange={() => handleAccreditationToggle(item.name)}
-                      className="h-4 w-4 text-primary focus:ring-primary border-gray-300 rounded"
-                    />
-                    <label htmlFor={`partnership-${item.id}`} className="ml-2 block text-sm text-gray-700 flex items-center">
-                      <img 
-                        src={item.logo} 
-                        alt={item.name}
-                        className="w-4 h-4 object-contain mr-2"
-                      />
-                      {item.name}
+            <label className="block text-sm font-medium text-gray-700 mb-3">
+              {activeLanguage === 'en' ? 'Career Opportunities *' : 'الفرص المهنية *'}
                     </label>
+            <div className="space-y-2">
+              {(activeLanguage === 'ar' ? formData.careerOpportunities_ar : formData.careerOpportunities).map((career, index) => (
+                <div key={index} className="flex items-center justify-between bg-gray-50 p-3 rounded-md">
+                  <span dir={activeLanguage === 'ar' ? 'rtl' : 'ltr'}>{career}</span>
+                  <button
+                    type="button"
+                    onClick={() => removeCareer(index)}
+                    className="text-red-600 hover:text-red-800"
+                  >
+                    <Trash2 size={16} />
+                  </button>
                   </div>
                 ))}
+              <div className="flex gap-2">
+                    <input
+                  type="text"
+                  value={newCareer}
+                  onChange={(e) => setNewCareer(e.target.value)}
+                  placeholder={activeLanguage === 'en' ? 'Enter career opportunity' : 'أدخل الفرصة المهنية'}
+                  className="flex-1 border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary focus:border-primary sm:text-sm"
+                  dir={activeLanguage === 'ar' ? 'rtl' : 'ltr'}
+                    />
+                <button
+                  type="button"
+                  onClick={addCareer}
+                  className="inline-flex items-center px-3 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-primary hover:bg-primary-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
+                >
+                  <Plus size={16} />
+                </button>
                   </div>
                 </div>
               </div>
 
-          {/* Thumbnail Upload */}
+          {/* Key Features */}
                     <div>
-            <label htmlFor="thumbnail" className="block text-sm font-medium text-gray-700">
-              {activeLanguage === 'en' ? 'Program Thumbnail' : 'صورة البرنامج'}
+            <label className="block text-sm font-medium text-gray-700 mb-3">
+              {activeLanguage === 'en' ? 'Key Features *' : 'الميزات الرئيسية *'}
             </label>
-            <div className="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-md">
-              <div className="space-y-1 text-center">
-                {thumbnailPreview ? (
-                  <div className="relative">
-                    <img
-                      src={thumbnailPreview}
-                      alt="Preview"
-                      className="mx-auto h-32 w-32 object-cover rounded-md"
-                    />
+            <div className="space-y-3">
+              {(activeLanguage === 'ar' ? formData.keyFeatures_ar : formData.keyFeatures).map((feature, index) => (
+                <div key={index} className="bg-gray-50 p-4 rounded-md">
+                  <div className="flex items-start justify-between">
+                    <div className="flex-1" dir={activeLanguage === 'ar' ? 'rtl' : 'ltr'}>
+                      <h4 className="font-medium text-gray-900">{feature.title}</h4>
+                      <p className="text-gray-600 text-sm mt-1">{feature.description}</p>
+                    </div>
                       <button
                         type="button"
-                      onClick={() => {
-                        setThumbnailFile(null);
-                        setThumbnailPreview('');
-                      }}
-                      className="absolute top-0 right-0 -mt-2 -mr-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600"
+                      onClick={() => removeFeature(index)}
+                      className="text-red-600 hover:text-red-800 ml-2"
                     >
-                      <Trash2 size={14} />
+                      <Trash2 size={16} />
                       </button>
                     </div>
-                ) : (
-                  <>
-                    <ImagePlus size={48} className="mx-auto h-12 w-12 text-gray-400" />
-                    <div className="flex text-sm text-gray-600">
-                      <label
-                        htmlFor="thumbnail"
-                        className="relative cursor-pointer bg-white rounded-md font-medium text-primary hover:text-primary-dark focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-primary"
-                      >
-                        <span>{activeLanguage === 'en' ? 'Upload a file' : 'ارفع ملف'}</span>
+                </div>
+              ))}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                           <input
-                          id="thumbnail"
-                          name="thumbnail"
-                          type="file"
-                          className="sr-only"
-                          accept="image/*"
-                          onChange={handleThumbnailChange}
-                        />
-                      </label>
-                      <p className={activeLanguage === 'ar' ? 'mr-1' : 'ml-1'}>
-                        {activeLanguage === 'en' ? 'or drag and drop' : 'أو اسحب وأفلت'}
-                      </p>
+                  type="text"
+                  value={newFeature.title}
+                  onChange={(e) => setNewFeature(prev => ({ ...prev, title: e.target.value }))}
+                  placeholder={activeLanguage === 'en' ? 'Enter feature title' : 'أدخل عنوان الميزة'}
+                  className="border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary focus:border-primary sm:text-sm"
+                  dir={activeLanguage === 'ar' ? 'rtl' : 'ltr'}
+                />
+                <input
+                  type="text"
+                  value={newFeature.description}
+                  onChange={(e) => setNewFeature(prev => ({ ...prev, description: e.target.value }))}
+                  placeholder={activeLanguage === 'en' ? 'Enter feature description' : 'أدخل وصف الميزة'}
+                  className="border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary focus:border-primary sm:text-sm"
+                  dir={activeLanguage === 'ar' ? 'rtl' : 'ltr'}
+                />
                         </div>
-                    <p className="text-xs text-gray-500">
-                      {activeLanguage === 'en' ? 'PNG, JPG, GIF up to 10MB' : 'PNG, JPG, GIF حتى 10 ميجابايت'}
-                    </p>
-                  </>
-                )}
-                        </div>
+              <button
+                type="button"
+                onClick={addFeature}
+                className="inline-flex items-center px-3 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-primary hover:bg-primary-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
+              >
+                <Plus size={16} className={`${activeLanguage === 'ar' ? 'ml-2' : 'mr-2'}`} />
+                {activeLanguage === 'en' ? 'Add Key Feature' : 'إضافة ميزة رئيسية'}
+              </button>
                         </div>
                       </div>
 
           {/* Brochure Upload */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div>
-            <label className="block text-sm font-medium text-gray-700 mb-3">
-              {activeLanguage === 'en' ? 'Program Brochures (Optional)' : 'كتيبات البرنامج (اختياري)'}
-            </label>
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {/* English Brochure Upload */}
-                        <div>
-                <label htmlFor="brochure_en" className="block text-sm font-medium text-gray-600 mb-2">
-                  {activeLanguage === 'en' ? '📄 English Brochure' : '📄 الكتيب الإنجليزي'}
+              <label className="block text-sm font-medium text-gray-700">
+                {activeLanguage === 'en' ? 'Upload Brochure (English)' : 'رفع الكتيب (إنجليزي)'}
                 </label>
                         <input
-                  id="brochure_en"
-                  name="brochure_en"
                           type="file"
-                  accept="application/pdf"
-                          onChange={handleBrochureEnChange}
-                  className="mt-1 block w-full border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary/50"
-                />
-                <p className="text-xs text-gray-500 mt-1">
-                  {activeLanguage === 'en' ? 'Upload a PDF file' : 'ارفع ملف PDF'}
-                </p>
+                accept=".pdf"
+                onChange={(e) => handleBrochureChange(e, 'en')}
+                className="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-3 file:px-6 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 cursor-pointer"
+              />
               </div>
-
-              {/* Arabic Brochure Upload */}
               <div>
-                <label htmlFor="brochure_ar" className="block text-sm font-medium text-gray-600 mb-2">
-                  {activeLanguage === 'en' ? '📄 Arabic Brochure' : '📄 الكتيب العربي'}
+              <label className="block text-sm font-medium text-gray-700">
+                {activeLanguage === 'en' ? 'Upload Brochure (Arabic)' : 'رفع الكتيب (عربي)'}
                       </label>
                 <input
-                  id="brochure_ar"
-                  name="brochure_ar"
                   type="file"
-                  accept="application/pdf"
-                  onChange={handleBrochureArChange}
-                  className="mt-1 block w-full border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary/50"
-                />
-                <p className="text-xs text-gray-500 mt-1">
-                  {activeLanguage === 'en' ? 'Upload a PDF file' : 'ارفع ملف PDF'}
-                </p>
-                    </div>
+                accept=".pdf"
+                onChange={(e) => handleBrochureChange(e, 'ar')}
+                className="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 cursor-pointer"
+              />
                 </div>
               </div>
 
-          {/* Program Status */}
+          {/* Thumbnail Upload */}
                               <div>
-            <label className="block text-sm font-medium text-gray-700 mb-3">
-              {activeLanguage === 'en' ? 'Program Status' : 'حالة البرنامج'}
+            <label className="block text-sm font-medium text-gray-700">
+              {activeLanguage === 'en' ? 'Program Thumbnail' : 'صورة البرنامج'}
                 </label>
-            <div className="grid grid-cols-2 gap-4">
-                      <div className="flex items-center">
                 <input
-                  type="radio"
-                  id="status-draft"
-                  name="status"
-                  value="draft"
-                  checked={formData.status === 'draft'}
-                  onChange={handleChange}
-                  className="focus:ring-primary h-4 w-4 text-primary border-gray-300"
+              type="file"
+              accept="image/*"
+              onChange={handleThumbnailChange}
+              className="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 cursor-pointer"
                 />
-                <label htmlFor="status-draft" className="ml-2 block text-sm text-gray-900">
-                  <span className="font-medium">{activeLanguage === 'en' ? 'Draft' : 'مسودة'}</span>
-                  <div className="text-xs text-gray-500">
-                    {activeLanguage === 'en' ? 'Hidden from website' : 'مخفي من الموقع'}
+            {thumbnailPreview && (
+              <div className="mt-4">
+                <h4 className="font-medium text-gray-900">
+                  {activeLanguage === 'en' ? 'Thumbnail Preview:' : 'معاينة الصورة:'}
+                </h4>
+                <img src={thumbnailPreview} alt="Thumbnail Preview" className="mt-2 max-w-sm h-auto rounded-md" />
                                 </div>
-                </label>
-                            </div>
-              <div className="flex items-center">
-              <input
-                  type="radio"
-                  id="status-published"
-                  name="status"
-                  value="published"
-                  checked={formData.status === 'published'}
-                  onChange={handleChange}
-                  className="focus:ring-primary h-4 w-4 text-primary border-gray-300"
-                />
-                <label htmlFor="status-published" className="ml-2 block text-sm text-gray-900">
-                  <span className="font-medium">{activeLanguage === 'en' ? 'Published' : 'منشور'}</span>
-                  <div className="text-xs text-gray-500">
-                    {activeLanguage === 'en' ? 'Visible on website' : 'مرئي على الموقع'}
-                  </div>
-              </label>
-            </div>
-              </div>
+            )}
               </div>
 
-          {/* Upload Progress Display */}
-          {isUploading && Object.keys(uploadProgress).length > 0 && (
-            <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded">
-              <h4 className="font-medium text-blue-800 mb-3">Upload Progress:</h4>
-              {Object.entries(uploadProgress).map(([key, progress]) => (
-                <div key={key} className="mb-2">
-                  <div className="flex justify-between text-sm text-blue-700">
-                    <span>{key === 'thumbnail' ? 'Thumbnail' : 'English Brochure'}</span>
-                    <span>{progress}%</span>
-          </div>
-                  <div className="w-full bg-blue-200 rounded-full h-2">
-                    <div 
-                      className="bg-blue-600 h-2 rounded-full transition-all duration-300" 
-                      style={{ width: `${progress}%` }}
-                    ></div>
-          </div>
-                </div>
-              ))}
-            </div>
-          )}
-
-          <div className="flex justify-end space-x-3">
-            <Link
-              href="/admin/programs"
-              className="bg-white py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
-            >
-              {activeLanguage === 'en' ? 'Cancel' : 'إلغاء'}
-            </Link>
+          {/* Submit Button */}
+          <div className="flex justify-end">
             <button
-              type="button"
-              onClick={(e) => {
-                setFormData(prev => ({ ...prev, status: 'draft' }));
-                const form = e.currentTarget.closest('form') as HTMLFormElement;
-                if (form) {
-                  const submitEvent = new Event('submit', { bubbles: true, cancelable: true });
-                  form.dispatchEvent(submitEvent);
-                }
-              }}
-              disabled={loading || isUploading}
-              className="inline-flex justify-center py-2 px-4 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary disabled:opacity-50 disabled:cursor-not-allowed"
+              type="submit"
+              disabled={loading}
+              className="inline-flex items-center px-6 py-3 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-primary hover:bg-primary-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {(loading || isUploading) && formData.status === 'draft' ? (
-                <>
-                  <div className="animate-spin -ml-1 mr-3 h-5 w-5 text-gray-700">
-                    <div className="border-2 border-gray-300 border-t-transparent rounded-full h-5 w-5"></div>
-                  </div>
-                  {activeLanguage === 'en' ? 'Saving...' : 'جاري الحفظ...'}
-                </>
-              ) : (
-                <>
-                  <Save size={16} className="mr-2" />
-                  {activeLanguage === 'en' ? 'Save as Draft' : 'حفظ كمسودة'}
-                </>
-              )}
-            </button>
-            <button
-              type="button"
-              onClick={(e) => {
-                setFormData(prev => ({ ...prev, status: 'published' }));
-                const form = e.currentTarget.closest('form') as HTMLFormElement;
-                if (form) {
-                  const submitEvent = new Event('submit', { bubbles: true, cancelable: true });
-                  form.dispatchEvent(submitEvent);
-                }
-              }}
-              disabled={loading || isUploading}
-              className="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-accent hover:bg-accent-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-accent disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {(loading || isUploading) && formData.status === 'published' ? (
-                <>
-                  <div className="animate-spin -ml-1 mr-3 h-5 w-5 text-white">
-                    <div className="border-2 border-white border-t-transparent rounded-full h-5 w-5"></div>
-                  </div>
-                  {activeLanguage === 'en' ? 'Publishing...' : 'جاري النشر...'}
-                </>
-              ) : (
-                <>
-                  <Save size={16} className="mr-2" />
-                  {activeLanguage === 'en' ? 'Publish Program' : 'نشر البرنامج'}
-                </>
-              )}
+              {loading 
+                ? (activeLanguage === 'en' ? 'Creating...' : 'جاري الإنشاء...')
+                : (activeLanguage === 'en' ? 'Create Program' : 'إنشاء البرنامج')
+              }
             </button>
           </div>
         </form>

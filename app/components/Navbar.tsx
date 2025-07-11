@@ -18,7 +18,7 @@ const Navbar: React.FC = () => {
   const pathname = usePathname();
   const router = useRouter();
   const { currentUser, userRole, logout } = useAuth();
-  const { getContent, loading: cmsLoading } = useCMS();
+  const { getContent, loading: cmsLoading, currentLanguage } = useCMS();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -76,6 +76,15 @@ const Navbar: React.FC = () => {
     );
   }
 
+  // Navigation links definition
+  const navLinks = [
+    { href: "/programs", label: getContent('navbar_programs') },
+    { href: "/about", label: getContent('navbar_about') },
+    { href: "/blog", label: getContent('navbar_blog') },
+    { href: "/contact", label: getContent('navbar_contact') },
+  ];
+  const orderedLinks = currentLanguage === 'ar' ? [...navLinks].reverse() : navLinks;
+
   return (
     <nav 
       className={`sticky top-0 z-50 transition-all duration-300 ${
@@ -93,10 +102,11 @@ const Navbar: React.FC = () => {
 
           {/* Desktop Navigation */}
           <div className="hidden md:flex gap-6">
-            <Link href="/programs" className={`${isActive('/programs')} hover:text-accent font-medium transition-colors`}>{getContent('navbar_programs')}</Link>
-            <Link href="/about" className={`${isActive('/about')} hover:text-accent font-medium transition-colors`}>{getContent('navbar_about')}</Link>
-            <Link href="/blog" className={`${isActive('/blog')} hover:text-accent font-medium transition-colors`}>{getContent('navbar_blog')}</Link>
-            <Link href="/contact" className={`${isActive('/contact')} hover:text-accent font-medium transition-colors`}>{getContent('navbar_contact')}</Link>
+            {orderedLinks.map(link => (
+              <Link key={link.href} href={link.href} className={`${isActive(link.href)} hover:text-accent font-medium transition-colors`}>
+                {link.label}
+              </Link>
+            ))}
             {currentUser && (
               <Link href="/dashboard" className={`${isActive('/dashboard')} hover:text-accent font-medium transition-colors`}>{getContent('navbar_dashboard')}</Link>
             )}
@@ -123,9 +133,9 @@ const Navbar: React.FC = () => {
                 </button>
               </div>
             ) : (
-              <Link href="/coming-soon">
-                <Button variant="accent" size="md">{getContent('navbar_register')}</Button>
-              </Link>
+                            <Link href="/coming-soon">
+                  <Button variant="accent" size="md">{getContent('navbar_register')}</Button>
+                </Link>
             )}
           </div>
 
@@ -142,12 +152,15 @@ const Navbar: React.FC = () => {
       {/* Mobile Menu */}
       <div className={`md:hidden ${isOpen ? 'block' : 'hidden'} bg-white`}>
         <div className="px-4 pt-2 pb-4 space-y-3">
-          <Link href="/programs" className={`block ${isActive('/programs')} hover:text-accent font-medium py-2 transition-colors`}>{getContent('navbar_programs')}</Link>
-          <Link href="/about" className={`block ${isActive('/about')} hover:text-accent font-medium py-2 transition-colors`}>{getContent('navbar_about')}</Link>
-          <Link href="/blog" className={`block ${isActive('/blog')} hover:text-accent font-medium py-2 transition-colors`}>{getContent('navbar_blog')}</Link>
-          <Link href="/contact" className={`block ${isActive('/contact')} hover:text-accent font-medium transition-colors py-2`}>{getContent('navbar_contact')}</Link>
+          {orderedLinks.map(link => (
+            <Link key={link.href} href={link.href} className={`block ${isActive(link.href)} hover:text-accent font-medium py-2 transition-colors`}>
+              {link.label}
+            </Link>
+          ))}
           {currentUser && (
-            <Link href="/dashboard" className={`block ${isActive('/dashboard')} hover:text-accent font-medium py-2 transition-colors`}>{getContent('navbar_dashboard')}</Link>
+            <Link href="/dashboard" className={`block ${isActive('/dashboard')} hover:text-accent font-medium py-2 transition-colors`}>
+              {getContent('navbar_dashboard')}
+            </Link>
           )}
           <LanguageSwitcher />
           
@@ -169,9 +182,9 @@ const Navbar: React.FC = () => {
               </button>
             </>
           ) : (
-            <Link href="/coming-soon" className="block w-full mt-2">
-              <Button variant="accent" size="md" className="w-full">{getContent('navbar_register')}</Button>
-            </Link>
+              <Link href="/coming-soon" className="block w-full mt-2">
+                <Button variant="accent" size="md" className="w-full">{getContent('navbar_register')}</Button>
+              </Link>
           )}
         </div>
       </div>

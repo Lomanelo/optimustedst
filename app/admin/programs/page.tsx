@@ -4,7 +4,7 @@ import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '../../contexts/auth-context';
-import { Plus, Pencil, Trash2, Eye, AlertCircle, Bookmark, BookmarkCheck, Filter, ChevronsUpDown, Copy } from 'lucide-react';
+import { Plus, Trash2, Eye, AlertCircle, Bookmark, BookmarkCheck, Filter, ChevronsUpDown, Copy, CheckCircle } from 'lucide-react';
 import { doc, deleteDoc, Timestamp, addDoc, serverTimestamp, collection } from 'firebase/firestore';
 import { db } from '../../../src/firebase/firebase';
 import { allPrograms as staticPrograms } from '../../../src/data/optimus-data';
@@ -21,7 +21,7 @@ interface Program {
   thumbnail?: string;
   duration?: string;
   studyTime?: string;
-  price: number | string;
+  price?: number | string;
   status: 'published' | 'draft';
   createdAt?: Timestamp;
   updatedAt?: Timestamp;
@@ -50,6 +50,8 @@ export default function AdminProgramsPage() {
   const [searchTerm, setSearchTerm] = useState('');
   const [isImporting, setIsImporting] = useState(false);
   const [importSuccess, setImportSuccess] = useState<string | null>(null);
+  const [statusToggleLoading, setStatusToggleLoading] = useState<string | null>(null);
+  const [statusSuccess, setStatusSuccess] = useState<string | null>(null);
 
   useEffect(() => {
     // Only fetch programs if the user is authenticated and has programs permission
@@ -129,6 +131,24 @@ export default function AdminProgramsPage() {
     setDeleteConfirmation(null);
   };
 
+  const handleStatusToggle = async (programId: string, currentStatus: 'published' | 'draft') => {
+    try {
+      setStatusToggleLoading(programId);
+      const newStatus = currentStatus === 'published' ? 'draft' : 'published';
+      await programService.updateProgramStatus(programId, newStatus);
+      // The real-time listener will update the UI automatically
+      setStatusSuccess(`Program status updated to ${newStatus}`);
+      setTimeout(() => {
+        setStatusSuccess(null);
+      }, 5000);
+    } catch (err) {
+      console.error('Error updating program status:', err);
+      setError('Failed to update program status. Please try again.');
+    } finally {
+      setStatusToggleLoading(null);
+    }
+  };
+
   const importStaticProgram = async (staticProgram: Program) => {
     try {
       setIsImporting(true);
@@ -145,7 +165,7 @@ export default function AdminProgramsPage() {
         type: staticProgram.type || 'Professional Certificate',
         duration: staticProgram.studyTime || staticProgram.duration || '',
         durationWeeks: 12, // Default value
-        price: typeof staticProgram.price === 'string' ? parseFloat(staticProgram.price) : staticProgram.price,
+        price: typeof staticProgram.price === 'string' ? parseFloat(staticProgram.price) : (staticProgram.price || 0),
         status: 'published' as const,
         languages: ['en' as const], // Default language
         createdAt: serverTimestamp(),
@@ -229,11 +249,17 @@ export default function AdminProgramsPage() {
 
       {/* Success message */}
       {importSuccess && (
-        <div className="mb-4 bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-md">
-          <p className="flex items-center">
-            <BookmarkCheck className="h-5 w-5 mr-2" />
-            {importSuccess}
-          </p>
+        <div className="mb-4 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative" role="alert">
+          <span className="block sm:inline">{importSuccess}</span>
+        </div>
+      )}
+      
+      {statusSuccess && (
+        <div className="mb-4 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative" role="alert">
+          <div className="flex">
+            <CheckCircle size={20} className="mr-2" />
+            <span>{statusSuccess}</span>
+          </div>
         </div>
       )}
 
@@ -342,9 +368,15 @@ export default function AdminProgramsPage() {
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center">
                       <h3 className="text-lg font-medium text-gray-900 mr-2">{program.title}</h3>
-                      {program.status === 'draft' && (
+                      {program.status === 'draft' ? (
                         <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                          <Bookmark className="w-3 h-3 mr-1" />
                           Draft
+                        </span>
+                      ) : (
+                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                          <BookmarkCheck className="w-3 h-3 mr-1" />
+                          Published
                         </span>
                       )}
                       {program.isStatic && (
@@ -364,7 +396,7 @@ export default function AdminProgramsPage() {
                       </div>
                       <div className="mt-2 flex items-center text-sm text-gray-500">
                         <span className="font-medium mr-1">Price:</span> 
-                        {typeof program.price === 'number' 
+                        {program.price && typeof program.price === 'number' 
                           ? `$${program.price.toLocaleString()}` 
                           : program.price || 'N/A'}
                       </div>
@@ -399,13 +431,29 @@ export default function AdminProgramsPage() {
                         >
                           <Eye className="h-5 w-5" aria-hidden="true" />
                         </Link>
-                        <Link
-                          href={`/admin/programs/edit/${program.id}`}
-                          className="inline-flex items-center p-2 border border-gray-300 rounded-full shadow-sm text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
-                          title="Edit Program"
+                        <button
+                          onClick={() => handleStatusToggle(program.id, program.status)}
+                          disabled={statusToggleLoading === program.id}
+                          className={`inline-flex items-center p-2 border border-gray-300 rounded-full shadow-sm hover:shadow-md focus:outline-none focus:ring-2 focus:ring-offset-2 transition-colors ${
+                            program.status === 'published' 
+                              ? 'text-white bg-green-600 hover:bg-green-700 focus:ring-green-500' 
+                              : 'text-white bg-yellow-600 hover:bg-yellow-700 focus:ring-yellow-500'
+                          }`}
+                          title={program.status === 'published' ? 'Mark as Draft' : 'Publish Program'}
                         >
-                          <Pencil className="h-5 w-5" aria-hidden="true" />
-                        </Link>
+                          {statusToggleLoading === program.id ? (
+                            <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            </svg>
+                          ) : (
+                            program.status === 'published' ? (
+                              <BookmarkCheck className="h-5 w-5" aria-hidden="true" />
+                            ) : (
+                              <Bookmark className="h-5 w-5" aria-hidden="true" />
+                            )
+                          )}
+                        </button>
                         <button
                           onClick={() => handleDeleteClick(program.id)}
                           className="inline-flex items-center p-2 border border-transparent rounded-full shadow-sm text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"

@@ -121,7 +121,7 @@ interface Program {
   programType: string;
   speciality: string;
   studyTime: string;
-  price: number;
+  price?: number;
   description?: string;
   accreditations?: string[];
   status?: 'published' | 'draft';
@@ -620,7 +620,9 @@ function ProgramsContent({ searchParams }: { searchParams: Record<string, string
                       <div className="flex items-center justify-between">
                         <div>
                           <p className="text-2xl font-bold text-accent">
-                            {program.price.toLocaleString()} SAR
+                            {program.price && typeof program.price === 'number' 
+                              ? `${program.price.toLocaleString()} SAR`
+                              : program.price || 'Price on request'}
                           </p>
                         </div>
                         <Link

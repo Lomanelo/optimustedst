@@ -74,19 +74,19 @@ const Hero: React.FC = () => {
               </>
             ) : (
               <>
-                <Link href="/programs">
-                  <button className="bg-accent hover:bg-accent-dark text-white font-medium py-3 px-6 rounded-md transition-colors duration-300">
-                    {getContent('hero_cta_explore')}
-                  </button>
-                </Link>
-                {/* Only show register button for non-logged-in users */}
-                {!currentUser && (
-                  <button 
-                    onClick={() => setIsModalOpen(true)}
-                    className="bg-white hover:bg-gray-100 text-primary font-medium py-3 px-6 rounded-md transition-colors duration-300"
-                  >
-                    {getContent('hero_cta_register')}
-                  </button>
+            <Link href="/programs">
+              <button className="bg-accent hover:bg-accent-dark text-white font-medium py-3 px-6 rounded-md transition-colors duration-300">
+                {getContent('hero_cta_explore')}
+              </button>
+            </Link>
+            {/* Only show register button for non-logged-in users */}
+            {!currentUser && (
+              <button 
+                onClick={() => setIsModalOpen(true)}
+                className="bg-white hover:bg-gray-100 text-primary font-medium py-3 px-6 rounded-md transition-colors duration-300"
+              >
+                {getContent('hero_cta_register')}
+              </button>
                 )}
               </>
             )}
