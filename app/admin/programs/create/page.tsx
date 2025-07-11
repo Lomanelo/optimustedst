@@ -710,17 +710,12 @@ export default function CreateProgramPage() {
             brochureEnUrl = await uploadFile(brochureEnFile, brochurePath);
             console.log('EN brochure uploaded successfully');
             
-            // If it's a base64 string and too large for Firestore
-            if (brochureEnUrl.startsWith('data:') && brochureEnUrl.length > 900000) {
-              console.log('EN brochure too large for Firestore, using placeholder');
-              brochureEnUrl = 'development-placeholder-en-brochure';
-            }
           } catch (storageError) {
             console.error('EN brochure upload failed:', storageError);
             brochureEnUrl = 'development-placeholder-en-brochure';
           }
         }
-      } catch (uploadErr) {
+      } catch (uploadErr: any) {
         console.warn('English brochure upload failed:', uploadErr);
         brochureEnUrl = 'development-placeholder-en-brochure';
         // Continue without blocking
@@ -736,17 +731,12 @@ export default function CreateProgramPage() {
             brochureArUrl = await uploadFile(brochureArFile, brochurePath);
             console.log('AR brochure uploaded successfully');
             
-            // If it's a base64 string and too large for Firestore
-            if (brochureArUrl.startsWith('data:') && brochureArUrl.length > 900000) {
-              console.log('AR brochure too large for Firestore, using placeholder');
-              brochureArUrl = 'development-placeholder-ar-brochure';
-            }
           } catch (storageError) {
             console.error('AR brochure upload failed:', storageError);
             brochureArUrl = 'development-placeholder-ar-brochure';
           }
         }
-      } catch (uploadErr) {
+      } catch (uploadErr: any) {
         console.warn('Arabic brochure upload failed:', uploadErr);
         brochureArUrl = 'development-placeholder-ar-brochure';
         // Continue without blocking
@@ -757,61 +747,14 @@ export default function CreateProgramPage() {
           const timestamp = Date.now();
           const fileExtension = thumbnailFile.type.split('/')[1] || 'png';
           const thumbnailPath = `thumbnails/${timestamp}-thumbnail.${fileExtension}`;
-          console.log(`Uploading thumbnail: ${thumbnailPath} with original quality`);
+          console.log(`Uploading thumbnail: ${thumbnailPath}`);
           
-          // Always preserve original quality for thumbnails
-          try {
-            // We'll use the original file without any compression
-            thumbnailUrl = await uploadFile(thumbnailFile, thumbnailPath);
-            console.log('Thumbnail uploaded successfully with original quality');
-            
-            // For Firestore size limits in development mode only
-            if (window.location.hostname === 'localhost' && 
-                thumbnailUrl.startsWith('data:image') && 
-                thumbnailUrl.length > 900000) {
-              
-              console.log('Development mode: Base64 thumbnail URL is too large for Firestore');
-              
-              // Instead of trying to upload to Firebase Storage (which causes CORS issues),
-              // we'll use a compressed version or a placeholder
-              try {
-                // Try to compress the thumbnail more aggressively
-                const compressedBlob = await compressImage(thumbnailFile, 400, 0.4);
-                const smallerBase64 = await uploadImageAsDataUrl(compressedBlob);
-                
-                if (smallerBase64.length < 900000) {
-                  console.log('Successfully compressed thumbnail to fit in Firestore');
-                  thumbnailUrl = smallerBase64;
-                } else {
-                  // If still too large, use the thumbnail preview which is already smaller
-                  console.log('Using thumbnail preview as fallback');
-                  thumbnailUrl = thumbnailPreview || 'https://via.placeholder.com/800x600?text=Thumbnail+Placeholder';
-                }
-              } catch (compressionError) {
-                console.error('Error compressing thumbnail:', compressionError);
-                thumbnailUrl = thumbnailPreview || 'https://via.placeholder.com/800x600?text=Thumbnail+Placeholder';
-              }
-            }
-          } catch (storageError) {
-            console.error('Firebase Storage upload failed:', storageError);
-            
-            // In development, use the preview but try to maintain quality
-            if (window.location.hostname === 'localhost' && thumbnailPreview) {
-              console.log('Using high-quality thumbnail preview in development');
-              thumbnailUrl = thumbnailPreview;
-            } else {
-              // Use a placeholder URL as last resort
-              thumbnailUrl = 'https://via.placeholder.com/800x600?text=Thumbnail+Placeholder';
-              console.log('Using placeholder thumbnail after upload failure');
-            }
-          }
+          thumbnailUrl = await uploadFile(thumbnailFile, thumbnailPath);
+          console.log('Thumbnail uploaded successfully');
         }
-      } catch (uploadErr) {
-        console.warn('Thumbnail upload failed:', uploadErr);
-        // Use a placeholder URL
-        thumbnailUrl = 'https://via.placeholder.com/800x600?text=Thumbnail+Placeholder';
-        console.log('Using placeholder thumbnail after upload failure');
-        // Continue without blocking
+      } catch (uploadErr: any) {
+        console.error('Thumbnail upload failed:', uploadErr);
+        throw new Error(`Thumbnail upload failed: ${uploadErr.message}`);
       }
 
       const programData = {
@@ -823,28 +766,6 @@ export default function CreateProgramPage() {
         updatedAt: serverTimestamp(),
         createdBy: currentUser?.uid
       };
-
-      // Check for Firestore document size limits (1MB per document)
-      // If we're using base64 data URLs, they can be large
-      const estimatedSize = JSON.stringify(programData).length;
-      console.log(`Estimated document size: ${estimatedSize} bytes`);
-      
-      if (estimatedSize > 900000) { // Close to 1MB limit
-        console.warn('Document size approaching Firestore limit, using placeholders for large fields');
-        
-        // Replace large base64 strings with placeholders
-        if (thumbnailUrl?.startsWith('data:image') && thumbnailUrl.length > 200000) {
-          programData.thumbnail = thumbnailPreview || 'https://via.placeholder.com/800x600?text=Thumbnail+Placeholder';
-        }
-        
-        // Check again after replacements
-        const newSize = JSON.stringify(programData).length;
-        console.log(`New document size after replacements: ${newSize} bytes`);
-        
-        if (newSize > 900000) {
-          throw new Error('Document size too large for Firestore. Please reduce the amount of content or use smaller images.');
-        }
-      }
 
       const docRef = await addDoc(collection(db, 'programs'), programData);
       

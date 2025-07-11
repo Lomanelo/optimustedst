@@ -33,7 +33,7 @@ const firebaseConfig = {
   apiKey: "AIzaSyB0RLwqptWTOQJOawiM1pAHqE7wqjVgDps",
   authDomain: "optimus-3fb40.firebaseapp.com",
   projectId: "optimus-3fb40",
-  storageBucket: "optimus-3fb40.appspot.com",
+  storageBucket: "optimus-3fb40.firebasestorage.app",
   messagingSenderId: "425553770778",
   appId: "1:425553770778:web:e31b845a1b1a0fd13a54a3",
   measurementId: "G-79TCMTMSLF"

@@ -117,15 +117,21 @@ const getFilterOptionText = (getContent: (key: string) => string, filterType: st
 interface Program {
   id: string;
   title: string;
+  title_ar?: string;
   type: string;
+  type_ar?: string;
   programType: string;
   speciality: string;
+  speciality_ar?: string;
   studyTime: string;
+  studyTime_ar?: string;
   price?: number;
   description?: string;
+  description_ar?: string;
   accreditations?: string[];
   status?: 'published' | 'draft';
   createdAt?: any;
+  thumbnail?: string;
 }
 
 // Interface for search params
@@ -185,15 +191,21 @@ function ProgramsContent({ searchParams }: { searchParams: Record<string, string
       const transformedPrograms = programs.map((program: ServiceProgram) => ({
         id: program.id,
         title: program.title,
+        title_ar: program.title_ar,
         type: (program as any).category || program.type || 'Professional Certificate',
+        type_ar: (program as any).category_ar || (program as any).type_ar,
         programType: (program as any).programType || program.level || 'MBA',
         speciality: (program as any).speciality || program.specialization || 'General',
+        speciality_ar: (program as any).speciality_ar || (program as any).specialization_ar,
         studyTime: (program as any).studyTime || program.duration || '',
+        studyTime_ar: (program as any).studyTime_ar || (program as any).duration_ar,
         price: program.price,
         description: program.description,
+        description_ar: program.description_ar,
         accreditations: (program as any).accreditations || [],
         status: program.status,
         createdAt: program.createdAt,
+        thumbnail: program.thumbnail,
       } as Program));
       
       setAllPrograms(transformedPrograms);
@@ -570,15 +582,24 @@ function ProgramsContent({ searchParams }: { searchParams: Record<string, string
               <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
                 {filteredPrograms.map((program) => (
                   <div key={program.id} className="bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300 overflow-hidden">
+                    {/* Program Thumbnail */}
+                    <div className="h-48 bg-gray-200 overflow-hidden flex items-center justify-center">
+                      <img 
+                        src={program.thumbnail || '/Logo.jpeg'} 
+                        alt={currentLanguage === 'ar' ? (program.title_ar || program.title) : program.title}
+                        className={`${program.thumbnail ? 'w-full h-full object-cover' : 'w-32 h-32 object-contain'}`}
+                      />
+                    </div>
+                    
                     <div className="p-6">
                       <div className="flex items-start justify-between mb-3">
                         <span className="inline-block bg-primary/10 text-primary text-xs font-semibold px-2 py-1 rounded-full">
-                          {program.type}
+                          {currentLanguage === 'ar' ? (program.type_ar || program.type) : program.type}
                         </span>
                       </div>
                       
                       <h3 className="text-lg font-semibold text-primary mb-2 line-clamp-2">
-                        {program.title}
+                        {currentLanguage === 'ar' ? (program.title_ar || program.title) : program.title}
                       </h3>
                       
                       <div className="space-y-2 mb-4">
@@ -586,16 +607,16 @@ function ProgramsContent({ searchParams }: { searchParams: Record<string, string
                           <span className="font-medium">{getContent('programs_page_program_type_label')}</span> {program.programType}
                         </p>
                         <p className="text-sm text-gray-600">
-                          <span className="font-medium">{getContent('programs_page_speciality_label')}</span> {program.speciality}
+                          <span className="font-medium">{getContent('programs_page_speciality_label')}</span> {currentLanguage === 'ar' ? (program.speciality_ar || program.speciality) : program.speciality}
                         </p>
                         <p className="text-sm text-gray-600">
-                          <span className="font-medium">{getContent('programs_page_study_time_label')}</span> {program.studyTime}
+                          <span className="font-medium">{getContent('programs_page_study_time_label')}</span> {currentLanguage === 'ar' ? (program.studyTime_ar || program.studyTime) : program.studyTime}
                         </p>
                       </div>
 
                       {program.description && (
                         <p className="text-sm text-gray-600 mb-4 line-clamp-3">
-                          {program.description}
+                          {currentLanguage === 'ar' ? (program.description_ar || program.description) : program.description}
                         </p>
                       )}
 
@@ -617,14 +638,7 @@ function ProgramsContent({ searchParams }: { searchParams: Record<string, string
                         </div>
                       )}
 
-                      <div className="flex items-center justify-between">
-                        <div>
-                          <p className="text-2xl font-bold text-accent">
-                            {program.price && typeof program.price === 'number' 
-                              ? `${program.price.toLocaleString()} SAR`
-                              : program.price || 'Price on request'}
-                          </p>
-                        </div>
+                      <div className="flex items-center justify-end">
                         <Link
                           href={`/programs/${program.id}`}
                           className="bg-primary text-white px-4 py-2 rounded-md hover:bg-primary-dark transition-colors text-sm font-medium"

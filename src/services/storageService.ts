@@ -21,132 +21,39 @@ export const uploadFile = async (
       throw new Error('Invalid file: File is empty or not provided');
     }
 
-    // Check if we're in development mode
-    const isDevelopment = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
-    
     // Check if this is a thumbnail upload
     const isThumbnail = path.includes('thumbnail') || path.includes('thumbnails');
     
-    // In development mode, always use base64 for all files to avoid CORS issues
-    if (isDevelopment) {
-      console.log('Development environment detected, using base64 encoding for file');
-      
-      // For thumbnails, preserve original quality
-      if (isThumbnail) {
-        console.log('Thumbnail detected in development, preserving original quality with base64');
-        const base64Url = await uploadImageAsDataUrl(file);
-        console.log('Thumbnail converted to base64 successfully with original quality');
-        return base64Url;
-      }
-      
-      // For images, compress them before converting to base64
-      if (file.type.startsWith('image/')) {
-        try {
-          console.log('Compressing image before converting to base64...');
-          const compressedFile = await compressImage(file, 400, 0.6); // Smaller size, medium quality
-          const base64Url = await uploadImageAsDataUrl(compressedFile);
-          console.log('Image compressed and converted to base64 successfully');
-          return base64Url;
-        } catch (compressionError) {
-          console.warn('Image compression failed, using original file for base64:', compressionError);
-          const base64Url = await uploadImageAsDataUrl(file);
-          console.log('Original file converted to base64 successfully');
-          return base64Url;
-        }
-      } else {
-        // For non-image files
-        const base64Url = await uploadImageAsDataUrl(file);
-        console.log('File converted to base64 successfully');
-        return base64Url;
-      }
-    }
-    
-    // For production environment
+    // For production, compress large images but preserve thumbnails
     let fileToUpload: File | Blob = file;
-    if (!isThumbnail && file.type.startsWith('image/') && file.size > 500000) { // Only compress large non-thumbnail images
+    if (!isThumbnail && file.type.startsWith('image/') && file.size > 500000) {
       try {
-        console.log('Compressing image before upload...');
-        fileToUpload = await compressImage(file, 800, 0.7);
+        console.log('Compressing large image before upload...');
+        fileToUpload = await compressImage(file, 800, 0.8);
         console.log(`Image compressed: ${file.size} -> ${fileToUpload.size} bytes`);
       } catch (compressionError) {
         console.warn('Image compression failed, using original file:', compressionError);
-        fileToUpload = file; // Use original file if compression fails
+        fileToUpload = file;
       }
     } else if (isThumbnail) {
       console.log('Thumbnail detected, preserving original quality');
-      fileToUpload = file; // Always use original file for thumbnails
+      fileToUpload = file;
     }
 
-    // Set timeout for upload
-    const uploadTimeout = 60000; // 60 seconds
-    
+    // Upload to Firebase Storage
     const storageRef = ref(storage, path);
+    console.log('Uploading to Firebase Storage...');
     
-    // Create a promise that rejects after timeout
-    const timeoutPromise = new Promise((_, reject) => {
-      setTimeout(() => reject(new Error('Upload timeout - please try again')), uploadTimeout);
-    });
-    
-    // Upload with timeout
-    const uploadPromise = uploadBytes(storageRef, fileToUpload);
-    
-    const snapshot = await Promise.race([uploadPromise, timeoutPromise]) as any;
-    
+    const snapshot = await uploadBytes(storageRef, fileToUpload);
     console.log('Upload completed, getting download URL...');
     
-    // Get download URL with timeout
-    const urlPromise = getDownloadURL(snapshot.ref);
-    const urlTimeoutPromise = new Promise((_, reject) => {
-      setTimeout(() => reject(new Error('Download URL timeout - please try again')), 10000);
-    });
-    
-    const downloadURL = await Promise.race([urlPromise, urlTimeoutPromise]) as string;
-    
+    const downloadURL = await getDownloadURL(snapshot.ref);
     console.log('File uploaded successfully:', downloadURL);
+    
     return downloadURL;
     
   } catch (error: any) {
     console.error('Upload error:', error);
-    
-    // Check if this is a CORS error or network error
-    if (error.message?.includes('CORS') || 
-        error.message?.includes('cross-origin') ||
-        error.code === 'storage/unknown' ||
-        error.code === 'storage/network-error' ||
-        error.name === 'AbortError') {
-      
-      console.log('CORS or network error detected, falling back to base64 storage...');
-      
-      // Check if this is a thumbnail upload
-      const isThumbnail = path.includes('thumbnail') || path.includes('thumbnails');
-      
-      // Fall back to base64 encoding
-      try {
-        // For thumbnails, preserve original quality
-        if (isThumbnail) {
-          console.log('Thumbnail detected in fallback, preserving original quality with base64');
-          const base64Url = await uploadImageAsDataUrl(file);
-          console.log('Thumbnail converted to base64 successfully with original quality');
-          return base64Url;
-        }
-        
-        // For non-thumbnail images, compress them before converting to base64
-        if (file.type.startsWith('image/') && !isThumbnail) {
-          const compressedFile = await compressImage(file, 300, 0.5); // Smaller size, lower quality
-          const base64Url = await uploadImageAsDataUrl(compressedFile);
-          console.log('Image compressed and converted to base64 successfully');
-          return base64Url;
-        } else {
-          // For non-image files, use original quality
-          const base64Url = await uploadImageAsDataUrl(file);
-          console.log('File converted to base64 with original quality');
-          return base64Url;
-        }
-      } catch (base64Error) {
-        console.error('Base64 fallback also failed:', base64Error);
-        throw new Error('Both Firebase Storage and base64 fallback failed. Please check your internet connection.');
-      }
-    }
     
     // Provide user-friendly error messages
     if (error.code === 'storage/unauthorized') {
@@ -159,6 +66,8 @@ export const uploadFile = async (
       throw new Error('Upload was canceled. Please try again.');
     } else if (error.message?.includes('timeout')) {
       throw new Error('Upload timeout. Please check your internet connection and try again.');
+    } else if (error.message?.includes('CORS') || error.message?.includes('cross-origin')) {
+      throw new Error('CORS configuration issue. Please contact support.');
     } else {
       throw new Error(`Upload failed: ${error.message || 'Please try again'}`);
     }
@@ -236,9 +145,7 @@ export const compressImage = async (file: File, maxWidth = 800, quality = 0.8): 
         canvas.toBlob(
           (blob) => {
             if (blob) {
-              // Create a new File object with the same name but compressed content
-              const compressedFile = new Blob([blob], { type: mimeType });
-              resolve(compressedFile);
+              resolve(blob);
             } else {
               reject(new Error('Failed to create blob'));
             }
