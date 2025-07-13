@@ -34,6 +34,7 @@ export default function CreateProgramPage() {
       program_tagline: 'Program Tagline *',
       program_description: 'Program Description *',
       program_overview: 'Program Overview (Modules) *',
+      core_learnings: 'Core Learnings *',
       career_opportunities: 'Career Opportunities *',
       key_features: 'Key Features *',
       duration: 'Duration *',
@@ -51,9 +52,11 @@ export default function CreateProgramPage() {
       submit: 'Create Program',
       submitting: 'Creating...',
       add_module: 'Add Module',
+      add_core_learning: 'Add Core Learning',
       add_career: 'Add Career Opportunity',
       add_feature: 'Add Key Feature',
       module_title: 'Module Title',
+      core_learning_title: 'Core Learning',
       career_title: 'Career Title',
       feature_title: 'Feature Title',
       feature_description: 'Feature Description',
@@ -61,6 +64,7 @@ export default function CreateProgramPage() {
       error_message: 'Error creating program',
       required_field: 'This field is required',
       enter_module: 'Enter module name',
+      enter_core_learning: 'Enter core learning',
       enter_career: 'Enter career opportunity',
       enter_feature_title: 'Enter feature title',
       enter_feature_desc: 'Enter feature description',
@@ -85,6 +89,7 @@ export default function CreateProgramPage() {
       program_tagline: 'شعار البرنامج *',
       program_description: 'وصف البرنامج *',
       program_overview: 'نظرة عامة على البرنامج (الوحدات) *',
+      core_learnings: 'التعلم الأساسي *',
       career_opportunities: 'الفرص المهنية *',
       key_features: 'الميزات الرئيسية *',
       duration: 'المدة *',
@@ -102,9 +107,11 @@ export default function CreateProgramPage() {
       submit: 'إنشاء البرنامج',
       submitting: 'جاري الإنشاء...',
       add_module: 'إضافة وحدة',
+      add_core_learning: 'إضافة التعلم الأساسي',
       add_career: 'إضافة فرصة مهنية',
       add_feature: 'إضافة ميزة رئيسية',
       module_title: 'عنوان الوحدة',
+      core_learning_title: 'التعلم الأساسي',
       career_title: 'المسمى الوظيفي',
       feature_title: 'عنوان الميزة',
       feature_description: 'وصف الميزة',
@@ -112,6 +119,7 @@ export default function CreateProgramPage() {
       error_message: 'خطأ في إنشاء البرنامج',
       required_field: 'هذا الحقل مطلوب',
       enter_module: 'أدخل اسم الوحدة',
+      enter_core_learning: 'أدخل التعلم الأساسي',
       enter_career: 'أدخل الفرصة المهنية',
       enter_feature_title: 'أدخل عنوان الميزة',
       enter_feature_desc: 'أدخل وصف الميزة',
@@ -146,7 +154,9 @@ export default function CreateProgramPage() {
     careerOpportunities_ar: [] as string[],
     keyFeatures_ar: [] as { title: string; description: string }[],
     duration_ar: '',
-    brochure_ar: ''
+    brochure_ar: '',
+    coreLearnings: [] as string[],
+    coreLearnings_ar: [] as string[]
   });
 
   const [activeLanguage, setActiveLanguage] = useState<'en' | 'ar'>('en');
@@ -171,6 +181,7 @@ export default function CreateProgramPage() {
   const [newModule, setNewModule] = useState('');
   const [newCareer, setNewCareer] = useState('');
   const [newFeature, setNewFeature] = useState({ title: '', description: '' });
+  const [newCoreLearning, setNewCoreLearning] = useState(''); // Added newCoreLearning state
 
   useEffect(() => {
     if (!isLoading && !currentUser) {
@@ -220,11 +231,13 @@ export default function CreateProgramPage() {
             
             5. MODULES: Find the exact module/course names as listed
             
-            6. CAREER OPPORTUNITIES: Find the exact job titles as listed
+            6. CORE LEARNINGS: Find the exact learning outcomes, skills, or competencies as listed
             
-            7. KEY FEATURES: Find the exact feature names and descriptions as written
+            7. CAREER OPPORTUNITIES: Find the exact job titles as listed
             
-            8. ACCREDITATION: Look for IBAS, VERN, or similar institutions
+            8. KEY FEATURES: Find the exact feature names and descriptions as written
+            
+            9. ACCREDITATION: Look for IBAS, VERN, or similar institutions
 
             REMEMBER: 
             - ONLY extract text that actually exists in the brochure
@@ -239,6 +252,7 @@ export default function CreateProgramPage() {
               "description": "EXACT program description as found in brochure - word for word",
               "duration": "exact duration as found in brochure",
               "modules": ["exact module names as found in brochure"],
+              "coreLearnings": ["exact core learning outcomes as found in brochure"],
               "careerOpportunities": ["exact career titles as found in brochure"],
               "keyFeatures": [{"title": "Exact Feature Name from brochure", "description": "Exact feature description from brochure"}],
               "accreditation": "vern, ibas, both, or none"
@@ -349,6 +363,7 @@ export default function CreateProgramPage() {
         description: parsedData.description || 'This comprehensive program prepares professionals for leadership roles.',
         duration: parsedData.duration || '1 Academic Year',
         modules: Array.isArray(parsedData.modules) ? parsedData.modules : [],
+        coreLearnings: Array.isArray(parsedData.coreLearnings) ? parsedData.coreLearnings : [],
         careerOpportunities: Array.isArray(parsedData.careerOpportunities) ? parsedData.careerOpportunities : [],
         keyFeatures: Array.isArray(parsedData.keyFeatures) ? parsedData.keyFeatures : [],
         accreditation: parsedData.accreditation || 'none'
@@ -361,6 +376,8 @@ export default function CreateProgramPage() {
         duration: result.duration,
         modulesCount: result.modules.length,
         modules: result.modules,
+        coreLearningsCount: result.coreLearnings.length,
+        coreLearnings: result.coreLearnings,
         careersCount: result.careerOpportunities.length,
         careers: result.careerOpportunities,
         featuresCount: result.keyFeatures.length,
@@ -405,6 +422,7 @@ export default function CreateProgramPage() {
         description: parsedData.description || prev.description,
         duration: parsedData.duration || prev.duration,
         modules: parsedData.modules || prev.modules,
+        coreLearnings: parsedData.coreLearnings || prev.coreLearnings,
         careerOpportunities: parsedData.careerOpportunities || prev.careerOpportunities,
         keyFeatures: parsedData.keyFeatures || prev.keyFeatures,
         accreditation: parsedData.accreditation || prev.accreditation,
@@ -428,8 +446,8 @@ export default function CreateProgramPage() {
   const handleAutoTranslate = async () => {
     // Check if there's English content to translate
     if (!formData.title && !formData.tagline && !formData.description && 
-        formData.modules.length === 0 && formData.careerOpportunities.length === 0 && 
-        formData.keyFeatures.length === 0 && !formData.duration) {
+        formData.modules.length === 0 && formData.coreLearnings.length === 0 && 
+        formData.careerOpportunities.length === 0 && formData.keyFeatures.length === 0 && !formData.duration) {
       setError('No English content available to translate. Please fill the English version first.');
       return;
     }
@@ -449,6 +467,7 @@ export default function CreateProgramPage() {
         description: formData.description,
         duration: formData.duration,
         modules: formData.modules,
+        coreLearnings: formData.coreLearnings,
         careerOpportunities: formData.careerOpportunities,
         keyFeatures: formData.keyFeatures
       };
@@ -482,6 +501,7 @@ export default function CreateProgramPage() {
                 "description": "Arabic translation of description",
                 "duration": "Arabic translation of duration",
                 "modules": ["Arabic translation of module1", "Arabic translation of module2", ...],
+                "coreLearnings": ["Arabic translation of core learning1", "Arabic translation of core learning2", ...],
                 "careerOpportunities": ["Arabic translation of career1", "Arabic translation of career2", ...],
                 "keyFeatures": [{"title": "Arabic translation of feature title", "description": "Arabic translation of feature description"}, ...]
               }`
@@ -562,6 +582,10 @@ export default function CreateProgramPage() {
         updatedFormData.modules_ar = parsedTranslation.modules;
       }
       
+      if (Array.isArray(parsedTranslation.coreLearnings)) {
+        updatedFormData.coreLearnings_ar = parsedTranslation.coreLearnings;
+      }
+      
       if (Array.isArray(parsedTranslation.careerOpportunities)) {
         updatedFormData.careerOpportunities_ar = parsedTranslation.careerOpportunities;
       }
@@ -576,6 +600,7 @@ export default function CreateProgramPage() {
       console.log('Translation completed successfully:', {
         title: parsedTranslation.title,
         modulesCount: parsedTranslation.modules?.length || 0,
+        coreLearningsCount: parsedTranslation.coreLearnings?.length || 0,
         careersCount: parsedTranslation.careerOpportunities?.length || 0,
         featuresCount: parsedTranslation.keyFeatures?.length || 0
       });
@@ -650,6 +675,24 @@ export default function CreateProgramPage() {
     }));
   };
 
+  const addCoreLearning = () => {
+    if (!newCoreLearning.trim()) return;
+    const field = activeLanguage === 'ar' ? 'coreLearnings_ar' : 'coreLearnings';
+    setFormData(prev => ({
+      ...prev,
+      [field]: [...prev[field], newCoreLearning.trim()]
+    }));
+    setNewCoreLearning('');
+  };
+
+  const removeCoreLearning = (index: number) => {
+    const field = activeLanguage === 'ar' ? 'coreLearnings_ar' : 'coreLearnings';
+    setFormData(prev => ({
+      ...prev,
+      [field]: prev[field].filter((_, i) => i !== index)
+    }));
+  };
+
   const handleBrochureChange = (e: React.ChangeEvent<HTMLInputElement>, language: 'en' | 'ar') => {
     const file = e.target.files?.[0];
     if (file) {
@@ -670,10 +713,10 @@ export default function CreateProgramPage() {
         return;
       }
 
-      setThumbnailFile(file);
-      
+        setThumbnailFile(file);
+        
       // Create preview - this will be used as a fallback in development
-      const reader = new FileReader();
+        const reader = new FileReader();
       reader.onload = (e) => {
         if (e.target?.result) {
           const previewUrl = e.target.result as string;
@@ -683,8 +726,8 @@ export default function CreateProgramPage() {
       };
       reader.onerror = (error) => {
         console.error('Error creating thumbnail preview:', error);
-      };
-      reader.readAsDataURL(file);
+        };
+        reader.readAsDataURL(file);
       setError('');
     }
   };
@@ -766,6 +809,17 @@ export default function CreateProgramPage() {
         updatedAt: serverTimestamp(),
         createdBy: currentUser?.uid
       };
+
+      console.log('Program data being saved:', {
+        modules: programData.modules,
+        modules_ar: programData.modules_ar,
+        coreLearnings: programData.coreLearnings,
+        coreLearnings_ar: programData.coreLearnings_ar,
+        careerOpportunities: programData.careerOpportunities,
+        careerOpportunities_ar: programData.careerOpportunities_ar,
+        keyFeatures: programData.keyFeatures,
+        keyFeatures_ar: programData.keyFeatures_ar
+      });
 
       const docRef = await addDoc(collection(db, 'programs'), programData);
       
@@ -1267,6 +1321,44 @@ export default function CreateProgramPage() {
               </button>
                         </div>
                       </div>
+
+                     {/* Core Learnings */}
+           <div>
+             <label className="block text-sm font-medium text-gray-700 mb-3">
+               {activeLanguage === 'en' ? 'Core Learnings *' : 'التعلم الأساسي *'}
+             </label>
+             <div className="space-y-2">
+               {(activeLanguage === 'ar' ? formData.coreLearnings_ar : formData.coreLearnings).map((learning, index) => (
+                 <div key={index} className="flex items-center justify-between bg-gray-50 p-3 rounded-md">
+                   <span dir={activeLanguage === 'ar' ? 'rtl' : 'ltr'}>{learning}</span>
+                   <button
+                     type="button"
+                     onClick={() => removeCoreLearning(index)}
+                     className="text-red-600 hover:text-red-800"
+                   >
+                     <Trash2 size={16} />
+                   </button>
+                 </div>
+               ))}
+               <div className="flex gap-2">
+                 <input
+                   type="text"
+                   value={newCoreLearning}
+                   onChange={(e) => setNewCoreLearning(e.target.value)}
+                   placeholder={activeLanguage === 'en' ? 'Enter core learning' : 'أدخل التعلم الأساسي'}
+                   className="flex-1 border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary focus:border-primary sm:text-sm"
+                   dir={activeLanguage === 'ar' ? 'rtl' : 'ltr'}
+                 />
+                 <button
+                   type="button"
+                   onClick={addCoreLearning}
+                   className="inline-flex items-center px-3 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-primary hover:bg-primary-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
+                 >
+                   <Plus size={16} />
+                 </button>
+               </div>
+             </div>
+           </div>
 
           {/* Brochure Upload */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

@@ -19,6 +19,8 @@ export interface Program {
   requirements_ar?: string[];
   whatYouWillLearn?: string[];
   whatYouWillLearn_ar?: string[];
+  coreLearnings?: string[];
+  coreLearnings_ar?: string[];
   languages?: ('en' | 'ar')[];
   status?: 'published' | 'draft';
   createdAt?: any;

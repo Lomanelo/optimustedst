@@ -27,6 +27,18 @@ export default function ProgramDetailPage({ params }: PageProps) {
         setLoading(true);
         const programData = await programService.getProgramById(programId);
         if (programData) {
+          console.log('Fetched program data:', {
+            id: programData.id,
+            title: programData.title,
+            modules: programData.modules,
+            modules_ar: (programData as any).modules_ar,
+            coreLearnings: (programData as any).coreLearnings,
+            coreLearnings_ar: (programData as any).coreLearnings_ar,
+            careerOpportunities: (programData as any).careerOpportunities,
+            careerOpportunities_ar: (programData as any).careerOpportunities_ar,
+            keyFeatures: (programData as any).keyFeatures,
+            keyFeatures_ar: (programData as any).keyFeatures_ar
+          });
           setProgram(programData);
         } else {
           setError('Program not found');
@@ -121,6 +133,22 @@ export default function ProgramDetailPage({ params }: PageProps) {
   const modules = currentLanguage === 'ar' && Array.isArray((program as any).modules_ar) ? 
     (program as any).modules_ar : 
     (Array.isArray(program.modules) ? program.modules : []);
+    
+  const coreLearnings = currentLanguage === 'ar' && Array.isArray((program as any).coreLearnings_ar) ? 
+    (program as any).coreLearnings_ar : 
+    (Array.isArray((program as any).coreLearnings) ? (program as any).coreLearnings : []);
+
+  console.log('Processed modules and coreLearnings:', {
+    currentLanguage,
+    modules,
+    modulesLength: modules.length,
+    coreLearnings,
+    coreLearningsLength: coreLearnings.length,
+    programModules: program.modules,
+    programModulesAr: (program as any).modules_ar,
+    programCoreLearnings: (program as any).coreLearnings,
+    programCoreLearningsAr: (program as any).coreLearnings_ar
+  });
 
   // Safe access to program properties
   const getModules = () => {
@@ -154,26 +182,26 @@ export default function ProgramDetailPage({ params }: PageProps) {
                       (program as any).programType || (program as any).type || program.level,
                       (program as any).programType_ar || (program as any).type_ar || (program as any).level_ar
                     )}
-                  </span>
+              </span>
                   <span className="inline-flex items-center px-4 py-2 bg-accent/90 backdrop-blur-sm rounded-full text-sm font-semibold">
                     <Clock size={16} className="mr-2" />
                     {getLocalizedContent(
                       (program as any).studyTime || program.duration,
                       (program as any).studyTime_ar || (program as any).duration_ar
                     )}
-                  </span>
-                </div>
-                
+                </span>
+            </div>
+
                 <h1 className="text-4xl md:text-6xl font-bold mb-6 leading-tight">
                   {getLocalizedContent(program.title, (program as any).title_ar)}
                 </h1>
                 
-                {((program as any).shortDescription || (program as any).shortDescription_ar) && (
+            {((program as any).shortDescription || (program as any).shortDescription_ar) && (
                   <p className="text-xl md:text-2xl text-white/90 mb-8 leading-relaxed">
-                    {getLocalizedContent((program as any).shortDescription, (program as any).shortDescription_ar)}
-                  </p>
-                )}
-                
+                {getLocalizedContent((program as any).shortDescription, (program as any).shortDescription_ar)}
+              </p>
+            )}
+
                 <div className="flex flex-col sm:flex-row gap-4">
                   <a href="#contact" className="inline-flex items-center justify-center px-8 py-4 bg-accent hover:bg-accent-dark text-white font-bold rounded-xl transition-all duration-300 transform hover:scale-105 hover:shadow-lg">
                     <svg className="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
@@ -226,8 +254,8 @@ export default function ProgramDetailPage({ params }: PageProps) {
                 </div>
               </div>
             </div>
+            </div>
           </div>
-        </div>
 
         {/* Main Content with Enhanced Design */}
         <div className="container mx-auto px-4 py-16">
@@ -241,14 +269,73 @@ export default function ProgramDetailPage({ params }: PageProps) {
                       <BookOpen size={24} className="text-primary" />
                     </div>
                     <h2 className="text-3xl font-bold text-primary">
-                      {currentLanguage === 'ar' ? 'نظرة عامة على البرنامج' : 'Program Overview'}
-                    </h2>
+                  {currentLanguage === 'ar' ? 'نظرة عامة على البرنامج' : 'Program Overview'}
+                </h2>
                   </div>
                   <p className="text-gray-700 leading-relaxed text-lg">
-                    {getLocalizedContent(program.description, (program as any).description_ar)}
-                  </p>
-                </div>
+                  {getLocalizedContent(program.description, (program as any).description_ar)}
+                </p>
+              </div>
               </section>
+
+              {/* Program Modules */}
+              {modules.length > 0 && (
+                <section className="group">
+                  <div className="bg-white rounded-2xl shadow-lg p-8 border border-gray-100 hover:shadow-xl transition-all duration-300" dir={currentLanguage === 'ar' ? 'rtl' : 'ltr'}>
+                    <div className="flex items-center mb-6">
+                      <div className="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center mr-4">
+                        <svg className="w-6 h-6 text-primary" fill="currentColor" viewBox="0 0 20 20">
+                          <path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z" />
+                          <path fillRule="evenodd" d="M4 5a2 2 0 012-2v1a2 2 0 002 2h4a2 2 0 002-2V3a2 2 0 012 2v6a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm3 4a1 1 0 000 2h.01a1 1 0 100-2H7zm3 0a1 1 0 000 2h3a1 1 0 100-2h-3z" clipRule="evenodd" />
+                        </svg>
+                      </div>
+                      <h2 className="text-3xl font-bold text-primary">
+                        {currentLanguage === 'ar' ? 'وحدات البرنامج' : 'Program Modules'}
+                      </h2>
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      {modules.map((module: string, index: number) => (
+                        <div key={index} className="group/item flex items-center p-4 bg-gradient-to-r from-primary/5 to-primary/10 rounded-xl hover:from-primary/10 hover:to-primary/20 transition-all duration-300 border border-primary/20">
+                          <div className="w-8 h-8 bg-primary/20 rounded-lg flex items-center justify-center mr-4 group-hover/item:bg-primary/30 transition-colors duration-300">
+                            <span className="text-primary font-bold text-sm">{index + 1}</span>
+                          </div>
+                          <span className="text-gray-700 font-medium">{module}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </section>
+              )}
+
+              {/* Core Learnings */}
+              {coreLearnings.length > 0 && (
+                <section className="group">
+                  <div className="bg-white rounded-2xl shadow-lg p-8 border border-gray-100 hover:shadow-xl transition-all duration-300" dir={currentLanguage === 'ar' ? 'rtl' : 'ltr'}>
+                    <div className="flex items-center mb-6">
+                      <div className="w-12 h-12 bg-accent/10 rounded-xl flex items-center justify-center mr-4">
+                        <svg className="w-6 h-6 text-accent" fill="currentColor" viewBox="0 0 20 20">
+                          <path fillRule="evenodd" d="M3 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" clipRule="evenodd" />
+                        </svg>
+                      </div>
+                      <h2 className="text-3xl font-bold text-accent">
+                        {currentLanguage === 'ar' ? 'التعلم الأساسي' : 'Core Learnings'}
+                      </h2>
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      {coreLearnings.map((learning: string, index: number) => (
+                        <div key={index} className="group/item flex items-start p-4 bg-gradient-to-r from-accent/5 to-accent/10 rounded-xl hover:from-accent/10 hover:to-accent/20 transition-all duration-300 border border-accent/20">
+                          <div className="w-6 h-6 bg-accent/20 rounded-full flex items-center justify-center mr-3 mt-1 group-hover/item:bg-accent/30 transition-colors duration-300">
+                            <svg className="w-3 h-3 text-accent" fill="currentColor" viewBox="0 0 20 20">
+                              <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                            </svg>
+                          </div>
+                          <span className="text-gray-700 font-medium leading-relaxed">{learning}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </section>
+              )}
 
               {/* Career Opportunities */}
               {careerOpportunities.length > 0 && (
@@ -263,16 +350,16 @@ export default function ProgramDetailPage({ params }: PageProps) {
                       <h2 className="text-3xl font-bold text-primary">
                         {currentLanguage === 'ar' ? 'الفرص المهنية' : 'Career Opportunities'}
                       </h2>
-                    </div>
+                        </div>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       {careerOpportunities.map((career, index) => (
                         <div key={index} className="group/item flex items-center p-4 bg-gradient-to-r from-accent/5 to-accent/10 rounded-xl hover:from-accent/10 hover:to-accent/20 transition-all duration-300 border border-accent/20">
                           <div className="w-3 h-3 bg-accent rounded-full mr-4 group-hover/item:scale-125 transition-transform duration-300"></div>
                           <span className="text-gray-700 font-semibold">{career}</span>
                         </div>
-                      ))}
-                    </div>
-                  </div>
+                    ))}
+              </div>
+                </div>
                 </section>
               )}
 
@@ -284,7 +371,7 @@ export default function ProgramDetailPage({ params }: PageProps) {
                       <div className="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center mr-4">
                         <svg className="w-6 h-6 text-primary" fill="currentColor" viewBox="0 0 20 20">
                           <path fillRule="evenodd" d="M3 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" clipRule="evenodd" />
-                        </svg>
+                            </svg>
                       </div>
                       <h2 className="text-3xl font-bold text-primary">
                         {currentLanguage === 'ar' ? 'الميزات الرئيسية' : 'Key Features'}
@@ -302,14 +389,14 @@ export default function ProgramDetailPage({ params }: PageProps) {
                               {feature.description && <p className="text-gray-600 text-sm mt-1">{feature.description}</p>}
                             </div>
                           </div>
-                        </div>
-                      ))}
-                    </div>
+                      </div>
+                    ))}
                   </div>
+                </div>
                 </section>
               )}
             </div>
-            
+
             {/* Enhanced Sidebar */}
             <div className="lg:col-span-1 space-y-6">
               {/* Program Details Card */}
@@ -322,8 +409,8 @@ export default function ProgramDetailPage({ params }: PageProps) {
                     </svg>
                   </div>
                   <h3 className="text-xl font-bold text-primary mb-2">
-                    {currentLanguage === 'ar' ? 'تفاصيل البرنامج' : 'Program Details'}
-                  </h3>
+                  {currentLanguage === 'ar' ? 'تفاصيل البرنامج' : 'Program Details'}
+                </h3>
                   <p className="text-gray-600 text-sm">{currentLanguage === 'ar' ? 'كل ما تحتاج لمعرفته' : 'Everything you need to know'}</p>
                 </div>
                 
@@ -336,7 +423,7 @@ export default function ProgramDetailPage({ params }: PageProps) {
                           <Award size={16} className="text-primary" />
                         </div>
                         <span className="text-gray-600 font-medium">
-                          {currentLanguage === 'ar' ? 'النوع:' : 'Type:'}
+                        {currentLanguage === 'ar' ? 'النوع:' : 'Type:'}
                         </span>
                       </div>
                       <span className="font-bold text-primary">
@@ -345,7 +432,7 @@ export default function ProgramDetailPage({ params }: PageProps) {
                           (program as any).programType_ar || (program as any).type_ar || (program as any).level_ar
                         )}
                       </span>
-                    </div>
+                  </div>
                   )}
                   
                   {/* Duration */}
@@ -356,7 +443,7 @@ export default function ProgramDetailPage({ params }: PageProps) {
                           <Clock size={16} className="text-accent" />
                         </div>
                         <span className="text-gray-600 font-medium">
-                          {currentLanguage === 'ar' ? 'المدة:' : 'Duration:'}
+                        {currentLanguage === 'ar' ? 'المدة:' : 'Duration:'}
                         </span>
                       </div>
                       <span className="font-bold text-accent text-lg">
@@ -365,7 +452,7 @@ export default function ProgramDetailPage({ params }: PageProps) {
                           (program as any).studyTime_ar || (program as any).duration_ar
                         )}
                       </span>
-                    </div>
+                  </div>
                   )}
                   
                   {/* Category */}
@@ -378,7 +465,7 @@ export default function ProgramDetailPage({ params }: PageProps) {
                           </svg>
                         </div>
                         <span className="text-gray-600 font-medium">
-                          {currentLanguage === 'ar' ? 'الفئة:' : 'Category:'}
+                        {currentLanguage === 'ar' ? 'الفئة:' : 'Category:'}
                         </span>
                       </div>
                       <span className="font-bold text-blue-600">
@@ -387,7 +474,7 @@ export default function ProgramDetailPage({ params }: PageProps) {
                           (program as any).category_ar
                         )}
                       </span>
-                    </div>
+                  </div>
                   )}
                   
                   {/* Specialization */}
@@ -433,7 +520,7 @@ export default function ProgramDetailPage({ params }: PageProps) {
                   <div className="text-center mb-6">
                     <div className="w-16 h-16 bg-accent/10 rounded-2xl flex items-center justify-center mx-auto mb-4">
                       <Download size={32} className="text-accent" />
-                    </div>
+                  </div>
                     <h3 className="text-xl font-bold text-primary mb-2">
                       {currentLanguage === 'ar' ? 'تحميل الكتيب' : 'Download Brochure'}
                     </h3>
@@ -446,7 +533,7 @@ export default function ProgramDetailPage({ params }: PageProps) {
                         target="_blank" 
                         rel="noopener noreferrer"
                         className="flex items-center justify-center w-full px-4 py-3 border-2 border-primary text-primary rounded-xl hover:bg-primary hover:text-white transition-all duration-300 font-semibold"
-                      >
+                >
                         <FileText size={18} className={currentLanguage === 'ar' ? 'ml-2' : 'mr-2'} />
                         {currentLanguage === 'ar' ? 'كتيب باللغة الإنجليزية' : 'English Brochure'}
                       </a>
@@ -463,7 +550,7 @@ export default function ProgramDetailPage({ params }: PageProps) {
                       </a>
                     )}
                   </div>
-                </div>
+              </div>
               )}
             </div>
           </div>

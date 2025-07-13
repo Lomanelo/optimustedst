@@ -46,6 +46,8 @@ export interface Program {
   whatYouWillLearn_ar?: string[];
   modules?: ProgramModule[];
   modules_ar?: ProgramModule[];
+  coreLearnings?: string[];
+  coreLearnings_ar?: string[];
   instructorId?: string;
   status: 'published' | 'draft';
   enrollments?: number;
@@ -101,6 +103,8 @@ export interface CreateProgramData {
   whatYouWillLearn_ar?: string[];
   modules?: ProgramModule[];
   modules_ar?: ProgramModule[];
+  coreLearnings?: string[];
+  coreLearnings_ar?: string[];
   instructorId?: string;
   status: 'published' | 'draft';
   languages: ('en' | 'ar')[];
