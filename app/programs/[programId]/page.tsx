@@ -290,35 +290,6 @@ export default function ProgramDetailPage({ params }: PageProps) {
                 </section>
               )}
 
-              {/* Core Learnings */}
-              {coreLearnings.length > 0 && (
-                <section className="group">
-                  <div className="bg-white rounded-2xl shadow-lg p-8 border border-gray-100 hover:shadow-xl transition-all duration-300" dir={currentLanguage === 'ar' ? 'rtl' : 'ltr'}>
-                    <div className="flex items-center mb-6">
-                      <div className="w-12 h-12 bg-accent/10 rounded-xl flex items-center justify-center mr-4">
-                        <svg className="w-6 h-6 text-accent" fill="currentColor" viewBox="0 0 20 20">
-                          <path fillRule="evenodd" d="M3 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" clipRule="evenodd" />
-                        </svg>
-                      </div>
-                      <h2 className="text-3xl font-bold text-accent">
-                        {currentLanguage === 'ar' ? 'التعلم الأساسي' : 'Core Learnings'}
-                  </h2>
-                    </div>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      {coreLearnings.map((learning: string, index: number) => (
-                        <div key={index} className="group/item flex items-start p-4 bg-gradient-to-r from-accent/5 to-accent/10 rounded-xl hover:from-accent/10 hover:to-accent/20 transition-all duration-300 border border-accent/20">
-                          <div className="w-6 h-6 bg-accent/20 rounded-full flex items-center justify-center mr-3 mt-1 group-hover/item:bg-accent/30 transition-colors duration-300">
-                            <svg className="w-3 h-3 text-accent" fill="currentColor" viewBox="0 0 20 20">
-                              <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                            </svg>
-                          </div>
-                          <span className="text-gray-700 font-medium leading-relaxed">{learning}</span>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                </section>
-              )}
 
 
 

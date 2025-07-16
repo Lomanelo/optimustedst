@@ -180,9 +180,7 @@ export default function CreateProgramPage() {
     duration_ar: '',
     programType_ar: 'ماجستير إدارة الأعمال', // Arabic program type
     specialty_ar: '', // Arabic specialty
-    brochure_ar: '',
-    coreLearnings: [] as string[],
-    coreLearnings_ar: [] as string[]
+    brochure_ar: ''
   });
 
   const [activeLanguage, setActiveLanguage] = useState<'en' | 'ar'>('en');
@@ -207,7 +205,7 @@ export default function CreateProgramPage() {
   const [newModule, setNewModule] = useState('');
   const [newCareer, setNewCareer] = useState('');
   const [newFeature, setNewFeature] = useState({ title: '', description: '' });
-  const [newCoreLearning, setNewCoreLearning] = useState(''); // Added newCoreLearning state
+
 
   useEffect(() => {
     if (!isLoading && !currentUser) {
@@ -259,7 +257,7 @@ export default function CreateProgramPage() {
             
             6. MODULES: Find the exact module/course names as listed
             
-            7. CORE LEARNINGS: Find the exact learning outcomes, skills, or competencies as listed
+
             
             8. CAREER OPPORTUNITIES: Find the exact job titles as listed
             
@@ -299,7 +297,7 @@ export default function CreateProgramPage() {
               "programType": "MBA or DBA based on program level",
               "specialty": "English specialty name from the list above that best matches",
               "modules": ["exact module names as found in brochure"],
-              "coreLearnings": ["exact core learning outcomes as found in brochure"],
+
               "careerOpportunities": ["exact career titles as found in brochure"],
               "keyFeatures": [{"title": "Exact Feature Name from brochure", "description": "Exact feature description from brochure"}],
               "accreditation": "vern, ibas, both, or none"
@@ -425,7 +423,7 @@ export default function CreateProgramPage() {
         specialty: selectedSpecialty?.en || 'International Business Management',
         specialty_ar: selectedSpecialty?.ar || 'إدارة الأعمال الدولية',
         modules: Array.isArray(parsedData.modules) ? parsedData.modules : [],
-        coreLearnings: Array.isArray(parsedData.coreLearnings) ? parsedData.coreLearnings : [],
+
         careerOpportunities: Array.isArray(parsedData.careerOpportunities) ? parsedData.careerOpportunities : [],
         keyFeatures: Array.isArray(parsedData.keyFeatures) ? parsedData.keyFeatures : [],
         accreditation: parsedData.accreditation || 'none'
@@ -488,7 +486,6 @@ export default function CreateProgramPage() {
         specialty: parsedData.specialty || prev.specialty,
         specialty_ar: parsedData.specialty_ar || prev.specialty_ar,
         modules: parsedData.modules || prev.modules,
-        coreLearnings: parsedData.coreLearnings || prev.coreLearnings,
         careerOpportunities: parsedData.careerOpportunities || prev.careerOpportunities,
         keyFeatures: parsedData.keyFeatures || prev.keyFeatures,
         accreditation: parsedData.accreditation || prev.accreditation,
@@ -512,7 +509,7 @@ export default function CreateProgramPage() {
   const handleAutoTranslate = async () => {
     // Check if there's English content to translate
     if (!formData.title && !formData.tagline && !formData.description && 
-        formData.modules.length === 0 && formData.coreLearnings.length === 0 && 
+        formData.modules.length === 0 && 
         formData.careerOpportunities.length === 0 && formData.keyFeatures.length === 0 && !formData.duration) {
       setError('No English content available to translate. Please fill the English version first.');
       return;
@@ -533,7 +530,6 @@ export default function CreateProgramPage() {
         description: formData.description,
         duration: formData.duration,
         modules: formData.modules,
-        coreLearnings: formData.coreLearnings,
         careerOpportunities: formData.careerOpportunities,
         keyFeatures: formData.keyFeatures
       };
@@ -648,9 +644,7 @@ export default function CreateProgramPage() {
         updatedFormData.modules_ar = parsedTranslation.modules;
       }
       
-      if (Array.isArray(parsedTranslation.coreLearnings)) {
-        updatedFormData.coreLearnings_ar = parsedTranslation.coreLearnings;
-      }
+      
       
       if (Array.isArray(parsedTranslation.careerOpportunities)) {
         updatedFormData.careerOpportunities_ar = parsedTranslation.careerOpportunities;
@@ -741,23 +735,7 @@ export default function CreateProgramPage() {
     }));
   };
 
-  const addCoreLearning = () => {
-    if (!newCoreLearning.trim()) return;
-    const field = activeLanguage === 'ar' ? 'coreLearnings_ar' : 'coreLearnings';
-    setFormData(prev => ({
-      ...prev,
-      [field]: [...prev[field], newCoreLearning.trim()]
-    }));
-    setNewCoreLearning('');
-  };
 
-  const removeCoreLearning = (index: number) => {
-    const field = activeLanguage === 'ar' ? 'coreLearnings_ar' : 'coreLearnings';
-    setFormData(prev => ({
-      ...prev,
-      [field]: prev[field].filter((_, i) => i !== index)
-    }));
-  };
 
   const handleBrochureChange = (e: React.ChangeEvent<HTMLInputElement>, language: 'en' | 'ar') => {
     const file = e.target.files?.[0];
@@ -1439,43 +1417,7 @@ export default function CreateProgramPage() {
                         </div>
                       </div>
 
-                     {/* Core Learnings */}
-           <div>
-             <label className="block text-sm font-medium text-gray-700 mb-3">
-               {activeLanguage === 'en' ? 'Core Learnings *' : 'التعلم الأساسي *'}
-             </label>
-             <div className="space-y-2">
-               {(activeLanguage === 'ar' ? formData.coreLearnings_ar : formData.coreLearnings).map((learning, index) => (
-                 <div key={index} className="flex items-center justify-between bg-gray-50 p-3 rounded-md">
-                   <span dir={activeLanguage === 'ar' ? 'rtl' : 'ltr'}>{learning}</span>
-                   <button
-                     type="button"
-                     onClick={() => removeCoreLearning(index)}
-                     className="text-red-600 hover:text-red-800"
-                   >
-                     <Trash2 size={16} />
-                   </button>
-                 </div>
-               ))}
-               <div className="flex gap-2">
-                 <input
-                   type="text"
-                   value={newCoreLearning}
-                   onChange={(e) => setNewCoreLearning(e.target.value)}
-                   placeholder={activeLanguage === 'en' ? 'Enter core learning' : 'أدخل التعلم الأساسي'}
-                   className="flex-1 border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary focus:border-primary sm:text-sm"
-                   dir={activeLanguage === 'ar' ? 'rtl' : 'ltr'}
-                 />
-                 <button
-                   type="button"
-                   onClick={addCoreLearning}
-                   className="inline-flex items-center px-3 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-primary hover:bg-primary-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
-                 >
-                   <Plus size={16} />
-                 </button>
-               </div>
-                        </div>
-                      </div>
+
 
           {/* Brochure Upload */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
