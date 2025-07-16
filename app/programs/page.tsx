@@ -12,40 +12,51 @@ import { allAccreditationsAndPartnerships } from '../../src/data/optimus-data';
 import programService, { Program as ServiceProgram } from '../../src/services/programService';
 import { useCMS } from '../contexts/cms-context';
 
-// Filter options
-const programTypeOptions = ['MBA', 'PHD'];
+// Filter options - Bilingual program types
+const programTypeOptions = [
+  { en: 'MBA', ar: 'ماجستير إدارة الأعمال' },
+  { en: 'DBA', ar: 'دكتوراه إدارة الأعمال' }
+];
 const specialityOptions = [
-  'Digital Transformation',
-  'Strategic Management',
-  'Healthcare Management',
-  'Project Management',
-  'Accounting & Finance Management',
-  'Marketing Management',
-  'Logistics & Supply Chain Management',
-  'Human Resources Management',
-  'Quality Management',
-  'Accounting & Finance',
-  'Entrepreneurship & Innovation',
-  'International Business Management',
-  'Sports Management',
-  'Hospitality & Events Management'
+  { en: 'Digital Transformation', ar: 'التحول الرقمي' },
+  { en: 'Strategic Management', ar: 'الإدارة الاستراتيجية' },
+  { en: 'Healthcare Management', ar: 'إدارة الرعاية الصحية' },
+  { en: 'Project Management', ar: 'إدارة المشاريع' },
+  { en: 'Accounting & Finance Management', ar: 'إدارة المحاسبة والمالية' },
+  { en: 'Marketing Management', ar: 'إدارة التسويق' },
+  { en: 'Logistics & Supply Chain Management', ar: 'إدارة اللوجستيات وسلسلة التوريد' },
+  { en: 'Human Resources Management', ar: 'إدارة الموارد البشرية' },
+  { en: 'Quality Management', ar: 'إدارة الجودة' },
+  { en: 'Accounting & Finance', ar: 'المحاسبة والمالية' },
+  { en: 'Entrepreneurship & Innovation', ar: 'ريادة الأعمال والابتكار' },
+  { en: 'International Business Management', ar: 'إدارة الأعمال الدولية' },
+  { en: 'Sports Management', ar: 'إدارة الرياضة' },
+  { en: 'Hospitality & Events Management', ar: 'إدارة الضيافة والفعاليات' }
 ];
-const studyTimeOptions = ['< 50 hours', '50-100 hours', '100-200 hours', '> 200 hours'];
-const categoryOptions = ['Business', 'Technology', 'Healthcare', 'Education', 'Arts'];
-const accreditationOptions = [
-  'ACBSP',
-  'ATHE', 
-  'QUALIFI',
-  'IACBE',
-  'IBAS',
-  'EDUQUA',
-  'QS',
-  'VERN'
-];
-const academicPartnershipOptions = [
-  'University of Bedfordshire',
-  'University of Plymouth'
-];
+
+// Helper function to get the correct specialty translation
+const getSpecialtyTranslation = (currentLanguage: 'en' | 'ar', specialtyEn?: string, specialtyAr?: string): string => {
+  // Check all possible values (both fields might contain either language)
+  const allValues = [specialtyEn, specialtyAr].filter(Boolean);
+  
+  // Find the matching specialty pair by checking against both English and Arabic options
+  for (const value of allValues) {
+    const specialtyPair = specialityOptions.find(option => 
+      option.en === value || option.ar === value
+    );
+    
+    if (specialtyPair) {
+      return currentLanguage === 'ar' ? specialtyPair.ar : specialtyPair.en;
+    }
+  }
+  
+  // Fallback to whatever we have
+  if (currentLanguage === 'ar') {
+    return specialtyAr || specialtyEn || 'غير محدد';
+  } else {
+    return specialtyEn || specialtyAr || 'Not specified';
+  }
+};
 
 // Translation key mapping functions
 const getFilterTranslationKey = (filterType: string, value: string): string => {
@@ -53,26 +64,23 @@ const getFilterTranslationKey = (filterType: string, value: string): string => {
   const specialMappings: Record<string, string> = {
     // Program types
     'MBA': 'filter_program_type_mba',
-    'PHD': 'filter_program_type_phd',
+    'DBA': 'filter_program_type_dba',
     
-    // Study time ranges
-    '< 50 hours': 'filter_study_time_under_50',
-    '50-100 hours': 'filter_study_time_50_100', 
-    '100-200 hours': 'filter_study_time_100_200',
-    '> 200 hours': 'filter_study_time_over_200',
-    
-    // Partnerships
-    'University of Bedfordshire': 'filter_partnership_bedfordshire',
-    'University of Plymouth': 'filter_partnership_plymouth',
-    
-    // Specialities - handle special cases
-    'Accounting & Finance Management': 'filter_speciality_accounting_finance_management',
-    'Logistics & Supply Chain Management': 'filter_speciality_logistics_supply_chain',
-    'Human Resources Management': 'filter_speciality_human_resources',
-    'Entrepreneurship & Innovation': 'filter_speciality_entrepreneurship_innovation',
-    'International Business Management': 'filter_speciality_international_business',
-    'Hospitality & Events Management': 'filter_speciality_hospitality_events',
-    'Accounting & Finance': 'filter_speciality_accounting_finance'
+    // Arabic Specialities
+    'التحول الرقمي': 'filter_speciality_digital_transformation',
+    'الإدارة الاستراتيجية': 'filter_speciality_strategic_management',
+    'إدارة الرعاية الصحية': 'filter_speciality_healthcare_management',
+    'إدارة المشاريع': 'filter_speciality_project_management',
+    'إدارة المحاسبة والمالية': 'filter_speciality_accounting_finance_management',
+    'إدارة التسويق': 'filter_speciality_marketing_management',
+    'إدارة اللوجستيات وسلسلة التوريد': 'filter_speciality_logistics_supply_chain',
+    'إدارة الموارد البشرية': 'filter_speciality_human_resources',
+    'إدارة الجودة': 'filter_speciality_quality_management',
+    'المحاسبة والمالية': 'filter_speciality_accounting_finance',
+    'ريادة الأعمال والابتكار': 'filter_speciality_entrepreneurship_innovation',
+    'إدارة الأعمال الدولية': 'filter_speciality_international_business',
+    'إدارة الرياضة': 'filter_speciality_sports_management',
+    'إدارة الضيافة والفعاليات': 'filter_speciality_hospitality_events'
   };
   
   // Check if we have a special mapping first
@@ -93,14 +101,6 @@ const getFilterTranslationKey = (filterType: string, value: string): string => {
       return `filter_program_type_${valueKey}`;
     case 'speciality':
       return `filter_speciality_${valueKey}`;
-    case 'studyTime':
-      return `filter_study_time_${valueKey}`;
-    case 'category':
-      return `filter_category_${valueKey}`;
-    case 'accreditation':
-      return `filter_accreditation_${valueKey}`;
-    case 'partnership':
-      return `filter_partnership_${valueKey}`;
     default:
       return valueKey;
   }
@@ -156,27 +156,25 @@ function ProgramsContent({ searchParams }: { searchParams: Record<string, string
   // Filter state
   const [selectedProgramTypes, setSelectedProgramTypes] = useState<string[]>([]);
   const [selectedSpecialities, setSelectedSpecialities] = useState<string[]>([]);
-  const [selectedStudyTimes, setSelectedStudyTimes] = useState<string[]>([]);
-  const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
-  const [selectedAccreditations, setSelectedAccreditations] = useState<string[]>([]);
-  const [selectedAcademicPartnerships, setSelectedAcademicPartnerships] = useState<string[]>([]);
   
   // UI state
   const [openFilters, setOpenFilters] = useState({
     programType: false,
-    speciality: false,
-    studyTime: false,
-    category: false,
-    accreditation: false,
-    academicPartnership: false
+    speciality: false
   });
 
   // Initialize filters from URL parameters
   useEffect(() => {
     if (queryParams) {
       const programType = queryParams.get('programType');
-      if (programType && programTypeOptions.includes(programType)) {
-        setSelectedProgramTypes([programType]);
+      if (programType) {
+        // Check if the programType exists in either English or Arabic
+        const exists = programTypeOptions.some(option => 
+          option.en === programType || option.ar === programType
+        );
+        if (exists) {
+          setSelectedProgramTypes([programType]);
+        }
       }
     }
   }, [queryParams]);
@@ -216,11 +214,6 @@ function ProgramsContent({ searchParams }: { searchParams: Record<string, string
     return () => unsubscribe();
   }, []);
 
-  const getHoursFromDuration = (duration: string): number => {
-    const match = duration.match(/(\d+)\s*hours?/i);
-    return match ? parseInt(match[1]) : 0;
-  };
-
   const toggleFilter = (filterType: keyof typeof openFilters) => {
     setOpenFilters(prev => ({
       ...prev,
@@ -228,123 +221,73 @@ function ProgramsContent({ searchParams }: { searchParams: Record<string, string
     }));
   };
 
-  const handleProgramTypeChange = (programType: string) => {
+  const handleProgramTypeChange = (programTypeValue: string) => {
     setSelectedProgramTypes(prev => 
-      prev.includes(programType) 
-        ? prev.filter(t => t !== programType) 
-        : [...prev, programType]
+      prev.includes(programTypeValue) 
+        ? prev.filter(t => t !== programTypeValue) 
+        : [...prev, programTypeValue]
     );
   };
 
-  const handleSpecialityChange = (speciality: string) => {
+  const handleSpecialityChange = (specialityValue: string) => {
     setSelectedSpecialities(prev => 
-      prev.includes(speciality) 
-        ? prev.filter(s => s !== speciality)
-        : [...prev, speciality]
-    );
-  };
-
-  const handleStudyTimeChange = (studyTime: string) => {
-    setSelectedStudyTimes(prev => 
-      prev.includes(studyTime) 
-        ? prev.filter(d => d !== studyTime)
-        : [...prev, studyTime]
-    );
-  };
-
-  const handleCategoryChange = (category: string) => {
-    setSelectedCategories(prev => 
-      prev.includes(category) 
-        ? prev.filter(c => c !== category)
-        : [...prev, category]
-    );
-  };
-
-  const handleAccreditationChange = (accreditation: string) => {
-    setSelectedAccreditations(prev => 
-      prev.includes(accreditation) 
-        ? prev.filter(a => a !== accreditation)
-        : [...prev, accreditation]
-    );
-  };
-
-  const handleAcademicPartnershipChange = (partnership: string) => {
-    setSelectedAcademicPartnerships(prev => 
-      prev.includes(partnership) 
-        ? prev.filter(p => p !== partnership)
-        : [...prev, partnership]
+      prev.includes(specialityValue) 
+        ? prev.filter(s => s !== specialityValue)
+        : [...prev, specialityValue]
     );
   };
 
   const clearAllFilters = () => {
     setSelectedProgramTypes([]);
     setSelectedSpecialities([]);
-    setSelectedStudyTimes([]);
-    setSelectedCategories([]);
-    setSelectedAccreditations([]);
-    setSelectedAcademicPartnerships([]);
   };
 
   // Filter programs based on selected criteria
   const filteredPrograms = allPrograms.filter(program => {
-    // Program type filter
-    if (selectedProgramTypes.length > 0 && !selectedProgramTypes.includes(program.programType)) {
-      return false;
-    }
-
-    // Speciality filter
-    if (selectedSpecialities.length > 0 && !selectedSpecialities.includes(program.speciality)) {
-      return false;
-    }
-
-    // Study time filter
-    if (selectedStudyTimes.length > 0) {
-      const hours = getHoursFromDuration(program.studyTime);
-      const matchesStudyTime = selectedStudyTimes.some(studyTime => {
-        switch (studyTime) {
-          case '< 50 hours':
-            return hours < 50;
-          case '50-100 hours':
-            return hours >= 50 && hours <= 100;
-          case '100-200 hours':
-            return hours > 100 && hours <= 200;
-          case '> 200 hours':
-            return hours > 200;
-          default:
-            return false;
+    // Program type filter - check both English and Arabic versions
+    if (selectedProgramTypes.length > 0) {
+      const isProgramTypeMatch = selectedProgramTypes.some(selectedType => {
+        // Find the program type pair that matches the selected filter
+        const selectedTypePair = programTypeOptions.find(option => 
+          option.en === selectedType || option.ar === selectedType
+        );
+        
+        if (selectedTypePair) {
+          // Check if program matches either English or Arabic version
+          return program.programType === selectedTypePair.en || 
+                 program.programType === selectedTypePair.ar;
         }
+        
+        // Fallback to direct matching
+        return selectedType === program.programType;
       });
-      if (!matchesStudyTime) return false;
-    }
-
-    // Category filter
-    if (selectedCategories.length > 0) {
-      const programCategory = (program as any)?.category || program.type || '';
-      if (!selectedCategories.some(cat => programCategory.toLowerCase().includes(cat.toLowerCase()))) {
+      
+      if (!isProgramTypeMatch) {
         return false;
       }
     }
 
-    // Accreditation filter
-    if (selectedAccreditations.length > 0) {
-      const programAccreditations = program.accreditations || [];
-      if (!selectedAccreditations.some(acc => 
-        programAccreditations.some(progAcc => 
-          progAcc.toLowerCase().includes(acc.toLowerCase())
-        )
-      )) {
-        return false;
-      }
-    }
-
-    // Academic Partnership filter
-    if (selectedAcademicPartnerships.length > 0) {
-      const programAccreditations = program.accreditations || [];
-      if (!selectedAcademicPartnerships.some(partnership => 
-        programAccreditations.some(progAcc => 
-          progAcc.toLowerCase().includes(partnership.toLowerCase())
-        )
-      )) {
+    // Speciality filter - check both English and Arabic versions
+    if (selectedSpecialities.length > 0) {
+      const isSpecialityMatch = selectedSpecialities.some(selectedSpec => {
+        // Find the specialty pair that matches the selected filter
+        const selectedPair = specialityOptions.find(option => 
+          option.en === selectedSpec || option.ar === selectedSpec
+        );
+        
+        if (selectedPair) {
+          // Check if program matches either English or Arabic version of the selected specialty
+          return program.speciality === selectedPair.en || 
+                 program.speciality === selectedPair.ar ||
+                 program.speciality_ar === selectedPair.ar ||
+                 program.speciality_ar === selectedPair.en;
+        }
+        
+        // Fallback to direct matching
+        return selectedSpec === program.speciality || selectedSpec === program.speciality_ar;
+      });
+      
+      if (!isSpecialityMatch) {
         return false;
       }
     }
@@ -387,9 +330,7 @@ function ProgramsContent({ searchParams }: { searchParams: Record<string, string
                   <Filter className={`w-5 h-5 ${currentLanguage === 'ar' ? 'ml-2' : 'mr-2'}`} />
                   {getContent('programs_page_filters_title')}
                 </h2>
-                {(selectedProgramTypes.length > 0 || selectedSpecialities.length > 0 || 
-                  selectedStudyTimes.length > 0 || selectedCategories.length > 0 || 
-                  selectedAccreditations.length > 0 || selectedAcademicPartnerships.length > 0) && (
+                {(selectedProgramTypes.length > 0 || selectedSpecialities.length > 0) && (
                   <button
                     onClick={clearAllFilters}
                     className={`text-sm text-red-600 hover:text-red-800 flex items-center ${getTextAlignClass()}`}
@@ -411,17 +352,22 @@ function ProgramsContent({ searchParams }: { searchParams: Record<string, string
                 </button>
                 {openFilters.programType && (
                   <div className="mt-2 space-y-2">
-                    {programTypeOptions.map(programType => (
-                      <label key={programType} className={`flex items-center ${getTextAlignClass()}`}>
-                        <input
-                          type="checkbox"
-                          checked={selectedProgramTypes.includes(programType)}
-                          onChange={() => handleProgramTypeChange(programType)}
-                          className="rounded border-gray-300 text-accent focus:ring-accent"
-                        />
-                        <span className={`text-sm text-gray-600 ${currentLanguage === 'ar' ? 'mr-2' : 'ml-2'}`}>{getFilterOptionText(getContent, 'programType', programType)}</span>
-                      </label>
-                    ))}
+                    {programTypeOptions.map((programType, index) => {
+                      const typeValue = currentLanguage === 'ar' ? programType.ar : programType.en;
+                      return (
+                        <label key={index} className={`flex items-center ${getTextAlignClass()}`}>
+                          <input
+                            type="checkbox"
+                            checked={selectedProgramTypes.includes(typeValue)}
+                            onChange={() => handleProgramTypeChange(typeValue)}
+                            className="rounded border-gray-300 text-accent focus:ring-accent"
+                          />
+                          <span className={`text-sm text-gray-600 ${currentLanguage === 'ar' ? 'mr-2' : 'ml-2'}`}>
+                            {currentLanguage === 'ar' ? programType.ar : programType.en}
+                          </span>
+                        </label>
+                      );
+                    })}
                   </div>
                 )}
               </div>
@@ -437,121 +383,22 @@ function ProgramsContent({ searchParams }: { searchParams: Record<string, string
                 </button>
                 {openFilters.speciality && (
                   <div className="mt-2 space-y-2 max-h-48 overflow-y-auto">
-                    {specialityOptions.map(spec => (
-                      <label key={spec} className={`flex items-center ${getTextAlignClass()}`}>
-                        <input
-                          type="checkbox"
-                          checked={selectedSpecialities.includes(spec)}
-                          onChange={() => handleSpecialityChange(spec)}
-                          className="rounded border-gray-300 text-accent focus:ring-accent"
-                        />
-                        <span className={`text-sm text-gray-600 ${currentLanguage === 'ar' ? 'mr-2' : 'ml-2'}`}>{getFilterOptionText(getContent, 'speciality', spec)}</span>
-                      </label>
-                    ))}
-                  </div>
-                )}
-              </div>
-
-              {/* Study Time Filter */}
-              <div className="mb-4">
-                <button
-                  onClick={() => toggleFilter('studyTime')}
-                  className="w-full flex items-center justify-between p-2 text-left font-medium text-primary hover:bg-gray-50 rounded"
-                >
-                  {getContent('programs_page_study_time')}
-                  {openFilters.studyTime ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
-                </button>
-                {openFilters.studyTime && (
-                  <div className="mt-2 space-y-2">
-                    {studyTimeOptions.map(studyTime => (
-                      <label key={studyTime} className={`flex items-center ${getTextAlignClass()}`}>
-                        <input
-                          type="checkbox"
-                          checked={selectedStudyTimes.includes(studyTime)}
-                          onChange={() => handleStudyTimeChange(studyTime)}
-                          className="rounded border-gray-300 text-accent focus:ring-accent"
-                        />
-                        <span className={`text-sm text-gray-600 ${currentLanguage === 'ar' ? 'mr-2' : 'ml-2'}`}>{getFilterOptionText(getContent, 'studyTime', studyTime)}</span>
-                      </label>
-                    ))}
-                  </div>
-                )}
-              </div>
-
-              {/* Category Filter */}
-              <div className="mb-4">
-                <button
-                  onClick={() => toggleFilter('category')}
-                  className="w-full flex items-center justify-between p-2 text-left font-medium text-primary hover:bg-gray-50 rounded"
-                >
-                  {getContent('programs_page_category')}
-                  {openFilters.category ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
-                </button>
-                {openFilters.category && (
-                  <div className="mt-2 space-y-2">
-                    {categoryOptions.map(category => (
-                      <label key={category} className={`flex items-center ${getTextAlignClass()}`}>
-                        <input
-                          type="checkbox"
-                          checked={selectedCategories.includes(category)}
-                          onChange={() => handleCategoryChange(category)}
-                          className="rounded border-gray-300 text-accent focus:ring-accent"
-                        />
-                        <span className={`text-sm text-gray-600 ${currentLanguage === 'ar' ? 'mr-2' : 'ml-2'}`}>{getFilterOptionText(getContent, 'category', category)}</span>
-                      </label>
-                    ))}
-                  </div>
-                )}
-              </div>
-
-              {/* Accreditation Filter */}
-              <div className="mb-4">
-                <button
-                  onClick={() => toggleFilter('accreditation')}
-                  className="w-full flex items-center justify-between p-2 text-left font-medium text-primary hover:bg-gray-50 rounded"
-                >
-                  {getContent('programs_page_accreditation')}
-                  {openFilters.accreditation ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
-                </button>
-                {openFilters.accreditation && (
-                  <div className="mt-2 space-y-2 max-h-48 overflow-y-auto">
-                    {accreditationOptions.map(accreditation => (
-                      <label key={accreditation} className={`flex items-center ${getTextAlignClass()}`}>
-                        <input
-                          type="checkbox"
-                          checked={selectedAccreditations.includes(accreditation)}
-                          onChange={() => handleAccreditationChange(accreditation)}
-                          className="rounded border-gray-300 text-accent focus:ring-accent"
-                        />
-                        <span className={`text-sm text-gray-600 ${currentLanguage === 'ar' ? 'mr-2' : 'ml-2'}`}>{getFilterOptionText(getContent, 'accreditation', accreditation)}</span>
-                      </label>
-                    ))}
-                  </div>
-                )}
-              </div>
-
-              {/* Academic Partnership Filter */}
-              <div className="mb-4">
-                <button
-                  onClick={() => toggleFilter('academicPartnership')}
-                  className="w-full flex items-center justify-between p-2 text-left font-medium text-primary hover:bg-gray-50 rounded"
-                >
-                  {getContent('programs_page_academic_partnerships')}
-                  {openFilters.academicPartnership ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
-                </button>
-                {openFilters.academicPartnership && (
-                  <div className="mt-2 space-y-2">
-                    {academicPartnershipOptions.map(partnership => (
-                      <label key={partnership} className={`flex items-center ${getTextAlignClass()}`}>
-                        <input
-                          type="checkbox"
-                          checked={selectedAcademicPartnerships.includes(partnership)}
-                          onChange={() => handleAcademicPartnershipChange(partnership)}
-                          className="rounded border-gray-300 text-accent focus:ring-accent"
-                        />
-                        <span className={`text-sm text-gray-600 ${currentLanguage === 'ar' ? 'mr-2' : 'ml-2'}`}>{getFilterOptionText(getContent, 'partnership', partnership)}</span>
-                      </label>
-                    ))}
+                    {specialityOptions.map((spec, index) => {
+                      const specValue = currentLanguage === 'ar' ? spec.ar : spec.en;
+                      return (
+                        <label key={index} className={`flex items-center ${getTextAlignClass()}`}>
+                          <input
+                            type="checkbox"
+                            checked={selectedSpecialities.includes(specValue)}
+                            onChange={() => handleSpecialityChange(specValue)}
+                            className="rounded border-gray-300 text-accent focus:ring-accent"
+                          />
+                          <span className={`text-sm text-gray-600 ${currentLanguage === 'ar' ? 'mr-2' : 'ml-2'}`}>
+                            {currentLanguage === 'ar' ? spec.ar : spec.en}
+                          </span>
+                        </label>
+                      );
+                    })}
                   </div>
                 )}
               </div>
@@ -581,73 +428,64 @@ function ProgramsContent({ searchParams }: { searchParams: Record<string, string
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
                 {filteredPrograms.map((program) => (
-                  <div key={program.id} className="bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300 overflow-hidden">
-                    {/* Program Thumbnail */}
-                    <div className="h-48 bg-gray-200 overflow-hidden flex items-center justify-center">
-                      <img 
-                        src={program.thumbnail || '/Logo.jpeg'} 
-                        alt={currentLanguage === 'ar' ? (program.title_ar || program.title) : program.title}
-                        className={`${program.thumbnail ? 'w-full h-full object-cover' : 'w-32 h-32 object-contain'}`}
-                      />
-                    </div>
-                    
-                    <div className="p-6">
-                      <div className="flex items-start justify-between mb-3">
-                        <span className="inline-block bg-primary/10 text-primary text-xs font-semibold px-2 py-1 rounded-full">
-                          {currentLanguage === 'ar' ? (program.type_ar || program.type) : program.type}
-                        </span>
+                  <Link key={program.id} href={`/programs/${program.id}`} className="block">
+                    <div className="bg-white rounded-lg shadow-md hover:shadow-lg transition-all duration-300 overflow-hidden cursor-pointer transform hover:scale-105">
+                      {/* Program Thumbnail */}
+                      <div className="h-48 bg-gray-200 overflow-hidden flex items-center justify-center">
+                        <img 
+                          src={program.thumbnail || '/Logo.jpeg'} 
+                          alt={currentLanguage === 'ar' ? (program.title_ar || program.title) : program.title}
+                          className={`${program.thumbnail ? 'w-full h-full object-cover' : 'w-32 h-32 object-contain'}`}
+                        />
                       </div>
                       
-                      <h3 className="text-lg font-semibold text-primary mb-2 line-clamp-2">
-                        {currentLanguage === 'ar' ? (program.title_ar || program.title) : program.title}
-                      </h3>
-                      
-                      <div className="space-y-2 mb-4">
-                        <p className="text-sm text-gray-600">
-                          <span className="font-medium">{getContent('programs_page_program_type_label')}</span> {program.programType}
-                        </p>
-                        <p className="text-sm text-gray-600">
-                          <span className="font-medium">{getContent('programs_page_speciality_label')}</span> {currentLanguage === 'ar' ? (program.speciality_ar || program.speciality) : program.speciality}
-                        </p>
-                        <p className="text-sm text-gray-600">
-                          <span className="font-medium">{getContent('programs_page_study_time_label')}</span> {currentLanguage === 'ar' ? (program.studyTime_ar || program.studyTime) : program.studyTime}
-                        </p>
-                      </div>
-
-                      {program.description && (
-                        <p className="text-sm text-gray-600 mb-4 line-clamp-3">
-                          {currentLanguage === 'ar' ? (program.description_ar || program.description) : program.description}
-                        </p>
-                      )}
-
-                      {program.accreditations && Array.isArray(program.accreditations) && program.accreditations.length > 0 && (
-                        <div className="mb-4">
-                          <p className="text-xs text-gray-500 mb-1">{getContent('programs_page_accredited_by')}</p>
-                          <div className="flex flex-wrap gap-1">
-                            {program.accreditations.slice(0, 2).map((acc, index) => (
-                              <span key={index} className="inline-block bg-gray-100 text-gray-700 text-xs px-2 py-1 rounded">
-                                {acc}
-                              </span>
-                            ))}
-                            {program.accreditations.length > 2 && (
-                              <span className="inline-block bg-gray-100 text-gray-700 text-xs px-2 py-1 rounded">
-                                +{program.accreditations.length - 2} {getContent('programs_page_more')}
-                              </span>
-                            )}
-                          </div>
+                      <div className="p-6">
+                        
+                        <h3 className="text-lg font-semibold text-primary mb-2 line-clamp-2">
+                          {currentLanguage === 'ar' ? (program.title_ar || program.title) : program.title}
+                        </h3>
+                        
+                        <div className="space-y-2 mb-4">
+                          <p className="text-sm text-gray-600">
+                            <span className="font-medium">{getContent('programs_page_program_type_label')}</span> {program.programType}
+                          </p>
+                          <p className="text-sm text-gray-600">
+                            <span className="font-medium">{getContent('programs_page_speciality_label')}</span> {getSpecialtyTranslation(currentLanguage, program.speciality, program.speciality_ar)}
+                          </p>
                         </div>
-                      )}
 
-                      <div className="flex items-center justify-end">
-                        <Link
-                          href={`/programs/${program.id}`}
-                          className="bg-primary text-white px-4 py-2 rounded-md hover:bg-primary-dark transition-colors text-sm font-medium"
-                        >
-                          {getContent('programs_page_learn_more')}
-                        </Link>
+                        {program.description && (
+                          <p className="text-sm text-gray-600 mb-4 line-clamp-3">
+                            {currentLanguage === 'ar' ? (program.description_ar || program.description) : program.description}
+                          </p>
+                        )}
+
+                        {program.accreditations && Array.isArray(program.accreditations) && program.accreditations.length > 0 && (
+                          <div className="mb-4">
+                            <p className="text-xs text-gray-500 mb-1">{getContent('programs_page_accredited_by')}</p>
+                            <div className="flex flex-wrap gap-1">
+                              {program.accreditations.slice(0, 2).map((acc, index) => (
+                                <span key={index} className="inline-block bg-gray-100 text-gray-700 text-xs px-2 py-1 rounded">
+                                  {acc}
+                                </span>
+                              ))}
+                              {program.accreditations.length > 2 && (
+                                <span className="inline-block bg-gray-100 text-gray-700 text-xs px-2 py-1 rounded">
+                                  +{program.accreditations.length - 2} {getContent('programs_page_more')}
+                                </span>
+                              )}
+                            </div>
+                          </div>
+                        )}
+
+                        <div className="flex items-center justify-end">
+                          <span className="bg-primary text-white px-4 py-2 rounded-md text-sm font-medium">
+                            {getContent('programs_page_learn_more')}
+                          </span>
+                        </div>
                       </div>
                     </div>
-                  </div>
+                  </Link>
                 ))}
               </div>
             )}

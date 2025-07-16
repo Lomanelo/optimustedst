@@ -235,9 +235,6 @@ const ProgramDetail: React.FC<ProgramDetailProps> = ({ id, program: propProgram 
         <div className="container mx-auto px-4 h-full flex items-center relative z-10">
           <div className={`max-w-4xl text-white ${currentLanguage === 'ar' ? 'text-right' : 'text-left'}`}>
             <div className="flex flex-wrap gap-2 mb-4">
-              <span className="bg-white/20 backdrop-blur-sm px-3 py-1 rounded-full text-sm font-medium">
-                {t('professional_certificate')}
-              </span>
               <span className="bg-accent/80 backdrop-blur-sm px-3 py-1 rounded-full text-sm font-medium">
                 {getCurrentData('duration')}
               </span>

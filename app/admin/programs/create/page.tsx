@@ -38,6 +38,8 @@ export default function CreateProgramPage() {
       career_opportunities: 'Career Opportunities *',
       key_features: 'Key Features *',
       duration: 'Duration *',
+      program_type: 'Program Type *',
+      specialty: 'Specialty *',
       accreditation: 'Accreditation *',
       accreditation_none: 'None',
       accreditation_vern: 'VERN University',
@@ -93,6 +95,8 @@ export default function CreateProgramPage() {
       career_opportunities: 'الفرص المهنية *',
       key_features: 'الميزات الرئيسية *',
       duration: 'المدة *',
+      program_type: 'نوع البرنامج *',
+      specialty: 'التخصص *',
       accreditation: 'الاعتماد الأكاديمي *',
       accreditation_none: 'لا يوجد',
       accreditation_vern: 'جامعة فيرن',
@@ -132,6 +136,24 @@ export default function CreateProgramPage() {
 
   const t = (key: keyof typeof translations.en) => translations[currentLanguage][key];
 
+  // Specialty options - Bilingual mapping
+  const specialtyOptions = [
+    { en: 'Digital Transformation', ar: 'التحول الرقمي' },
+    { en: 'Strategic Management', ar: 'الإدارة الاستراتيجية' },
+    { en: 'Healthcare Management', ar: 'إدارة الرعاية الصحية' },
+    { en: 'Project Management', ar: 'إدارة المشاريع' },
+    { en: 'Accounting & Finance Management', ar: 'إدارة المحاسبة والمالية' },
+    { en: 'Marketing Management', ar: 'إدارة التسويق' },
+    { en: 'Logistics & Supply Chain Management', ar: 'إدارة اللوجستيات وسلسلة التوريد' },
+    { en: 'Human Resources Management', ar: 'إدارة الموارد البشرية' },
+    { en: 'Quality Management', ar: 'إدارة الجودة' },
+    { en: 'Accounting & Finance', ar: 'المحاسبة والمالية' },
+    { en: 'Entrepreneurship & Innovation', ar: 'ريادة الأعمال والابتكار' },
+    { en: 'International Business Management', ar: 'إدارة الأعمال الدولية' },
+    { en: 'Sports Management', ar: 'إدارة الرياضة' },
+    { en: 'Hospitality & Events Management', ar: 'إدارة الضيافة والفعاليات' }
+  ];
+
   // Form data based on brochure template
   const [formData, setFormData] = useState({
     // English fields
@@ -142,6 +164,8 @@ export default function CreateProgramPage() {
     careerOpportunities: [] as string[],
     keyFeatures: [] as { title: string; description: string }[],
     duration: '',
+    programType: 'MBA', // MBA or DBA (English)
+    specialty: '', // English specialty
     accreditation: 'none', // none, vern, ibas, both
     status: 'draft', // draft, published, archived
     brochure_en: '',
@@ -154,6 +178,8 @@ export default function CreateProgramPage() {
     careerOpportunities_ar: [] as string[],
     keyFeatures_ar: [] as { title: string; description: string }[],
     duration_ar: '',
+    programType_ar: 'ماجستير إدارة الأعمال', // Arabic program type
+    specialty_ar: '', // Arabic specialty
     brochure_ar: '',
     coreLearnings: [] as string[],
     coreLearnings_ar: [] as string[]
@@ -229,20 +255,39 @@ export default function CreateProgramPage() {
             
             4. DURATION: Find the exact duration text (e.g., "1 Academic Year")
             
-            5. MODULES: Find the exact module/course names as listed
+            5. PROGRAM TYPE: Based on the program level, choose either "MBA" or "DBA". If unsure, default to "MBA".
             
-            6. CORE LEARNINGS: Find the exact learning outcomes, skills, or competencies as listed
+            6. MODULES: Find the exact module/course names as listed
             
-            7. CAREER OPPORTUNITIES: Find the exact job titles as listed
+            7. CORE LEARNINGS: Find the exact learning outcomes, skills, or competencies as listed
             
-            8. KEY FEATURES: Find the exact feature names and descriptions as written
+            8. CAREER OPPORTUNITIES: Find the exact job titles as listed
             
-            9. ACCREDITATION: Look for IBAS, VERN, or similar institutions
+            9. KEY FEATURES: Find the exact feature names and descriptions as written
+            
+            10. ACCREDITATION: Look for IBAS, VERN, or similar institutions
+
+            11. SPECIALTY: Based on the program content, choose the MOST appropriate specialty. Return the ENGLISH version from this list:
+                - Digital Transformation
+                - Strategic Management
+                - Healthcare Management
+                - Project Management
+                - Accounting & Finance Management
+                - Marketing Management
+                - Logistics & Supply Chain Management
+                - Human Resources Management
+                - Quality Management
+                - Accounting & Finance
+                - Entrepreneurship & Innovation
+                - International Business Management
+                - Sports Management
+                - Hospitality & Events Management
 
             REMEMBER: 
             - ONLY extract text that actually exists in the brochure
             - DO NOT create or generate any content
             - Copy text exactly as written
+                          - For specialty, choose the English name from the list above that best matches the program content
             - If you cannot find something, use empty string "" or empty array []
 
             Return this exact JSON structure:
@@ -251,6 +296,8 @@ export default function CreateProgramPage() {
               "tagline": "exact marketing tagline as found in brochure", 
               "description": "EXACT program description as found in brochure - word for word",
               "duration": "exact duration as found in brochure",
+              "programType": "MBA or DBA based on program level",
+              "specialty": "English specialty name from the list above that best matches",
               "modules": ["exact module names as found in brochure"],
               "coreLearnings": ["exact core learning outcomes as found in brochure"],
               "careerOpportunities": ["exact career titles as found in brochure"],
@@ -356,12 +403,27 @@ export default function CreateProgramPage() {
         throw new Error('ChatGPT response did not contain a valid JSON object');
       }
 
+      // Find matching specialty pair based on AI result
+      const selectedSpecialty = specialtyOptions.find(opt => 
+        opt.en === parsedData.specialty
+      ) || specialtyOptions.find(opt => opt.en === 'International Business Management');
+
+      // Map program type to Arabic
+      const programTypeMapping = {
+        'MBA': 'ماجستير إدارة الأعمال',
+        'DBA': 'دكتوراه إدارة الأعمال'
+      };
+
       // Validate and structure the data
       const result = {
         title: parsedData.title || 'MBA Program',
         tagline: parsedData.tagline || 'Excellence in Business Education',
         description: parsedData.description || 'This comprehensive program prepares professionals for leadership roles.',
         duration: parsedData.duration || '1 Academic Year',
+        programType: parsedData.programType || 'MBA',
+        programType_ar: programTypeMapping[parsedData.programType as keyof typeof programTypeMapping] || 'ماجستير إدارة الأعمال',
+        specialty: selectedSpecialty?.en || 'International Business Management',
+        specialty_ar: selectedSpecialty?.ar || 'إدارة الأعمال الدولية',
         modules: Array.isArray(parsedData.modules) ? parsedData.modules : [],
         coreLearnings: Array.isArray(parsedData.coreLearnings) ? parsedData.coreLearnings : [],
         careerOpportunities: Array.isArray(parsedData.careerOpportunities) ? parsedData.careerOpportunities : [],
@@ -421,6 +483,10 @@ export default function CreateProgramPage() {
         tagline: parsedData.tagline || prev.tagline,
         description: parsedData.description || prev.description,
         duration: parsedData.duration || prev.duration,
+        programType: parsedData.programType || prev.programType,
+        programType_ar: parsedData.programType_ar || prev.programType_ar,
+        specialty: parsedData.specialty || prev.specialty,
+        specialty_ar: parsedData.specialty_ar || prev.specialty_ar,
         modules: parsedData.modules || prev.modules,
         coreLearnings: parsedData.coreLearnings || prev.coreLearnings,
         careerOpportunities: parsedData.careerOpportunities || prev.careerOpportunities,
@@ -613,7 +679,7 @@ export default function CreateProgramPage() {
     }
   };
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
     // Clear success messages when user starts editing
@@ -802,6 +868,11 @@ export default function CreateProgramPage() {
 
       const programData = {
         ...formData,
+        // Add specialty as speciality for compatibility with filtering (use English version as main)
+        speciality: formData.specialty || formData.specialty_ar,
+        speciality_ar: formData.specialty_ar,
+        // Save both program type versions
+        programType_ar: formData.programType_ar,
         brochure_en: brochureEnUrl,
         brochure_ar: brochureArUrl,
         thumbnail: thumbnailUrl,
@@ -1099,6 +1170,52 @@ export default function CreateProgramPage() {
             />
           </div>
 
+          {/* Program Type */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700">
+              {activeLanguage === 'en' ? 'Program Type *' : 'نوع البرنامج *'}
+            </label>
+            <select
+              name={activeLanguage === 'ar' ? 'programType_ar' : 'programType'}
+              required
+              value={getCurrentField('programType')}
+              onChange={handleChange}
+              className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary focus:border-primary sm:text-sm"
+              dir={activeLanguage === 'ar' ? 'rtl' : 'ltr'}
+            >
+              <option value={activeLanguage === 'ar' ? 'ماجستير إدارة الأعمال' : 'MBA'}>
+                {activeLanguage === 'en' ? 'MBA' : 'ماجستير إدارة الأعمال'}
+              </option>
+              <option value={activeLanguage === 'ar' ? 'دكتوراه إدارة الأعمال' : 'DBA'}>
+                {activeLanguage === 'en' ? 'DBA' : 'دكتوراه إدارة الأعمال'}
+              </option>
+            </select>
+          </div>
+
+          {/* Specialty */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700">
+              {activeLanguage === 'en' ? 'Specialty *' : 'التخصص *'}
+            </label>
+            <select
+              name={activeLanguage === 'ar' ? 'specialty_ar' : 'specialty'}
+              required
+              value={getCurrentField('specialty')}
+              onChange={handleChange}
+              className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary focus:border-primary sm:text-sm"
+              dir={activeLanguage === 'ar' ? 'rtl' : 'ltr'}
+            >
+              <option value="">
+                {activeLanguage === 'en' ? 'Select a specialty...' : 'اختر التخصص...'}
+              </option>
+              {specialtyOptions.map((specialty, index) => (
+                <option key={index} value={activeLanguage === 'ar' ? specialty.ar : specialty.en}>
+                  {activeLanguage === 'ar' ? specialty.ar : specialty.en}
+                </option>
+              ))}
+            </select>
+          </div>
+
           {/* Accreditation */}
             <div>
             <label className="block text-sm font-medium text-gray-700">
@@ -1357,8 +1474,8 @@ export default function CreateProgramPage() {
                    <Plus size={16} />
                  </button>
                </div>
-             </div>
-           </div>
+                        </div>
+                      </div>
 
           {/* Brochure Upload */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

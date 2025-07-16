@@ -127,50 +127,7 @@ const AboutUs: React.FC = () => {
               />
             </div>
             
-            {/* Stats Section */}
-            <div className="mt-12">
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
-                <motion.div 
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.5, delay: 0.1 }}
-                  className="bg-white rounded-lg p-4 md:p-6 shadow-md text-center hover:shadow-lg transition-shadow duration-300"
-                >
-                  <div className="text-2xl md:text-3xl font-bold text-primary mb-1 md:mb-2">1000+</div>
-                  <div className="text-xs md:text-sm text-gray-600">{currentLanguage === 'ar' ? 'طالب حول العالم' : 'Students Worldwide'}</div>
-                </motion.div>
-                
-                <motion.div 
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.5, delay: 0.2 }}
-                  className="bg-white rounded-lg p-4 md:p-6 shadow-md text-center hover:shadow-lg transition-shadow duration-300"
-                >
-                  <div className="text-2xl md:text-3xl font-bold text-primary mb-1 md:mb-2">25+</div>
-                  <div className="text-xs md:text-sm text-gray-600">{currentLanguage === 'ar' ? 'برنامج متاح' : 'Available Programs'}</div>
-                </motion.div>
-                
-                <motion.div 
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.5, delay: 0.3 }}
-                  className="bg-white rounded-lg p-4 md:p-6 shadow-md text-center hover:shadow-lg transition-shadow duration-300"
-                >
-                  <div className="text-2xl md:text-3xl font-bold text-primary mb-1 md:mb-2">98%</div>
-                  <div className="text-xs md:text-sm text-gray-600">{currentLanguage === 'ar' ? 'معدل الرضا' : 'Satisfaction Rate'}</div>
-                </motion.div>
-                
-                <motion.div 
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.5, delay: 0.4 }}
-                  className="bg-white rounded-lg p-4 md:p-6 shadow-md text-center hover:shadow-lg transition-shadow duration-300"
-                >
-                  <div className="text-2xl md:text-3xl font-bold text-primary mb-1 md:mb-2">24/7</div>
-                  <div className="text-xs md:text-sm text-gray-600">{currentLanguage === 'ar' ? 'دعم على مدار الساعة' : 'Round-the-clock Support'}</div>
-                </motion.div>
-              </div>
-            </div>
+
           </div>
         </div>
         
