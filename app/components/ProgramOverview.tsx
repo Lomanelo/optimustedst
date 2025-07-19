@@ -161,7 +161,7 @@ const ProgramOverview: React.FC = () => {
                 </div>
 
                 <Link 
-                  href="/programs?programType=PHD"
+                  href="/programs?programType=DBA"
                   className="inline-flex items-center justify-center bg-primary hover:bg-primary-dark text-white font-bold py-4 px-8 rounded-xl transition-all duration-300 group-hover:scale-105 shadow-lg"
                   style={isArabic ? { fontFamily: 'Cairo, sans-serif' } : {}}
                 >
