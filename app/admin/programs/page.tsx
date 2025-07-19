@@ -4,8 +4,8 @@ import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '../../contexts/auth-context';
-import { Plus, Trash2, Eye, AlertCircle, Bookmark, BookmarkCheck, Filter, ChevronsUpDown, Copy, CheckCircle } from 'lucide-react';
-import { doc, deleteDoc, Timestamp, addDoc, serverTimestamp, collection } from 'firebase/firestore';
+import { Plus, Trash2, Eye, AlertCircle, Bookmark, BookmarkCheck, Filter, ChevronsUpDown, Copy, CheckCircle, Edit3, Save, X } from 'lucide-react';
+import { doc, deleteDoc, updateDoc, Timestamp, addDoc, serverTimestamp, collection, deleteField } from 'firebase/firestore';
 import { db } from '../../../src/firebase/firebase';
 import { allPrograms as staticPrograms } from '../../../src/data/optimus-data';
 import programService, { Program as ServiceProgram } from '../../../src/services/programService';
@@ -14,12 +14,15 @@ import programService, { Program as ServiceProgram } from '../../../src/services
 interface Program {
   id: string;
   title: string;
+  title_ar?: string;
   category?: string;
   speciality?: string;
   shortDescription?: string;
   description?: string;
+  description_ar?: string;
   thumbnail?: string;
   duration?: string;
+  duration_ar?: string;
   studyTime?: string;
   price?: number | string;
   status: 'published' | 'draft';
@@ -30,8 +33,23 @@ interface Program {
   isStatic?: boolean;
   level?: string;
   programType?: string;
+  programType_ar?: string;
   specialization?: string;
   type?: string;
+  // Additional fields for editing
+  tagline?: string;
+  tagline_ar?: string;
+  modules?: any[];
+  modules_ar?: any[];
+  careerOpportunities?: string[];
+  careerOpportunities_ar?: string[];
+  keyFeatures?: { title: string; description: string }[];
+  keyFeatures_ar?: { title: string; description: string }[];
+  accreditation?: string;
+  specialty?: string;
+  specialty_ar?: string;
+  brochure_en?: string;
+  brochure_ar?: string;
 }
 
 export default function AdminProgramsPage() {
@@ -52,6 +70,37 @@ export default function AdminProgramsPage() {
   const [importSuccess, setImportSuccess] = useState<string | null>(null);
   const [statusToggleLoading, setStatusToggleLoading] = useState<string | null>(null);
   const [statusSuccess, setStatusSuccess] = useState<string | null>(null);
+  
+  // Edit mode state
+  const [editingProgram, setEditingProgram] = useState<string | null>(null);
+  const [editFormData, setEditFormData] = useState<Partial<Program>>({});
+  const [editLoading, setEditLoading] = useState(false);
+  const [editSuccess, setEditSuccess] = useState<string | null>(null);
+  const [activeEditLanguage, setActiveEditLanguage] = useState<'en' | 'ar'>('en');
+  const [includeArabicEdit, setIncludeArabicEdit] = useState(false);
+  
+  // Input states for adding items during edit
+  const [newModule, setNewModule] = useState('');
+  const [newCareer, setNewCareer] = useState('');
+  const [newFeature, setNewFeature] = useState({ title: '', description: '' });
+
+  // Specialty options for editing
+  const specialtyOptions = [
+    { en: 'Digital Transformation', ar: 'التحول الرقمي' },
+    { en: 'Strategic Management', ar: 'الإدارة الاستراتيجية' },
+    { en: 'Healthcare Management', ar: 'إدارة الرعاية الصحية' },
+    { en: 'Project Management', ar: 'إدارة المشاريع' },
+    { en: 'Accounting & Finance Management', ar: 'إدارة المحاسبة والمالية' },
+    { en: 'Marketing Management', ar: 'إدارة التسويق' },
+    { en: 'Logistics & Supply Chain Management', ar: 'إدارة اللوجستيات وسلسلة التوريد' },
+    { en: 'Human Resources Management', ar: 'إدارة الموارد البشرية' },
+    { en: 'Quality Management', ar: 'إدارة الجودة' },
+    { en: 'Accounting & Finance', ar: 'المحاسبة والمالية' },
+    { en: 'Entrepreneurship & Innovation', ar: 'ريادة الأعمال والابتكار' },
+    { en: 'International Business Management', ar: 'إدارة الأعمال الدولية' },
+    { en: 'Sports Management', ar: 'إدارة الرياضة' },
+    { en: 'Hospitality & Events Management', ar: 'إدارة الضيافة والفعاليات' }
+  ];
 
   useEffect(() => {
     // Only fetch programs if the user is authenticated and has programs permission
@@ -98,27 +147,217 @@ export default function AdminProgramsPage() {
     }
   }, [currentUser, userRole, hasPermission, isLoading, router]);
 
-  const handleDeleteClick = (programId: string) => {
-    setDeleteConfirmation(programId);
+  // Clear success messages after a delay
+  useEffect(() => {
+    if (importSuccess) {
+      const timer = setTimeout(() => setImportSuccess(null), 5000);
+      return () => clearTimeout(timer);
+    }
+  }, [importSuccess]);
+
+  useEffect(() => {
+    if (statusSuccess) {
+      const timer = setTimeout(() => setStatusSuccess(null), 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [statusSuccess]);
+
+  useEffect(() => {
+    if (editSuccess) {
+      const timer = setTimeout(() => setEditSuccess(null), 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [editSuccess]);
+
+  // Start editing a program
+  const startEditing = (program: Program) => {
+    setEditingProgram(program.id);
+    
+    // Check if program has Arabic content
+    const hasArabicContent = !!(program.title_ar || program.description_ar || program.tagline_ar || (program as any).hasArabicContent);
+    setIncludeArabicEdit(hasArabicContent);
+    
+    setEditFormData({
+      title: program.title || '',
+      title_ar: program.title_ar || '',
+      tagline: program.tagline || '',
+      tagline_ar: program.tagline_ar || '',
+      description: program.description || '',
+      description_ar: program.description_ar || '',
+      duration: program.duration || '',
+      duration_ar: program.duration_ar || '',
+      programType: program.programType || 'MBA',
+      programType_ar: program.programType_ar || 'ماجستير إدارة الأعمال',
+      specialty: program.specialty || program.speciality || '',
+      specialty_ar: program.specialty_ar || '',
+      accreditation: program.accreditation || 'none',
+      status: program.status || 'draft',
+      modules: program.modules || [],
+      modules_ar: program.modules_ar || [],
+      careerOpportunities: program.careerOpportunities || [],
+      careerOpportunities_ar: program.careerOpportunities_ar || [],
+      keyFeatures: program.keyFeatures || [],
+      keyFeatures_ar: program.keyFeatures_ar || []
+    });
+    setActiveEditLanguage('en');
+    setNewModule('');
+    setNewCareer('');
+    setNewFeature({ title: '', description: '' });
   };
 
-  const confirmDelete = async (programId: string) => {
+  // Cancel editing
+  const cancelEditing = () => {
+    setEditingProgram(null);
+    setEditFormData({});
+    setActiveEditLanguage('en');
+    setIncludeArabicEdit(false);
+    setError('');
+    setNewModule('');
+    setNewCareer('');
+    setNewFeature({ title: '', description: '' });
+  };
+
+  // Handle form changes
+  const handleEditChange = (field: string, value: string) => {
+    setEditFormData(prev => ({
+      ...prev,
+      [field]: value
+    }));
+  };
+
+  // Add module
+  const addModule = () => {
+    if (!newModule.trim()) return;
+    const field = activeEditLanguage === 'ar' ? 'modules_ar' : 'modules';
+    setEditFormData(prev => ({
+      ...prev,
+      [field]: [...(prev[field] || []), newModule.trim()]
+    }));
+    setNewModule('');
+  };
+
+  // Remove module
+  const removeModule = (index: number) => {
+    const field = activeEditLanguage === 'ar' ? 'modules_ar' : 'modules';
+    setEditFormData(prev => ({
+      ...prev,
+      [field]: (prev[field] || []).filter((_, i) => i !== index)
+    }));
+  };
+
+  // Add career opportunity
+  const addCareer = () => {
+    if (!newCareer.trim()) return;
+    const field = activeEditLanguage === 'ar' ? 'careerOpportunities_ar' : 'careerOpportunities';
+    setEditFormData(prev => ({
+      ...prev,
+      [field]: [...(prev[field] || []), newCareer.trim()]
+    }));
+    setNewCareer('');
+  };
+
+  // Remove career opportunity
+  const removeCareer = (index: number) => {
+    const field = activeEditLanguage === 'ar' ? 'careerOpportunities_ar' : 'careerOpportunities';
+    setEditFormData(prev => ({
+      ...prev,
+      [field]: (prev[field] || []).filter((_, i) => i !== index)
+    }));
+  };
+
+  // Add key feature
+  const addFeature = () => {
+    if (!newFeature.title.trim() || !newFeature.description.trim()) return;
+    const field = activeEditLanguage === 'ar' ? 'keyFeatures_ar' : 'keyFeatures';
+    setEditFormData(prev => ({
+      ...prev,
+      [field]: [...(prev[field] || []), { ...newFeature }]
+    }));
+    setNewFeature({ title: '', description: '' });
+  };
+
+  // Remove key feature
+  const removeFeature = (index: number) => {
+    const field = activeEditLanguage === 'ar' ? 'keyFeatures_ar' : 'keyFeatures';
+    setEditFormData(prev => ({
+      ...prev,
+      [field]: (prev[field] || []).filter((_, i) => i !== index)
+    }));
+  };
+
+  // Get current field value based on active language
+  const getCurrentField = (field: string): any => {
+    if (includeArabicEdit && activeEditLanguage === 'ar' && `${field}_ar` in editFormData) {
+      return editFormData[`${field}_ar` as keyof typeof editFormData] || '';
+    }
+    return editFormData[field as keyof typeof editFormData] || '';
+  };
+
+  // Save program changes
+  const saveProgram = async (programId: string) => {
+    if (!editFormData.title?.trim()) {
+      setError('Program title is required');
+      return;
+    }
+
+    setEditLoading(true);
+    setError('');
+
     try {
-      setDeleteLoading(true);
-      // Check if this is a static program
-      const programToDelete = programs.find(p => p.id === programId);
+      // Update the program in Firestore
+      const programRef = doc(db, 'programs', programId);
       
-      if (programToDelete?.isStatic) {
-        // For static programs, just remove from the UI temporarily
-        // They will reappear on page refresh since they're templates
-        setStaticPrograms(staticPrograms.filter(p => p.id !== programId));
-        setPrograms(programs.filter(p => p.id !== programId));
-      } else {
-        // Delete from Firestore for admin-created programs
-        await programService.deleteProgram(programId);
-        // The real-time listener will update the UI automatically
+      const updateData: any = {
+        ...editFormData,
+        hasArabicContent: includeArabicEdit,
+        updatedAt: serverTimestamp()
+      };
+
+      // If Arabic is not enabled, remove Arabic fields
+      if (!includeArabicEdit) {
+        updateData.title_ar = deleteField();
+        updateData.tagline_ar = deleteField();
+        updateData.description_ar = deleteField();
+        updateData.duration_ar = deleteField();
+        updateData.programType_ar = deleteField();
+        updateData.specialty_ar = deleteField();
+        updateData.modules_ar = deleteField();
+        updateData.careerOpportunities_ar = deleteField();
+        updateData.keyFeatures_ar = deleteField();
       }
+
+      await updateDoc(programRef, updateData);
+
+      setEditSuccess('Program updated successfully!');
+      setEditingProgram(null);
+      setEditFormData({});
+      setActiveEditLanguage('en');
+      setIncludeArabicEdit(false);
+      setNewModule('');
+      setNewCareer('');
+      setNewFeature({ title: '', description: '' });
+    } catch (err) {
+      console.error('Error updating program:', err);
+      setError('Failed to update program. Please try again.');
+    } finally {
+      setEditLoading(false);
+    }
+  };
+
+  // Handle delete click
+  const handleDeleteClick = (id: string) => {
+    setDeleteConfirmation(id);
+  };
+
+  // Confirm delete
+  const confirmDelete = async (id: string) => {
+    setDeleteLoading(true);
+    setError('');
+    
+    try {
+      await deleteDoc(doc(db, 'programs', id));
       setDeleteConfirmation(null);
+      setError('');
     } catch (err) {
       console.error('Error deleting program:', err);
       setError('Failed to delete program. Please try again.');
@@ -127,65 +366,37 @@ export default function AdminProgramsPage() {
     }
   };
 
+  // Cancel delete
   const cancelDelete = () => {
     setDeleteConfirmation(null);
   };
 
-  const handleStatusToggle = async (programId: string, currentStatus: 'published' | 'draft') => {
-    try {
-      setStatusToggleLoading(programId);
-      const newStatus = currentStatus === 'published' ? 'draft' : 'published';
-      await programService.updateProgramStatus(programId, newStatus);
-      // The real-time listener will update the UI automatically
-      setStatusSuccess(`Program status updated to ${newStatus}`);
-      setTimeout(() => {
-        setStatusSuccess(null);
-      }, 5000);
-    } catch (err) {
-      console.error('Error updating program status:', err);
-      setError('Failed to update program status. Please try again.');
-    } finally {
-      setStatusToggleLoading(null);
-    }
-  };
-
+  // Import static program
   const importStaticProgram = async (staticProgram: Program) => {
+    setIsImporting(true);
+    setError('');
+
     try {
-      setIsImporting(true);
-      setError('');
-      
-      // Prepare the program data for Firestore
       const programData = {
         title: staticProgram.title,
         description: staticProgram.description || '',
-        shortDescription: staticProgram.shortDescription || '',
-        category: staticProgram.speciality || staticProgram.specialization || '',
-        speciality: staticProgram.speciality || staticProgram.specialization || '',
-        level: staticProgram.level || 'Certificate',
+        price: staticProgram.price || 0,
+        category: staticProgram.category || '',
+        speciality: staticProgram.speciality || '',
+        duration: staticProgram.duration || '',
+        studyTime: staticProgram.studyTime || '',
+        status: 'draft' as const,
+        level: staticProgram.level || '',
+        programType: staticProgram.programType || 'Certificate',
         type: staticProgram.type || 'Professional Certificate',
-        duration: staticProgram.studyTime || staticProgram.duration || '',
-        durationWeeks: 12, // Default value
-        price: typeof staticProgram.price === 'string' ? parseFloat(staticProgram.price) : (staticProgram.price || 0),
-        status: 'published' as const,
-        languages: ['en' as const], // Default language
+        specialization: staticProgram.specialization || '',
         createdAt: serverTimestamp(),
         updatedAt: serverTimestamp(),
-        enrollments: 0,
-        imported: true,
-        originalId: staticProgram.id
+        createdBy: currentUser?.uid
       };
-      
-      // Add to Firestore
-      const docId = await programService.createProgram(programData);
-      
-      // Show success message
-      setImportSuccess(`Program "${staticProgram.title}" was successfully imported with ID: ${docId}`);
-      
-      // Clear success message after 5 seconds
-      setTimeout(() => {
-        setImportSuccess(null);
-      }, 5000);
-      
+
+      await addDoc(collection(db, 'programs'), programData);
+      setImportSuccess(`Successfully imported "${staticProgram.title}" as an admin program!`);
     } catch (err) {
       console.error('Error importing program:', err);
       setError('Failed to import program. Please try again.');
@@ -194,7 +405,41 @@ export default function AdminProgramsPage() {
     }
   };
 
-  // Filter and sort functions
+  // Toggle status
+  const handleStatusToggle = async (programId: string, currentStatus: string) => {
+    setStatusToggleLoading(programId);
+    
+    try {
+      const newStatus = currentStatus === 'published' ? 'draft' : 'published';
+      const programRef = doc(db, 'programs', programId);
+      
+      await updateDoc(programRef, {
+        status: newStatus,
+        updatedAt: serverTimestamp()
+      });
+      
+      setStatusSuccess(`Program ${newStatus === 'published' ? 'published' : 'moved to draft'} successfully!`);
+    } catch (err) {
+      console.error('Error updating program status:', err);
+      setError('Failed to update program status. Please try again.');
+    } finally {
+      setStatusToggleLoading(null);
+    }
+  };
+
+  // Redirect if not authorized
+  useEffect(() => {
+    if (!isLoading && !currentUser) {
+      router.push('/admin/login');
+      return;
+    }
+
+    if (!isLoading && currentUser && userRole !== 'admin' && !hasPermission('programs')) {
+      router.push('/admin/login');
+    }
+  }, [currentUser, userRole, isLoading, router, hasPermission]);
+
+  // Filter and sort programs
   const filteredPrograms = programs
     .filter(program => {
       // Status filter
@@ -263,6 +508,15 @@ export default function AdminProgramsPage() {
         </div>
       )}
 
+      {editSuccess && (
+        <div className="mb-4 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative" role="alert">
+          <div className="flex">
+            <CheckCircle size={20} className="mr-2" />
+            <span>{editSuccess}</span>
+          </div>
+        </div>
+      )}
+
       {/* Error message */}
       {error && (
         <div className="mb-4 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-md">
@@ -301,18 +555,9 @@ export default function AdminProgramsPage() {
                 className="border border-gray-300 rounded-md shadow-sm py-1 pl-3 pr-10 text-sm focus:outline-none focus:ring-primary focus:border-primary"
               >
                 <option value="all">All Types</option>
-                <option value="admin">Admin Created</option>
+                <option value="admin">Admin Programs</option>
                 <option value="static">Template Programs</option>
               </select>
-              
-              {/* Sort order */}
-              <button
-                onClick={() => setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc')}
-                className="flex items-center space-x-1 border border-gray-300 rounded-md shadow-sm py-1 px-3 text-sm bg-white hover:bg-gray-50"
-              >
-                <span>Sort</span>
-                <ChevronsUpDown className="h-4 w-4" />
-              </button>
               
               {/* Search */}
               <input
@@ -320,177 +565,524 @@ export default function AdminProgramsPage() {
                 placeholder="Search programs..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="border border-gray-300 rounded-md shadow-sm py-1 px-3 text-sm focus:outline-none focus:ring-primary focus:border-primary"
+                className="border border-gray-300 rounded-md shadow-sm py-1 pl-3 pr-10 text-sm focus:outline-none focus:ring-primary focus:border-primary min-w-[200px]"
               />
+              
+              {/* Sort order */}
+              <button
+                onClick={() => setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc')}
+                className="inline-flex items-center px-3 py-1 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
+              >
+                <ChevronsUpDown className="h-4 w-4 mr-1" />
+                {sortOrder === 'asc' ? 'A-Z' : 'Z-A'}
+              </button>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Programs list */}
-      <div className="bg-white shadow overflow-hidden sm:rounded-lg border border-gray-200">
-        <ul className="divide-y divide-gray-200">
+      {/* Programs List */}
+      <div className="bg-white shadow-sm border border-gray-200 rounded-lg">
+        <div className="px-4 py-5 sm:p-6">
+          <h3 className="text-lg font-medium text-gray-900 mb-4">
+            Programs ({filteredPrograms.length})
+          </h3>
+          
           {filteredPrograms.length === 0 ? (
-            <li className="py-12">
-              <div className="text-center">
-                <svg
-                  className="mx-auto h-12 w-12 text-gray-400"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={1}
-                    d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"
-                  />
-                </svg>
-                <h3 className="mt-2 text-sm font-medium text-gray-900">No programs found</h3>
-                <p className="mt-1 text-sm text-gray-500">
-                  Get started by creating a new program or adjusting your filters.
-                </p>
-                <div className="mt-6">
-                  <Link
-                    href="/admin/programs/create"
-                    className="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-primary hover:bg-primary-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
-                  >
-                    <Plus className="-ml-1 mr-2 h-5 w-5" aria-hidden="true" />
-                    Create Program
-                  </Link>
-                </div>
-              </div>
-            </li>
+            <div className="text-center py-8">
+              <p className="text-gray-500">No programs found matching your criteria.</p>
+              <Link
+                href="/admin/programs/create"
+                className="mt-4 inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary hover:bg-primary-dark"
+              >
+                <Plus className="mr-2 h-4 w-4" />
+                Create Your First Program
+              </Link>
+            </div>
           ) : (
-            filteredPrograms.map((program) => (
-              <li key={program.id} className={`px-4 py-5 ${program.isStatic ? 'bg-blue-50' : ''}`}>
-                <div className="flex items-start justify-between">
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center">
-                      <h3 className="text-lg font-medium text-gray-900 mr-2">{program.title}</h3>
-                      {program.status === 'draft' ? (
-                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
-                          <Bookmark className="w-3 h-3 mr-1" />
-                          Draft
-                        </span>
-                      ) : (
-                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                          <BookmarkCheck className="w-3 h-3 mr-1" />
-                          Published
-                        </span>
-                      )}
-                      {program.isStatic && (
-                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 ml-2">
-                          Template
-                        </span>
-                      )}
-                    </div>
-                    <div className="mt-1 flex flex-col sm:flex-row sm:flex-wrap sm:mt-0 sm:space-x-6">
-                      <div className="mt-2 flex items-center text-sm text-gray-500">
-                        <span className="font-medium mr-1">Type:</span> 
-                        {program.programType || program.type || 'N/A'}
+            <ul className="divide-y divide-gray-200">
+              {filteredPrograms.map((program) => (
+                <li key={program.id} className="py-6">
+                  {editingProgram === program.id ? (
+                    // Edit Form
+                    <div className="space-y-6" dir={activeEditLanguage === 'ar' ? 'rtl' : 'ltr'}>
+                      {/* Arabic Content Toggle */}
+                      <div className="border-b border-gray-200 pb-4 mb-4">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center">
+                            <input
+                              id="include-arabic-edit"
+                              type="checkbox"
+                              checked={includeArabicEdit}
+                              onChange={(e) => {
+                                setIncludeArabicEdit(e.target.checked);
+                                if (!e.target.checked) {
+                                  setActiveEditLanguage('en');
+                                }
+                              }}
+                              className="h-4 w-4 text-primary focus:ring-primary border-gray-300 rounded"
+                            />
+                            <label htmlFor="include-arabic-edit" className="ml-3 text-sm font-medium text-gray-700">
+                              Include Arabic version of the program
+                            </label>
+                          </div>
+                          
+                          {includeArabicEdit && (
+                            <div className="flex rounded-md shadow-sm" role="group">
+                              <button
+                                type="button"
+                                onClick={() => setActiveEditLanguage('en')}
+                                className={`flex items-center justify-center px-3 py-2 rounded-l-md text-sm font-medium transition-colors ${
+                                  activeEditLanguage === 'en'
+                                    ? 'bg-white text-gray-900 shadow-sm border border-gray-300'
+                                    : 'text-gray-500 hover:text-gray-700 border border-gray-300 bg-gray-100'
+                                }`}
+                              >
+                                English
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => setActiveEditLanguage('ar')}
+                                className={`flex items-center justify-center px-3 py-2 rounded-r-md text-sm font-medium transition-colors ${
+                                  activeEditLanguage === 'ar'
+                                    ? 'bg-white text-gray-900 shadow-sm border border-gray-300'
+                                    : 'text-gray-500 hover:text-gray-700 border border-gray-300 bg-gray-100'
+                                }`}
+                              >
+                                العربية
+                              </button>
+                            </div>
+                          )}
+                        </div>
                       </div>
-                      <div className="mt-2 flex items-center text-sm text-gray-500">
-                        <span className="font-medium mr-1">Speciality:</span> 
-                        {program.speciality || program.specialization || 'N/A'}
+
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        {/* Program Title */}
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-1">
+                            {activeEditLanguage === 'en' ? 'Program Title *' : 'عنوان البرنامج *'}
+                          </label>
+                          <input
+                            type="text"
+                            value={getCurrentField('title')}
+                            onChange={(e) => handleEditChange(activeEditLanguage === 'ar' ? 'title_ar' : 'title', e.target.value)}
+                            className="w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary focus:border-primary sm:text-sm"
+                            placeholder={activeEditLanguage === 'en' ? "e.g. DUAL MBA IN ACCOUNTING AND FINANCE" : "مثال: ماجستير إدارة الأعمال المزدوج في المحاسبة والمالية"}
+                            dir={activeEditLanguage === 'ar' ? 'rtl' : 'ltr'}
+                          />
+                        </div>
+
+                        {/* Program Tagline */}
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-1">
+                            {activeEditLanguage === 'en' ? 'Program Tagline' : 'شعار البرنامج'}
+                          </label>
+                          <input
+                            type="text"
+                            value={getCurrentField('tagline')}
+                            onChange={(e) => handleEditChange(activeEditLanguage === 'ar' ? 'tagline_ar' : 'tagline', e.target.value)}
+                            className="w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary focus:border-primary sm:text-sm"
+                            placeholder={activeEditLanguage === 'en' ? "e.g. Empower Your Future with Internationally Accredited MBA and DBA Programs" : "مثال: عزز مستقبلك ببرامج ماجستير إدارة الأعمال ودكتوراه إدارة الأعمال المعتمدة دولياً"}
+                            dir={activeEditLanguage === 'ar' ? 'rtl' : 'ltr'}
+                          />
+                        </div>
+
+                        {/* Duration */}
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-1">
+                            {activeEditLanguage === 'en' ? 'Duration' : 'المدة'}
+                          </label>
+                          <input
+                            type="text"
+                            value={getCurrentField('duration')}
+                            onChange={(e) => handleEditChange(activeEditLanguage === 'ar' ? 'duration_ar' : 'duration', e.target.value)}
+                            className="w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary focus:border-primary sm:text-sm"
+                            placeholder={activeEditLanguage === 'en' ? "e.g. 1 Academic Year" : "مثال: سنة أكاديمية واحدة"}
+                            dir={activeEditLanguage === 'ar' ? 'rtl' : 'ltr'}
+                          />
+                        </div>
+
+                        {/* Program Type */}
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-1">
+                            {activeEditLanguage === 'en' ? 'Program Type' : 'نوع البرنامج'}
+                          </label>
+                          <select
+                            value={getCurrentField('programType')}
+                            onChange={(e) => handleEditChange(activeEditLanguage === 'ar' ? 'programType_ar' : 'programType', e.target.value)}
+                            className="w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary focus:border-primary sm:text-sm"
+                            dir={activeEditLanguage === 'ar' ? 'rtl' : 'ltr'}
+                          >
+                            <option value={activeEditLanguage === 'ar' ? 'ماجستير إدارة الأعمال' : 'MBA'}>
+                              {activeEditLanguage === 'en' ? 'MBA' : 'ماجستير إدارة الأعمال'}
+                            </option>
+                            <option value={activeEditLanguage === 'ar' ? 'دكتوراه إدارة الأعمال' : 'DBA'}>
+                              {activeEditLanguage === 'en' ? 'DBA' : 'دكتوراه إدارة الأعمال'}
+                            </option>
+                          </select>
+                        </div>
+
+                        {/* Specialty */}
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-1">
+                            {activeEditLanguage === 'en' ? 'Specialty' : 'التخصص'}
+                          </label>
+                          <select
+                            value={getCurrentField('specialty')}
+                            onChange={(e) => handleEditChange(activeEditLanguage === 'ar' ? 'specialty_ar' : 'specialty', e.target.value)}
+                            className="w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary focus:border-primary sm:text-sm"
+                            dir={activeEditLanguage === 'ar' ? 'rtl' : 'ltr'}
+                          >
+                            <option value="">
+                              {activeEditLanguage === 'en' ? 'Select a specialty...' : 'اختر التخصص...'}
+                            </option>
+                            {specialtyOptions.map((specialty, index) => (
+                              <option key={index} value={activeEditLanguage === 'ar' ? specialty.ar : specialty.en}>
+                                {activeEditLanguage === 'ar' ? specialty.ar : specialty.en}
+                              </option>
+                            ))}
+                          </select>
+                        </div>
+
+                        {/* Accreditation */}
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-1">
+                            {activeEditLanguage === 'en' ? 'Accreditation' : 'الاعتماد الأكاديمي'}
+                          </label>
+                          <select
+                            value={editFormData.accreditation || 'none'}
+                            onChange={(e) => handleEditChange('accreditation', e.target.value)}
+                            className="w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary focus:border-primary sm:text-sm"
+                            dir={activeEditLanguage === 'ar' ? 'rtl' : 'ltr'}
+                          >
+                            <option value="none">{activeEditLanguage === 'en' ? 'None' : 'لا يوجد'}</option>
+                            <option value="vern">{activeEditLanguage === 'en' ? 'VERN University' : 'جامعة فيرن'}</option>
+                            <option value="ibas">{activeEditLanguage === 'en' ? 'IBAS Business School' : 'مدرسة آيباس للأعمال'}</option>
+                            <option value="both">{activeEditLanguage === 'en' ? 'VERN & IBAS' : 'فيرن وآيباس'}</option>
+                          </select>
+                        </div>
+
+                        {/* Status */}
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-1">
+                            {activeEditLanguage === 'en' ? 'Status' : 'حالة البرنامج'}
+                          </label>
+                          <select
+                            value={editFormData.status || 'draft'}
+                            onChange={(e) => handleEditChange('status', e.target.value)}
+                            className="w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary focus:border-primary sm:text-sm"
+                            dir={activeEditLanguage === 'ar' ? 'rtl' : 'ltr'}
+                          >
+                            <option value="draft">{activeEditLanguage === 'en' ? 'Draft' : 'مسودة'}</option>
+                            <option value="published">{activeEditLanguage === 'en' ? 'Published' : 'منشور'}</option>
+                          </select>
+                        </div>
                       </div>
-                      <div className="mt-2 flex items-center text-sm text-gray-500">
-                        <span className="font-medium mr-1">Price:</span> 
-                        {program.price && typeof program.price === 'number' 
-                          ? `$${program.price.toLocaleString()}` 
-                          : program.price || 'N/A'}
+
+                      {/* Description */}
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          {activeEditLanguage === 'en' ? 'Description' : 'وصف البرنامج'}
+                        </label>
+                        <textarea
+                          value={getCurrentField('description')}
+                          onChange={(e) => handleEditChange(activeEditLanguage === 'ar' ? 'description_ar' : 'description', e.target.value)}
+                          rows={4}
+                          className="w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary focus:border-primary sm:text-sm"
+                          placeholder={activeEditLanguage === 'en' ? "Detailed description of the program..." : "وصف مفصل للبرنامج..."}
+                          dir={activeEditLanguage === 'ar' ? 'rtl' : 'ltr'}
+                        />
                       </div>
-                      <div className="mt-2 flex items-center text-sm text-gray-500">
-                        <span className="font-medium mr-1">Duration:</span> 
-                        {program.studyTime || program.duration || 'N/A'}
+
+                      {/* Program Overview (Modules) */}
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-3">
+                          {activeEditLanguage === 'en' ? 'Program Overview (Modules)' : 'نظرة عامة على البرنامج (الوحدات)'}
+                        </label>
+                        <div className="space-y-2">
+                          {(activeEditLanguage === 'ar' ? editFormData.modules_ar : editFormData.modules)?.map((module, index) => (
+                            <div key={index} className="flex items-center justify-between bg-gray-50 p-3 rounded-md">
+                              <span dir={activeEditLanguage === 'ar' ? 'rtl' : 'ltr'}>{module}</span>
+                              <button
+                                type="button"
+                                onClick={() => removeModule(index)}
+                                className="text-red-600 hover:text-red-800"
+                              >
+                                <Trash2 size={16} />
+                              </button>
+                            </div>
+                          ))}
+                          <div className="flex gap-2">
+                            <input
+                              type="text"
+                              value={newModule}
+                              onChange={(e) => setNewModule(e.target.value)}
+                              placeholder={activeEditLanguage === 'en' ? 'Enter module name' : 'أدخل اسم الوحدة'}
+                              className="flex-1 border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary focus:border-primary sm:text-sm"
+                              dir={activeEditLanguage === 'ar' ? 'rtl' : 'ltr'}
+                            />
+                            <button
+                              type="button"
+                              onClick={addModule}
+                              className="inline-flex items-center px-3 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-primary hover:bg-primary-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
+                            >
+                              <Plus size={16} />
+                            </button>
+                          </div>
+                        </div>
                       </div>
-                    </div>
-                    <p className="mt-2 text-sm text-gray-500">
-                      {program.shortDescription || (program.description ? `${program.description.substring(0, 150)}...` : '')}
-                    </p>
-                  </div>
-                  <div className="flex-shrink-0 flex items-center space-x-2">
-                    {program.isStatic ? (
-                      <>
+
+                      {/* Career Opportunities */}
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-3">
+                          {activeEditLanguage === 'en' ? 'Career Opportunities' : 'الفرص المهنية'}
+                        </label>
+                        <div className="space-y-2">
+                          {(activeEditLanguage === 'ar' ? editFormData.careerOpportunities_ar : editFormData.careerOpportunities)?.map((career, index) => (
+                            <div key={index} className="flex items-center justify-between bg-gray-50 p-3 rounded-md">
+                              <span dir={activeEditLanguage === 'ar' ? 'rtl' : 'ltr'}>{career}</span>
+                              <button
+                                type="button"
+                                onClick={() => removeCareer(index)}
+                                className="text-red-600 hover:text-red-800"
+                              >
+                                <Trash2 size={16} />
+                              </button>
+                            </div>
+                          ))}
+                          <div className="flex gap-2">
+                            <input
+                              type="text"
+                              value={newCareer}
+                              onChange={(e) => setNewCareer(e.target.value)}
+                              placeholder={activeEditLanguage === 'en' ? 'Enter career opportunity' : 'أدخل الفرصة المهنية'}
+                              className="flex-1 border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary focus:border-primary sm:text-sm"
+                              dir={activeEditLanguage === 'ar' ? 'rtl' : 'ltr'}
+                            />
+                            <button
+                              type="button"
+                              onClick={addCareer}
+                              className="inline-flex items-center px-3 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-primary hover:bg-primary-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
+                            >
+                              <Plus size={16} />
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Key Features */}
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-3">
+                          {activeEditLanguage === 'en' ? 'Key Features' : 'الميزات الرئيسية'}
+                        </label>
+                        <div className="space-y-2">
+                          {(activeEditLanguage === 'ar' ? editFormData.keyFeatures_ar : editFormData.keyFeatures)?.map((feature, index) => (
+                            <div key={index} className="flex items-center justify-between bg-gray-50 p-3 rounded-md">
+                              <div dir={activeEditLanguage === 'ar' ? 'rtl' : 'ltr'}>
+                                <div className="font-medium">{feature.title}</div>
+                                <div className="text-sm text-gray-600">{feature.description}</div>
+                              </div>
+                              <button
+                                type="button"
+                                onClick={() => removeFeature(index)}
+                                className="text-red-600 hover:text-red-800"
+                              >
+                                <Trash2 size={16} />
+                              </button>
+                            </div>
+                          ))}
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                            <input
+                              type="text"
+                              value={newFeature.title}
+                              onChange={(e) => setNewFeature(prev => ({ ...prev, title: e.target.value }))}
+                              placeholder={activeEditLanguage === 'en' ? 'Enter feature title' : 'أدخل عنوان الميزة'}
+                              className="border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary focus:border-primary sm:text-sm"
+                              dir={activeEditLanguage === 'ar' ? 'rtl' : 'ltr'}
+                            />
+                            <input
+                              type="text"
+                              value={newFeature.description}
+                              onChange={(e) => setNewFeature(prev => ({ ...prev, description: e.target.value }))}
+                              placeholder={activeEditLanguage === 'en' ? 'Enter feature description' : 'أدخل وصف الميزة'}
+                              className="border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary focus:border-primary sm:text-sm"
+                              dir={activeEditLanguage === 'ar' ? 'rtl' : 'ltr'}
+                            />
+                          </div>
+                          <button
+                            type="button"
+                            onClick={addFeature}
+                            className="inline-flex items-center px-3 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-primary hover:bg-primary-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
+                          >
+                            <Plus size={16} className={`${activeEditLanguage === 'ar' ? 'ml-2' : 'mr-2'}`} />
+                            {activeEditLanguage === 'en' ? 'Add Key Feature' : 'إضافة ميزة رئيسية'}
+                          </button>
+                        </div>
+                      </div>
+
+                      {/* Action Buttons */}
+                      <div className="flex items-center space-x-3 pt-4">
                         <button
-                          onClick={() => importStaticProgram(program)}
-                          disabled={isImporting}
-                          className="inline-flex items-center p-2 border border-transparent rounded-full shadow-sm text-white bg-primary hover:bg-primary-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
-                          title="Import as Admin Program"
+                          onClick={() => saveProgram(program.id)}
+                          disabled={editLoading}
+                          className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
                         >
-                          <Copy className="h-5 w-5" aria-hidden="true" />
-                        </button>
-                      </>
-                    ) : (
-                      <>
-                        <Link
-                          href={`/programs/${program.id}`}
-                          target="_blank"
-                          className="inline-flex items-center p-2 border border-gray-300 rounded-full shadow-sm text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
-                          title="View Program"
-                        >
-                          <Eye className="h-5 w-5" aria-hidden="true" />
-                        </Link>
-                        <button
-                          onClick={() => handleStatusToggle(program.id, program.status)}
-                          disabled={statusToggleLoading === program.id}
-                          className={`inline-flex items-center p-2 border border-gray-300 rounded-full shadow-sm hover:shadow-md focus:outline-none focus:ring-2 focus:ring-offset-2 transition-colors ${
-                            program.status === 'published' 
-                              ? 'text-white bg-green-600 hover:bg-green-700 focus:ring-green-500' 
-                              : 'text-white bg-yellow-600 hover:bg-yellow-700 focus:ring-yellow-500'
-                          }`}
-                          title={program.status === 'published' ? 'Mark as Draft' : 'Publish Program'}
-                        >
-                          {statusToggleLoading === program.id ? (
-                            <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                          {editLoading ? (
+                            <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                               <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                               <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                             </svg>
                           ) : (
-                            program.status === 'published' ? (
-                              <BookmarkCheck className="h-5 w-5" aria-hidden="true" />
-                            ) : (
-                              <Bookmark className="h-5 w-5" aria-hidden="true" />
-                            )
+                            <Save className="h-4 w-4 mr-2" />
                           )}
+                          {editLoading ? 'Saving...' : 'Save Changes'}
                         </button>
                         <button
-                          onClick={() => handleDeleteClick(program.id)}
-                          className="inline-flex items-center p-2 border border-transparent rounded-full shadow-sm text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
-                          title="Delete Program"
+                          onClick={cancelEditing}
+                          disabled={editLoading}
+                          className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
                         >
-                          <Trash2 className="h-5 w-5" aria-hidden="true" />
+                          <X className="h-4 w-4 mr-2" />
+                          Cancel
                         </button>
-                      </>
-                    )}
-                  </div>
-                </div>
-
-                {/* Delete confirmation */}
-                {deleteConfirmation === program.id && (
-                  <div className="mt-4 p-4 bg-red-50 border border-red-200 rounded-md">
-                    <p className="text-sm text-red-700">Are you sure you want to delete this program? This action cannot be undone.</p>
-                    <div className="mt-3 flex space-x-3">
-                      <button
-                        onClick={() => confirmDelete(program.id)}
-                        disabled={deleteLoading}
-                        className="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md shadow-sm text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
-                      >
-                        {deleteLoading ? 'Deleting...' : 'Yes, Delete'}
-                      </button>
-                      <button
-                        onClick={cancelDelete}
-                        className="inline-flex items-center px-3 py-1.5 border border-gray-300 text-xs font-medium rounded-md shadow-sm text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-                      >
-                        Cancel
-                      </button>
+                      </div>
                     </div>
-                  </div>
-                )}
-              </li>
-            ))
+                  ) : (
+                    // Display Mode
+                    <div className="flex items-center justify-between">
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center space-x-3">
+                            <h4 className="text-lg font-medium text-gray-900 truncate">{program.title}</h4>
+                            <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                              program.status === 'published' 
+                                ? 'bg-green-100 text-green-800' 
+                                : 'bg-yellow-100 text-yellow-800'
+                            }`}>
+                              {program.status}
+                            </span>
+                            {program.isStatic && (
+                              <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                                Template
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                        <div className="mt-2 grid grid-cols-2 md:grid-cols-4 gap-4 text-sm text-gray-500">
+                          <div>
+                            <span className="font-medium mr-1">Type:</span> 
+                            {program.programType || program.type || 'N/A'}
+                          </div>
+                          <div>
+                            <span className="font-medium mr-1">Specialty:</span> 
+                            {program.specialty || program.speciality || program.specialization || 'N/A'}
+                          </div>
+                          <div>
+                            <span className="font-medium mr-1">Price:</span> 
+                            {typeof program.price === 'number' 
+                              ? `$${program.price.toLocaleString()}` 
+                              : program.price || 'N/A'}
+                          </div>
+                          <div>
+                            <span className="font-medium mr-1">Duration:</span> 
+                            {program.studyTime || program.duration || 'N/A'}
+                          </div>
+                        </div>
+                        <p className="mt-2 text-sm text-gray-500">
+                          {program.shortDescription || (program.description ? `${program.description.substring(0, 150)}...` : '')}
+                        </p>
+                      </div>
+                      <div className="flex-shrink-0 flex items-center space-x-2">
+                        {program.isStatic ? (
+                          <>
+                            <button
+                              onClick={() => importStaticProgram(program)}
+                              disabled={isImporting}
+                              className="inline-flex items-center p-2 border border-transparent rounded-full shadow-sm text-white bg-primary hover:bg-primary-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
+                              title="Import as Admin Program"
+                            >
+                              <Copy className="h-5 w-5" aria-hidden="true" />
+                            </button>
+                          </>
+                        ) : (
+                          <>
+                            <Link
+                              href={`/programs/${program.id}`}
+                              target="_blank"
+                              className="inline-flex items-center p-2 border border-gray-300 rounded-full shadow-sm text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
+                              title="View Program"
+                            >
+                              <Eye className="h-5 w-5" aria-hidden="true" />
+                            </Link>
+                            <button
+                              onClick={() => startEditing(program)}
+                              className="inline-flex items-center p-2 border border-gray-300 rounded-full shadow-sm text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
+                              title="Edit Program"
+                            >
+                              <Edit3 className="h-5 w-5" aria-hidden="true" />
+                            </button>
+                            <button
+                              onClick={() => handleStatusToggle(program.id, program.status)}
+                              disabled={statusToggleLoading === program.id}
+                              className={`inline-flex items-center p-2 border border-gray-300 rounded-full shadow-sm hover:shadow-md focus:outline-none focus:ring-2 focus:ring-offset-2 transition-colors ${
+                                program.status === 'published' 
+                                  ? 'text-white bg-green-600 hover:bg-green-700 focus:ring-green-500' 
+                                  : 'text-white bg-yellow-600 hover:bg-yellow-700 focus:ring-yellow-500'
+                              }`}
+                              title={program.status === 'published' ? 'Mark as Draft' : 'Publish Program'}
+                            >
+                              {statusToggleLoading === program.id ? (
+                                <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                </svg>
+                              ) : (
+                                program.status === 'published' ? (
+                                  <BookmarkCheck className="h-5 w-5" aria-hidden="true" />
+                                ) : (
+                                  <Bookmark className="h-5 w-5" aria-hidden="true" />
+                                )
+                              )}
+                            </button>
+                            <button
+                              onClick={() => handleDeleteClick(program.id)}
+                              className="inline-flex items-center p-2 border border-transparent rounded-full shadow-sm text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
+                              title="Delete Program"
+                            >
+                              <Trash2 className="h-5 w-5" aria-hidden="true" />
+                            </button>
+                          </>
+                        )}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Delete confirmation */}
+                  {deleteConfirmation === program.id && (
+                    <div className="mt-4 p-4 bg-red-50 border border-red-200 rounded-md">
+                      <p className="text-sm text-red-700">Are you sure you want to delete this program? This action cannot be undone.</p>
+                      <div className="mt-3 flex space-x-3">
+                        <button
+                          onClick={() => confirmDelete(program.id)}
+                          disabled={deleteLoading}
+                          className="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md shadow-sm text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
+                        >
+                          {deleteLoading ? 'Deleting...' : 'Yes, Delete'}
+                        </button>
+                        <button
+                          onClick={cancelDelete}
+                          className="inline-flex items-center px-3 py-1.5 border border-gray-300 text-xs font-medium rounded-md shadow-sm text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                        >
+                          Cancel
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                </li>
+              ))}
+            </ul>
           )}
-        </ul>
+        </div>
       </div>
     </div>
   );

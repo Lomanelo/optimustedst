@@ -192,6 +192,9 @@ export default function CreateProgramPage() {
   const [thumbnailFile, setThumbnailFile] = useState<File | null>(null);
   const [thumbnailPreview, setThumbnailPreview] = useState<string>('');
 
+  // Arabic content optional state
+  const [includeArabic, setIncludeArabic] = useState(false);
+
   // Auto-fill states
   const [autoFillText, setAutoFillText] = useState('');
   const [autoFilling, setAutoFilling] = useState(false);
@@ -436,8 +439,7 @@ export default function CreateProgramPage() {
         duration: result.duration,
         modulesCount: result.modules.length,
         modules: result.modules,
-        coreLearningsCount: result.coreLearnings.length,
-        coreLearnings: result.coreLearnings,
+
         careersCount: result.careerOpportunities.length,
         careers: result.careerOpportunities,
         featuresCount: result.keyFeatures.length,
@@ -563,7 +565,7 @@ export default function CreateProgramPage() {
                 "description": "Arabic translation of description",
                 "duration": "Arabic translation of duration",
                 "modules": ["Arabic translation of module1", "Arabic translation of module2", ...],
-                "coreLearnings": ["Arabic translation of core learning1", "Arabic translation of core learning2", ...],
+
                 "careerOpportunities": ["Arabic translation of career1", "Arabic translation of career2", ...],
                 "keyFeatures": [{"title": "Arabic translation of feature title", "description": "Arabic translation of feature description"}, ...]
               }`
@@ -660,7 +662,7 @@ export default function CreateProgramPage() {
       console.log('Translation completed successfully:', {
         title: parsedTranslation.title,
         modulesCount: parsedTranslation.modules?.length || 0,
-        coreLearningsCount: parsedTranslation.coreLearnings?.length || 0,
+
         careersCount: parsedTranslation.careerOpportunities?.length || 0,
         featuresCount: parsedTranslation.keyFeatures?.length || 0
       });
@@ -848,12 +850,23 @@ export default function CreateProgramPage() {
         ...formData,
         // Add specialty as speciality for compatibility with filtering (use English version as main)
         speciality: formData.specialty || formData.specialty_ar,
-        speciality_ar: formData.specialty_ar,
-        // Save both program type versions
-        programType_ar: formData.programType_ar,
+        // Only include Arabic fields if Arabic content is enabled
+        ...(includeArabic && {
+          speciality_ar: formData.specialty_ar,
+          programType_ar: formData.programType_ar,
+          title_ar: formData.title_ar,
+          tagline_ar: formData.tagline_ar,
+          description_ar: formData.description_ar,
+          duration_ar: formData.duration_ar,
+          specialty_ar: formData.specialty_ar,
+          modules_ar: formData.modules_ar,
+          careerOpportunities_ar: formData.careerOpportunities_ar,
+          keyFeatures_ar: formData.keyFeatures_ar
+        }),
         brochure_en: brochureEnUrl,
         brochure_ar: brochureArUrl,
         thumbnail: thumbnailUrl,
+        hasArabicContent: includeArabic,
         createdAt: serverTimestamp(),
         updatedAt: serverTimestamp(),
         createdBy: currentUser?.uid
@@ -862,8 +875,7 @@ export default function CreateProgramPage() {
       console.log('Program data being saved:', {
         modules: programData.modules,
         modules_ar: programData.modules_ar,
-        coreLearnings: programData.coreLearnings,
-        coreLearnings_ar: programData.coreLearnings_ar,
+
         careerOpportunities: programData.careerOpportunities,
         careerOpportunities_ar: programData.careerOpportunities_ar,
         keyFeatures: programData.keyFeatures,
@@ -886,8 +898,8 @@ export default function CreateProgramPage() {
   };
 
   const getCurrentField = (field: keyof typeof formData): any => {
-    // For language-specific fields, check if Arabic version exists when in Arabic mode
-    if (activeLanguage === 'ar' && `${field}_ar` in formData) {
+    // For language-specific fields, check if Arabic version exists when in Arabic mode and Arabic is enabled
+    if (includeArabic && activeLanguage === 'ar' && `${field}_ar` in formData) {
       return formData[`${field}_ar` as keyof typeof formData] || '';
     }
     // For fields that don't have language variants (accreditation, status), always return the main field
@@ -933,44 +945,68 @@ export default function CreateProgramPage() {
           </div>
         )}
         
-        {/* Language Tabs */}
-        <div className="flex space-x-1 mb-6 bg-gray-100 p-1 rounded-lg">
-          <button
-            type="button"
-            onClick={() => {
-              setActiveLanguage('en');
-              setError('');
-              setTranslateSuccess('');
-              setAutoFillSuccess('');
-            }}
-            className={`flex-1 flex items-center justify-center px-3 py-2 rounded-md text-sm font-medium transition-colors ${activeLanguage === 'en' 
-              ? 'bg-white text-gray-900 shadow-sm' 
-              : 'text-gray-500 hover:text-gray-700'
-            }`}
-          >
-            <Globe size={16} className="mr-2" />
-            {t('english')}
-          </button>
-          <button
-            type="button"
-            onClick={() => {
-              setActiveLanguage('ar');
-              setError('');
-              setTranslateSuccess('');
-              setAutoFillSuccess('');
-            }}
-            className={`flex-1 flex items-center justify-center px-3 py-2 rounded-md text-sm font-medium transition-colors ${activeLanguage === 'ar' 
-              ? 'bg-white text-gray-900 shadow-sm' 
-              : 'text-gray-500 hover:text-gray-700'
-            }`}
-          >
-            <Languages size={16} className="mr-2" />
-            {t('arabic')}
-          </button>
+        {/* Arabic Content Toggle */}
+        <div className="mb-6 bg-gray-50 border border-gray-200 rounded-lg p-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center">
+              <input
+                id="include-arabic"
+                type="checkbox"
+                checked={includeArabic}
+                onChange={(e) => {
+                  setIncludeArabic(e.target.checked);
+                  if (!e.target.checked) {
+                    setActiveLanguage('en');
+                  }
+                }}
+                className="h-4 w-4 text-primary focus:ring-primary border-gray-300 rounded"
+              />
+              <label htmlFor="include-arabic" className="ml-3 text-sm font-medium text-gray-700">
+                Include Arabic version of the program
+              </label>
+            </div>
+            
+            {includeArabic && (
+              <div className="flex rounded-md shadow-sm" role="group">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setActiveLanguage('en');
+                    setError('');
+                    setTranslateSuccess('');
+                    setAutoFillSuccess('');
+                  }}
+                  className={`flex items-center justify-center px-3 py-2 rounded-l-md text-sm font-medium transition-colors ${activeLanguage === 'en' 
+                    ? 'bg-white text-gray-900 shadow-sm border border-gray-300' 
+                    : 'text-gray-500 hover:text-gray-700 border border-gray-300 bg-gray-100'
+                  }`}
+                >
+                  <Globe size={16} className="mr-2" />
+                  {t('english')}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setActiveLanguage('ar');
+                    setError('');
+                    setTranslateSuccess('');
+                    setAutoFillSuccess('');
+                  }}
+                  className={`flex items-center justify-center px-3 py-2 rounded-r-md text-sm font-medium transition-colors ${activeLanguage === 'ar' 
+                    ? 'bg-white text-gray-900 shadow-sm border border-gray-300' 
+                    : 'text-gray-500 hover:text-gray-700 border border-gray-300 bg-gray-100'
+                  }`}
+                >
+                  <Languages size={16} className="mr-2" />
+                  {t('arabic')}
+                </button>
+              </div>
+            )}
+          </div>
         </div>
         
         {/* Auto-Translate Section - Only show for Arabic */}
-        {activeLanguage === 'ar' && (
+        {includeArabic && activeLanguage === 'ar' && (
           <div className="mb-6 bg-green-50 border border-green-200 rounded-lg p-6">
             <div className="flex items-center mb-4">
               <Languages size={24} className="mr-3 text-green-600" />
@@ -1085,16 +1121,16 @@ export default function CreateProgramPage() {
             <label className="block text-sm font-medium text-gray-700">
                 {activeLanguage === 'en' ? 'Program Title *' : 'عنوان البرنامج *'}
               </label>
-              <input
-                type="text"
-              name={activeLanguage === 'ar' ? 'title_ar' : 'title'}
-                required
+                          <input
+              type="text"
+              name={includeArabic && activeLanguage === 'ar' ? 'title_ar' : 'title'}
+              required
               value={getCurrentField('title')}
-                onChange={handleChange}
-                className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary focus:border-primary sm:text-sm"
-              placeholder={activeLanguage === 'en' ? "e.g. DUAL MBA IN ACCOUNTING AND FINANCE" : "مثال: ماجستير إدارة الأعمال المزدوج في المحاسبة والمالية"}
-              dir={activeLanguage === 'ar' ? 'rtl' : 'ltr'}
-              />
+              onChange={handleChange}
+              className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary focus:border-primary sm:text-sm"
+              placeholder={includeArabic && activeLanguage === 'en' ? "e.g. DUAL MBA IN ACCOUNTING AND FINANCE" : includeArabic && activeLanguage === 'ar' ? "مثال: ماجستير إدارة الأعمال المزدوج في المحاسبة والمالية" : "e.g. DUAL MBA IN ACCOUNTING AND FINANCE"}
+              dir={includeArabic && activeLanguage === 'ar' ? 'rtl' : 'ltr'}
+            />
             </div>
 
           {/* Program Tagline */}
