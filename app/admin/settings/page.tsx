@@ -19,7 +19,7 @@ import {
   Check,
   AlertCircle
 } from 'lucide-react';
-import { SiTiktok, SiSnapchat } from 'react-icons/si';
+import { SiTiktok, SiSnapchat, SiX } from 'react-icons/si';
 import { doc, getDoc, setDoc, updateDoc } from 'firebase/firestore';
 import { db } from '../../../src/firebase/firebase';
 
@@ -27,6 +27,7 @@ interface SocialMediaLinks {
   facebook: string;
   instagram: string;
   twitter: string;
+  x: string;
   snapchat: string;
   linkedin: string;
   tiktok: string;
@@ -47,6 +48,7 @@ export default function AdminSettingsPage() {
     facebook: '',
     instagram: '',
     twitter: '',
+    x: '',
     snapchat: '',
     linkedin: '',
     tiktok: ''
@@ -74,6 +76,7 @@ export default function AdminSettingsPage() {
           facebook: '',
           instagram: '',
           twitter: '',
+          x: '',
           snapchat: '',
           linkedin: '',
           tiktok: ''
@@ -127,7 +130,9 @@ export default function AdminSettingsPage() {
       case 'instagram':
         return <Instagram {...iconProps} className="text-pink-600" />;
       case 'twitter':
-        return <Twitter {...iconProps} className="text-blue-400" />;
+        return <SiX {...iconProps} className="text-black" />;
+      case 'x':
+        return <SiX {...iconProps} className="text-black" />;
       case 'snapchat':
         return <SiSnapchat {...iconProps} className="text-yellow-500" />;
       case 'linkedin':
@@ -143,7 +148,8 @@ export default function AdminSettingsPage() {
     const labels = {
       facebook: 'Facebook',
       instagram: 'Instagram',
-      twitter: 'Twitter (X)',
+      twitter: 'X (Twitter)',
+      x: 'X.com',
       snapchat: 'Snapchat',
       linkedin: 'LinkedIn',
       tiktok: 'TikTok'
@@ -155,7 +161,8 @@ export default function AdminSettingsPage() {
     const placeholders = {
       facebook: 'https://facebook.com/yourpage',
       instagram: 'https://instagram.com/youraccount',
-      twitter: 'https://twitter.com/youraccount',
+      twitter: 'https://x.com/youraccount',
+      x: 'https://x.com/youraccount',
       snapchat: 'https://snapchat.com/add/yourusername',
       linkedin: 'https://linkedin.com/company/yourcompany',
       tiktok: 'https://tiktok.com/@youraccount'

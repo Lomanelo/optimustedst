@@ -52,6 +52,7 @@ export interface Program {
   status: 'published' | 'draft';
   enrollments?: number;
   languages: ('en' | 'ar')[];
+  exclusive?: boolean;
   createdAt: any;
   updatedAt: any;
 }
@@ -108,6 +109,7 @@ export interface CreateProgramData {
   instructorId?: string;
   status: 'published' | 'draft';
   languages: ('en' | 'ar')[];
+  exclusive?: boolean;
 }
 
 export interface UpdateProgramData extends Partial<CreateProgramData> {

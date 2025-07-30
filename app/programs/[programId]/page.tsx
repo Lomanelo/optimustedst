@@ -178,9 +178,9 @@ export default function ProgramDetailPage({ params }: PageProps) {
 
 
                 <h1 className="text-4xl md:text-6xl font-bold mb-6 leading-tight">
-                  {getLocalizedContent(program.title, (program as any).title_ar)}
-                </h1>
-                
+              {getLocalizedContent(program.title, (program as any).title_ar)}
+            </h1>
+            
             {((program as any).shortDescription || (program as any).shortDescription_ar) && (
                   <p className="text-xl md:text-2xl text-white/90 mb-6 leading-relaxed">
                 {getLocalizedContent((program as any).shortDescription, (program as any).shortDescription_ar)}
@@ -302,7 +302,7 @@ export default function ProgramDetailPage({ params }: PageProps) {
                         <svg className="w-6 h-6 text-primary" fill="currentColor" viewBox="0 0 20 20">
                           <path fillRule="evenodd" d="M3 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" clipRule="evenodd" />
                             </svg>
-                      </div>
+                </div>
                       <h2 className="text-3xl font-bold text-primary">
                         {currentLanguage === 'ar' ? 'الميزات الرئيسية' : 'Key Features'}
                   </h2>
@@ -380,7 +380,7 @@ export default function ProgramDetailPage({ params }: PageProps) {
                   <div className="w-8 h-8 bg-accent/10 rounded-lg flex items-center justify-center mr-3">
                     <svg className="w-4 h-4 text-accent" fill="currentColor" viewBox="0 0 20 20">
                       <path fillRule="evenodd" d="M6 6V5a3 3 0 013-3h2a3 3 0 013 3v1h2a2 2 0 012 2v3.57A22.952 22.952 0 0110 13a22.95 22.95 0 01-8-1.43V8a2 2 0 012-2h2zm2-1a1 1 0 011-1h2a1 1 0 011 1v1H8V5zm1 5a1 1 0 011-1h.01a1 1 0 110 2H10a1 1 0 01-1-1z" clipRule="evenodd" />
-                    </svg>
+                  </svg>
                   </div>
                   <h3 className="text-lg font-semibold text-gray-800">
                     {currentLanguage === 'ar' ? 'هذه الدراسة تمكنك من متابعة الفرص المستقبلية وتسريع مسيرتك المهنية في أدوار مثل:' : 'This study enables you to pursue future opportunities and accelerate your career in roles such as:'}

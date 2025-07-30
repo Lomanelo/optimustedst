@@ -5,7 +5,7 @@ import {
   Twitter, 
   Linkedin 
 } from 'lucide-react';
-import { SiTiktok, SiSnapchat } from 'react-icons/si';
+import { SiTiktok, SiSnapchat, SiX } from 'react-icons/si';
 import { useSettings } from '../../app/contexts/settings-context';
 import { useCMS } from '../../app/contexts/cms-context';
 
@@ -46,7 +46,9 @@ export default function SocialMediaLinks({
       case 'instagram':
         return <Instagram {...iconProps} />;
       case 'twitter':
-        return <Twitter {...iconProps} />;
+        return <SiX {...iconProps} />;
+      case 'x':
+        return <SiX {...iconProps} />;
       case 'snapchat':
         return <SiSnapchat {...iconProps} />;
       case 'linkedin':
@@ -62,7 +64,8 @@ export default function SocialMediaLinks({
     const labels: { [key: string]: string } = {
       facebook: 'Facebook',
       instagram: 'Instagram',
-      twitter: 'Twitter',
+      twitter: 'X (Twitter)',
+      x: 'X.com',
       snapchat: 'Snapchat',
       linkedin: 'LinkedIn',
       tiktok: 'TikTok'

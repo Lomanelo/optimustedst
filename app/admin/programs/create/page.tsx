@@ -180,7 +180,8 @@ export default function CreateProgramPage() {
     duration_ar: '',
     programType_ar: 'ماجستير إدارة الأعمال', // Arabic program type
     specialty_ar: '', // Arabic specialty
-    brochure_ar: ''
+    brochure_ar: '',
+    exclusive: false // Whether the program is exclusive
   });
 
   const [activeLanguage, setActiveLanguage] = useState<'en' | 'ar'>('en');
@@ -867,6 +868,7 @@ export default function CreateProgramPage() {
         brochure_ar: brochureArUrl,
         thumbnail: thumbnailUrl,
         hasArabicContent: includeArabic,
+        exclusive: formData.exclusive || false,
         createdAt: serverTimestamp(),
         updatedAt: serverTimestamp(),
         createdBy: currentUser?.uid
@@ -1323,6 +1325,31 @@ export default function CreateProgramPage() {
                 {t('status_archived')}
               </label>
             </div>
+          </div>
+
+          {/* Exclusive Program */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-3">
+              {activeLanguage === 'en' ? 'Exclusive Program' : 'برنامج حصري'}
+            </label>
+            <div className="flex items-center">
+              <input
+                id="exclusive"
+                type="checkbox"
+                name="exclusive"
+                checked={formData.exclusive}
+                onChange={(e) => setFormData(prev => ({ ...prev, exclusive: e.target.checked }))}
+                className="h-4 w-4 text-primary focus:ring-primary border-gray-300 rounded"
+              />
+              <label htmlFor="exclusive" className={`text-sm text-gray-700 ${activeLanguage === 'ar' ? 'mr-3' : 'ml-3'}`}>
+                {activeLanguage === 'en' ? 'This is an exclusive program' : 'هذا برنامج حصري'}
+              </label>
+            </div>
+            <p className="mt-1 text-sm text-gray-500">
+              {activeLanguage === 'en' 
+                ? 'Exclusive programs are highlighted and given priority in the program listing' 
+                : 'البرامج الحصرية يتم تمييزها وإعطاؤها الأولوية في قائمة البرامج'}
+            </p>
           </div>
 
           {/* Program Overview (Modules) */}

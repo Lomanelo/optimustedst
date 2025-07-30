@@ -130,6 +130,7 @@ interface Program {
   description_ar?: string;
   accreditations?: string[];
   status?: 'published' | 'draft';
+  exclusive?: boolean;
   createdAt?: any;
   thumbnail?: string;
 }
@@ -156,6 +157,7 @@ function ProgramsContent({ searchParams }: { searchParams: Record<string, string
   // Filter state
   const [selectedProgramTypes, setSelectedProgramTypes] = useState<string[]>([]);
   const [selectedSpecialities, setSelectedSpecialities] = useState<string[]>([]);
+  const [showExclusiveOnly, setShowExclusiveOnly] = useState<boolean>(false);
   
   // UI state
   const [openFilters, setOpenFilters] = useState({
@@ -173,7 +175,7 @@ function ProgramsContent({ searchParams }: { searchParams: Record<string, string
           option.en === programType || option.ar === programType
         );
         if (exists) {
-          setSelectedProgramTypes([programType]);
+        setSelectedProgramTypes([programType]);
         }
       }
     }
@@ -202,6 +204,7 @@ function ProgramsContent({ searchParams }: { searchParams: Record<string, string
         description_ar: program.description_ar,
         accreditations: (program as any).accreditations || [],
         status: program.status,
+        exclusive: (program as any).exclusive,
         createdAt: program.createdAt,
         thumbnail: program.thumbnail,
       } as Program));
@@ -240,6 +243,7 @@ function ProgramsContent({ searchParams }: { searchParams: Record<string, string
   const clearAllFilters = () => {
     setSelectedProgramTypes([]);
     setSelectedSpecialities([]);
+    setShowExclusiveOnly(false);
   };
 
   // Filter programs based on selected criteria
@@ -256,8 +260,8 @@ function ProgramsContent({ searchParams }: { searchParams: Record<string, string
           // Check if program matches either English or Arabic version
           return program.programType === selectedTypePair.en || 
                  program.programType === selectedTypePair.ar;
-        }
-        
+    }
+
         // Fallback to direct matching
         return selectedType === program.programType;
       });
@@ -290,6 +294,11 @@ function ProgramsContent({ searchParams }: { searchParams: Record<string, string
       if (!isSpecialityMatch) {
         return false;
       }
+    }
+
+    // Exclusive filter
+    if (showExclusiveOnly && !program.exclusive) {
+      return false;
     }
 
     return true;
@@ -330,7 +339,7 @@ function ProgramsContent({ searchParams }: { searchParams: Record<string, string
                   <Filter className={`w-5 h-5 ${currentLanguage === 'ar' ? 'ml-2' : 'mr-2'}`} />
                   {getContent('programs_page_filters_title')}
                 </h2>
-                {(selectedProgramTypes.length > 0 || selectedSpecialities.length > 0) && (
+                {(selectedProgramTypes.length > 0 || selectedSpecialities.length > 0 || showExclusiveOnly) && (
                   <button
                     onClick={clearAllFilters}
                     className={`text-sm text-red-600 hover:text-red-800 flex items-center ${getTextAlignClass()}`}
@@ -356,18 +365,30 @@ function ProgramsContent({ searchParams }: { searchParams: Record<string, string
                       const typeValue = currentLanguage === 'ar' ? programType.ar : programType.en;
                       return (
                         <label key={index} className={`flex items-center ${getTextAlignClass()}`}>
-                          <input
-                            type="checkbox"
+                        <input
+                          type="checkbox"
                             checked={selectedProgramTypes.includes(typeValue)}
                             onChange={() => handleProgramTypeChange(typeValue)}
-                            className="rounded border-gray-300 text-accent focus:ring-accent"
-                          />
+                          className="rounded border-gray-300 text-accent focus:ring-accent"
+                        />
                           <span className={`text-sm text-gray-600 ${currentLanguage === 'ar' ? 'mr-2' : 'ml-2'}`}>
                             {currentLanguage === 'ar' ? programType.ar : programType.en}
                           </span>
-                        </label>
+                      </label>
                       );
                     })}
+                    {/* Exclusive Programs checkbox */}
+                    <label className={`flex items-center ${getTextAlignClass()}`}>
+                      <input
+                        type="checkbox"
+                        checked={showExclusiveOnly}
+                        onChange={(e) => setShowExclusiveOnly(e.target.checked)}
+                        className="rounded border-gray-300 text-accent focus:ring-accent"
+                      />
+                      <span className={`text-sm text-gray-600 ${currentLanguage === 'ar' ? 'mr-2' : 'ml-2'}`}>
+                        {currentLanguage === 'ar' ? 'البرامج الحصرية' : 'Exclusive Programs'}
+                      </span>
+                    </label>
                   </div>
                 )}
               </div>
@@ -387,21 +408,22 @@ function ProgramsContent({ searchParams }: { searchParams: Record<string, string
                       const specValue = currentLanguage === 'ar' ? spec.ar : spec.en;
                       return (
                         <label key={index} className={`flex items-center ${getTextAlignClass()}`}>
-                          <input
-                            type="checkbox"
+                        <input
+                          type="checkbox"
                             checked={selectedSpecialities.includes(specValue)}
                             onChange={() => handleSpecialityChange(specValue)}
-                            className="rounded border-gray-300 text-accent focus:ring-accent"
-                          />
+                          className="rounded border-gray-300 text-accent focus:ring-accent"
+                        />
                           <span className={`text-sm text-gray-600 ${currentLanguage === 'ar' ? 'mr-2' : 'ml-2'}`}>
                             {currentLanguage === 'ar' ? spec.ar : spec.en}
                           </span>
-                        </label>
+                      </label>
                       );
                     })}
                   </div>
                 )}
               </div>
+
 
 
             </div>
@@ -440,43 +462,43 @@ function ProgramsContent({ searchParams }: { searchParams: Record<string, string
                       </div>
                       
                       <div className="p-6">
-                        
-                        <h3 className="text-lg font-semibold text-primary mb-2 line-clamp-2">
+                      
+                      <h3 className="text-lg font-semibold text-primary mb-2 line-clamp-2">
                           {currentLanguage === 'ar' ? (program.title_ar || program.title) : program.title}
-                        </h3>
-                        
-                        <div className="space-y-2 mb-4">
-                          <p className="text-sm text-gray-600">
-                            <span className="font-medium">{getContent('programs_page_program_type_label')}</span> {program.programType}
-                          </p>
-                          <p className="text-sm text-gray-600">
+                      </h3>
+                      
+                      <div className="space-y-2 mb-4">
+                        <p className="text-sm text-gray-600">
+                          <span className="font-medium">{getContent('programs_page_program_type_label')}</span> {program.programType}
+                        </p>
+                        <p className="text-sm text-gray-600">
                             <span className="font-medium">{getContent('programs_page_speciality_label')}</span> {getSpecialtyTranslation(currentLanguage, program.speciality, program.speciality_ar)}
-                          </p>
-                        </div>
+                        </p>
+                      </div>
 
-                        {program.description && (
-                          <p className="text-sm text-gray-600 mb-4 line-clamp-3">
+                      {program.description && (
+                        <p className="text-sm text-gray-600 mb-4 line-clamp-3">
                             {currentLanguage === 'ar' ? (program.description_ar || program.description) : program.description}
-                          </p>
-                        )}
+                        </p>
+                      )}
 
-                        {program.accreditations && Array.isArray(program.accreditations) && program.accreditations.length > 0 && (
-                          <div className="mb-4">
-                            <p className="text-xs text-gray-500 mb-1">{getContent('programs_page_accredited_by')}</p>
-                            <div className="flex flex-wrap gap-1">
-                              {program.accreditations.slice(0, 2).map((acc, index) => (
-                                <span key={index} className="inline-block bg-gray-100 text-gray-700 text-xs px-2 py-1 rounded">
-                                  {acc}
-                                </span>
-                              ))}
-                              {program.accreditations.length > 2 && (
-                                <span className="inline-block bg-gray-100 text-gray-700 text-xs px-2 py-1 rounded">
-                                  +{program.accreditations.length - 2} {getContent('programs_page_more')}
-                                </span>
-                              )}
-                            </div>
+                      {program.accreditations && Array.isArray(program.accreditations) && program.accreditations.length > 0 && (
+                        <div className="mb-4">
+                          <p className="text-xs text-gray-500 mb-1">{getContent('programs_page_accredited_by')}</p>
+                          <div className="flex flex-wrap gap-1">
+                            {program.accreditations.slice(0, 2).map((acc, index) => (
+                              <span key={index} className="inline-block bg-gray-100 text-gray-700 text-xs px-2 py-1 rounded">
+                                {acc}
+                              </span>
+                            ))}
+                            {program.accreditations.length > 2 && (
+                              <span className="inline-block bg-gray-100 text-gray-700 text-xs px-2 py-1 rounded">
+                                +{program.accreditations.length - 2} {getContent('programs_page_more')}
+                              </span>
+                            )}
                           </div>
-                        )}
+                        </div>
+                      )}
 
                         <div className="flex items-center justify-end">
                           <span className="bg-primary text-white px-4 py-2 rounded-md text-sm font-medium">

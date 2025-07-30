@@ -8,6 +8,7 @@ interface SocialMediaLinks {
   facebook: string;
   instagram: string;
   twitter: string;
+  x: string;
   snapchat: string;
   linkedin: string;
   tiktok: string;
@@ -30,6 +31,7 @@ const defaultSocialMedia: SocialMediaLinks = {
   facebook: '',
   instagram: '',
   twitter: '',
+  x: '',
   snapchat: '',
   linkedin: '',
   tiktok: ''

@@ -23,6 +23,7 @@ export interface Program {
   coreLearnings_ar?: string[];
   languages?: ('en' | 'ar')[];
   status?: 'published' | 'draft';
+  exclusive?: boolean;
   createdAt?: any;
   updatedAt?: any;
 }
