@@ -133,9 +133,9 @@ const Navbar: React.FC = () => {
                 </button>
               </div>
             ) : (
-                            <Link href="/coming-soon">
+                            <a href="https://optimusksa.com/register" target="_blank" rel="noopener noreferrer">
                   <Button variant="accent" size="md">{getContent('navbar_register')}</Button>
-                </Link>
+                </a>
             )}
           </div>
 
@@ -182,9 +182,9 @@ const Navbar: React.FC = () => {
               </button>
             </>
           ) : (
-              <Link href="/coming-soon" className="block w-full mt-2">
+              <a href="https://optimusksa.com/register" target="_blank" rel="noopener noreferrer" className="block w-full mt-2">
                 <Button variant="accent" size="md" className="w-full">{getContent('navbar_register')}</Button>
-              </Link>
+              </a>
           )}
         </div>
       </div>

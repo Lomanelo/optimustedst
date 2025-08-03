@@ -72,9 +72,9 @@ const Navbar: React.FC = () => {
                 <Link to="/login" className="font-medium text-primary hover:text-primary-dark">
                   {t('auth.login')}
                 </Link>
-                <Link to="/coming-soon">
+                <a href="https://optimusksa.com/register" target="_blank" rel="noopener noreferrer">
                   <Button variant="accent" size="md">{t('header.enroll')}</Button>
-                </Link>
+                </a>
               </>
             )}
           </div>
@@ -113,9 +113,9 @@ const Navbar: React.FC = () => {
               <Link to="/login" className="block font-medium text-primary hover:text-primary-dark py-2">
                 {t('auth.login')}
               </Link>
-              <Link to="/coming-soon" className="block w-full mt-2">
+              <a href="https://optimusksa.com/register" target="_blank" rel="noopener noreferrer" className="block w-full mt-2">
                 <Button variant="accent" size="md" className="w-full">{t('header.enroll')}</Button>
-              </Link>
+              </a>
             </>
           )}
         </div>
