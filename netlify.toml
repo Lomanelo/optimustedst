@@ -39,4 +39,16 @@
 [[redirects]]
   from = "/api/*"
   to = "/api/:splat"
-  status = 200 
+  status = 200
+
+[[redirects]]
+from = "https://ibasksa.com/*"
+to = "https://optimusksa.com/:splat"
+status = 301
+force = true
+
+[[redirects]]
+  from = "https://www.ibasksa.com/*"
+  to = "https://optimusksa.com/:splat"
+  status = 301
+  force = true
