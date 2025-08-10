@@ -1,5 +1,5 @@
 import React from 'react';
-import { companyInfo, accreditations, partnerships } from '../data/optimus-data';
+import { companyInfo, partnerships } from '../data/optimus-data';
 import { useCMS } from '../../app/contexts/cms-context';
 import { Award, Clock, Users } from 'lucide-react';
 import { motion } from 'framer-motion';
@@ -131,57 +131,17 @@ const AboutUs: React.FC = () => {
           </div>
         </div>
         
-        {/* Accreditations Section */}
+        {/* Accreditations Section (show partnerships as accreditations) */}
         <div className={`mb-16 md:mb-20 ${getTextAlignClass()}`}>
-          <h3 className={`text-2xl font-bold text-primary mb-8 md:mb-10 ${currentLanguage === 'ar' ? 'text-center' : 'text-center'}`}>{getContent('about_accreditations_title')}</h3>
-          <div className={`text-gray-600 mb-10 md:mb-12 ${getTextAlignClass()}`}>{getFormattedContent('about_accreditations_subtitle')}</div>
-          
-          {/* Accreditations - PRIORITY */}
-          <div className="mb-12 md:mb-16">
-            <h4 className="text-3xl font-bold text-primary mb-4 md:mb-6 text-center">{getContent('accreditations_main_title')}</h4>
-            <div className="text-center text-gray-600 mb-8 md:mb-10 max-w-2xl mx-auto text-lg">
-              {getFormattedContent('accreditations_main_subtitle')}
-            </div>
-            <div className="flex justify-center items-center gap-8 md:gap-10 max-w-3xl mx-auto">
-            {accreditations.map((accreditation) => {
-              // Map accreditation IDs to CMS keys
-              const getAccreditationName = (id: string) => {
-                const cmsKey = `accreditation_${id}`;
-                return getContent(cmsKey) || accreditation.name;
-              };
-              
-              return (
-                <div key={accreditation.id} className="group bg-white p-4 md:p-6 rounded-2xl shadow-xl flex flex-col items-center justify-center relative hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 border border-primary/10 hover:border-primary/30">
-                <img 
-                  src={accreditation.logo} 
-                  alt={getAccreditationName(accreditation.id)} 
-                    className="w-16 h-16 md:w-20 md:h-20 lg:w-24 lg:h-24 object-contain transition-transform duration-300 group-hover:scale-110"
-                    title={getAccreditationName(accreditation.id)}
-                />
-                </div>
-              );
-            })}
-            </div>
-          </div>
-
-          {/* Academic Partnerships */}
-          <div>
-            <h4 className="text-2xl font-bold text-primary mb-3 md:mb-4 text-center">{getContent('accreditations_partnerships_title')}</h4>
-            <div className="text-center text-gray-600 mb-8 md:mb-10 max-w-2xl mx-auto">
-              {getFormattedContent('accreditations_partnerships_subtitle')}
-            </div>
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-6 gap-6 md:gap-8 max-w-6xl mx-auto">
-              {partnerships.map((partnership) => (
-                <div key={partnership.id} className="group bg-white p-4 md:p-6 rounded-2xl shadow-lg flex flex-col items-center justify-center h-28 md:h-32 lg:h-36 relative hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2 border border-gray-100 hover:border-gray-200">
-                  <img 
-                    src={partnership.logo} 
-                    alt={partnership.name} 
-                    className="max-h-12 md:max-h-16 lg:max-h-20 max-w-full transition-transform duration-300 group-hover:scale-105"
-                    title={partnership.name}
-                  />
+          <h3 className={`text-3xl md:text-4xl font-bold text-primary mb-8 text-center`}>
+            {getContent('accreditations_main_title') || 'Accreditations'}
+          </h3>
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-6 md:gap-8 max-w-6xl mx-auto justify-items-center">
+            {partnerships.map((partner) => (
+              <div key={partner.id} className="group h-24 md:h-28 w-full rounded-xl bg-white shadow-sm ring-1 ring-gray-100 flex items-center justify-center transition-all duration-300 hover:shadow-md hover:-translate-y-0.5">
+                <img src={partner.logo} alt={partner.name} title={partner.name} className="max-h-10 md:max-h-14 lg:max-h-16 max-w-[80%] object-contain transition duration-300 group-hover:scale-[1.03]" />
               </div>
             ))}
-            </div>
           </div>
         </div>
       </div>
