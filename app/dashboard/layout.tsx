@@ -79,6 +79,7 @@ export default function DashboardLayout({
   const adminMenuItems = [
     { href: '/admin/dashboard', label: t('admin_dashboard'), icon: BarChart3, permission: 'dashboard' as const },
     { href: '/admin/programs', label: t('manage_programs'), icon: BookOpen, permission: 'programs' as const },
+    { href: '/admin/blog', label: 'Manage Blog', icon: FileText, permission: 'blog' as const },
     { href: '/admin/users', label: t('manage_users'), icon: Users, permission: 'users' as const }
   ].filter(item => hasPermission(item.permission) || userRole === 'admin');
 

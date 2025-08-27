@@ -3,6 +3,7 @@ import {
   getDoc, 
   setDoc, 
   updateDoc,
+  deleteDoc,
   collection,
   query,
   orderBy,
@@ -30,7 +31,7 @@ export interface UserData {
   uid: string;
   email: string;
   displayName: string;
-  role: 'admin' | 'student' | 'moderator';
+  role: 'admin' | 'student';
   permissions: UserPermissions;
   isActive: boolean;
   createdAt: any;
@@ -152,7 +153,7 @@ class UserService {
   /**
    * Update user role
    */
-  async updateUserRole(uid: string, role: 'admin' | 'student' | 'moderator'): Promise<void> {
+  async updateUserRole(uid: string, role: 'admin' | 'student'): Promise<void> {
     try {
       const userDocRef = doc(db, 'users', uid);
       
@@ -215,7 +216,7 @@ class UserService {
     email: string;
     password: string;
     displayName: string;
-    role: 'admin' | 'student' | 'moderator';
+    role: 'admin' | 'student';
     permissions?: UserPermissions;
   }, adminCredentials: { email: string; password: string }): Promise<string> {
     try {
@@ -386,6 +387,38 @@ class UserService {
         activeUsers: 0,
         newUsersThisMonth: 0
       };
+    }
+  }
+
+  /**
+   * Delete a user (Firestore record only - Firebase Auth account will remain)
+   * Only admins can delete users, and admins cannot delete other admins
+   */
+  async deleteUser(uid: string, currentUserRole: string): Promise<void> {
+    try {
+      // Only admins can delete users
+      if (currentUserRole !== 'admin') {
+        throw new Error('Only administrators can delete users');
+      }
+
+      // Get the target user data first
+      const targetUser = await this.getUserById(uid);
+      if (!targetUser) {
+        throw new Error('User not found');
+      }
+
+      // Prevent admins from deleting other admins (safety measure)
+      if (targetUser.role === 'admin') {
+        throw new Error('Cannot delete administrator accounts');
+      }
+
+      // Actually delete the user document from Firestore
+      const userDocRef = doc(db, 'users', uid);
+      await deleteDoc(userDocRef);
+      
+    } catch (error) {
+      console.error('Error deleting user:', error);
+      throw error;
     }
   }
 

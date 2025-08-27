@@ -44,25 +44,22 @@ service cloud.firestore {
       allow list: if hasPermission('blog');
     }
     
-    // Allow authenticated users to read their own profile
+    // Users collection rules
     match /users/{userId} {
-      allow read: if request.auth != null && request.auth.uid == userId;
-      allow create: if request.auth != null && request.auth.uid == userId;
-      allow update: if request.auth != null && request.auth.uid == userId;
-      allow delete: if request.auth != null && request.auth.uid == userId;
-    }
-    
-    // Allow users with 'users' permission to read user profiles, but only admins can modify
-    match /users/{userId} {
-      allow read: if hasPermission('users');
-      // Only admins can create new user records
-      allow create: if isAdmin();
-      // Only admins can modify user data (roles, permissions, status)
-      allow update: if isAdmin();
-      // Only admins can delete users
-      allow delete: if isAdmin();
-      // Allow listing users for admin interface
-      allow list: if hasPermission('users');
+      // Users can read their own profile, or admins can read any profile, or users with 'users' permission
+      allow read: if (request.auth != null && request.auth.uid == userId) || isAdmin() || hasPermission('users');
+      
+      // Users can create their own profile, or admins can create any profile
+      allow create: if (request.auth != null && request.auth.uid == userId) || isAdmin();
+      
+      // Users can update their own profile, or admins can update any profile
+      allow update: if (request.auth != null && request.auth.uid == userId) || isAdmin();
+      
+      // Only users can delete their own profile, or admins can delete any profile
+      allow delete: if (request.auth != null && request.auth.uid == userId) || isAdmin();
+      
+      // Allow listing users for admin interface (admins or users with 'users' permission)
+      allow list: if isAdmin() || hasPermission('users');
     }
     
     // Courses collection - allow reading for all authenticated users

@@ -43,10 +43,10 @@ export default function AdminLayout({
       return;
     }
 
-    // If not loading and no user, redirect to login (once)
+    // If not loading and no user, redirect to admin login (once)
     if (!currentUser && !hasRedirectedRef.current) {
       hasRedirectedRef.current = true;
-      router.replace('/login');
+      router.replace('/admin/login');
       return;
     }
 

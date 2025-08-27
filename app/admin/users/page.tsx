@@ -20,7 +20,8 @@ import {
   X,
   Check,
   AlertTriangle,
-  Plus
+  Plus,
+  Trash2
 } from 'lucide-react';
 
 export default function AdminUsersPage() {
@@ -36,6 +37,8 @@ export default function AdminUsersPage() {
 
   const [expandedUser, setExpandedUser] = useState<string | null>(null);
   const [savingChanges, setSavingChanges] = useState<string | null>(null);
+  const [deleteConfirmation, setDeleteConfirmation] = useState<string | null>(null);
+  const [deleting, setDeleting] = useState<string | null>(null);
   const [stats, setStats] = useState({
     totalUsers: 0,
     adminUsers: 0,
@@ -52,7 +55,7 @@ export default function AdminUsersPage() {
     email: '',
     password: '',
     displayName: '',
-    role: 'student' as 'admin' | 'student' | 'moderator',
+    role: 'student' as 'admin' | 'student',
     adminPassword: '' // Admin's password for re-authentication
   });
 
@@ -110,7 +113,7 @@ export default function AdminUsersPage() {
     setFilteredUsers(filtered);
   }, [users, searchTerm, roleFilter]);
 
-  const handleRoleChange = async (userId: string, newRole: 'admin' | 'student' | 'moderator') => {
+  const handleRoleChange = async (userId: string, newRole: 'admin' | 'student') => {
     const user = users.find(u => u.uid === userId);
     if (!user || !canEditUser(user)) {
       console.warn('Attempted to edit protected admin account');
@@ -186,6 +189,34 @@ export default function AdminUsersPage() {
     }
   };
 
+  const handleDeleteUser = async (userId: string) => {
+    const user = users.find(u => u.uid === userId);
+    if (!user || !canEditUser(user)) {
+      console.warn('Attempted to delete protected admin account');
+      return;
+    }
+
+    try {
+      setDeleting(userId);
+      await userService.deleteUser(userId, userRole || '');
+      
+      // Remove user from local state
+      setUsers(prev => prev.filter(u => u.uid !== userId));
+      setFilteredUsers(prev => prev.filter(u => u.uid !== userId));
+      
+      // Update stats
+      const statsData = await userService.getUserStats();
+      setStats(statsData);
+      
+      setDeleteConfirmation(null);
+    } catch (err: any) {
+      console.error('Error deleting user:', err);
+      setError(err.message || 'Failed to delete user');
+    } finally {
+      setDeleting(null);
+    }
+  };
+
   const formatDate = (timestamp: any) => {
     if (!timestamp) return 'Never';
     try {
@@ -200,8 +231,7 @@ export default function AdminUsersPage() {
     const normalizedRole = normalizeRole(role);
     switch (normalizedRole) {
       case 'admin': return 'bg-red-100 text-red-800';
-      case 'moderator': return 'bg-yellow-100 text-yellow-800';
-      default: return 'bg-gray-100 text-gray-800';
+      default: return 'bg-blue-100 text-blue-800';
     }
   };
 
@@ -217,9 +247,7 @@ export default function AdminUsersPage() {
       return 'admin';
     }
     
-    if (normalizedRole === 'moderator' || role.includes('moderator')) {
-      return 'moderator';
-    }
+
     
     return 'student'; // Default fallback
   };
@@ -401,7 +429,6 @@ export default function AdminUsersPage() {
             >
               <option value="all">All Roles</option>
               <option value="admin">Admin</option>
-              <option value="moderator">Moderator</option>
               <option value="student">Student</option>
             </select>
           </div>
@@ -496,6 +523,27 @@ export default function AdminUsersPage() {
                       </div>
                     </div>
 
+                    {/* Action Buttons */}
+                    {canEditUser(user) && userRole === 'admin' && normalizeRole(user.role) !== 'admin' && (
+                      <div className="mt-4 pt-4 border-t border-gray-200">
+                        <h4 className="text-sm font-medium text-gray-900 mb-3">Actions</h4>
+                        <div className="flex space-x-3">
+                          <button
+                            onClick={() => setDeleteConfirmation(user.uid)}
+                            disabled={deleting === user.uid}
+                            className="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded text-sm flex items-center transition-colors disabled:opacity-50"
+                          >
+                            {deleting === user.uid ? (
+                              <div className="animate-spin rounded-full h-4 w-4 border-t-2 border-b-2 border-white mr-2"></div>
+                            ) : (
+                              <Trash2 className="mr-1" size={16} />
+                            )}
+                            {deleting === user.uid ? 'Deleting...' : 'Delete User'}
+                          </button>
+                        </div>
+                      </div>
+                    )}
+
                     {!canEditUser(user) && (
                       <div className="mt-4 p-3 bg-red-50 border border-red-200 rounded text-sm text-red-700 flex items-center">
                         <Shield className="mr-2" size={16} />
@@ -579,11 +627,10 @@ export default function AdminUsersPage() {
                   </label>
                   <select
                     value={createFormData.role}
-                    onChange={(e) => setCreateFormData(prev => ({ ...prev, role: e.target.value as 'admin' | 'student' | 'moderator' }))}
+                    onChange={(e) => setCreateFormData(prev => ({ ...prev, role: e.target.value as 'admin' | 'student' }))}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
                   >
                     <option value="student">Student</option>
-                    <option value="moderator">Moderator</option>
                     <option value="admin">Admin</option>
                   </select>
                 </div>
@@ -634,6 +681,69 @@ export default function AdminUsersPage() {
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* Delete Confirmation Modal */}
+      {deleteConfirmation && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg p-6 w-full max-w-md">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-semibold text-red-600">Delete User</h3>
+              <button
+                onClick={() => setDeleteConfirmation(null)}
+                className="text-gray-400 hover:text-gray-600"
+              >
+                <X size={24} />
+              </button>
+            </div>
+
+            <div className="mb-6">
+              <div className="flex items-center mb-4">
+                <AlertTriangle className="text-red-500 mr-3" size={24} />
+                <span className="text-gray-700">Are you sure you want to delete this user?</span>
+              </div>
+              
+              {(() => {
+                const user = users.find(u => u.uid === deleteConfirmation);
+                return user ? (
+                  <div className="bg-gray-50 p-3 rounded border">
+                    <p className="font-medium">{user.displayName}</p>
+                    <p className="text-sm text-gray-600">{user.email}</p>
+                    <p className="text-xs text-gray-500 mt-1">
+                      Role: {normalizeRole(user.role).charAt(0).toUpperCase() + normalizeRole(user.role).slice(1)}
+                    </p>
+                  </div>
+                ) : null;
+              })()}
+              
+              <div className="mt-4 p-3 bg-red-50 border border-red-200 rounded">
+                <p className="text-sm text-red-700">
+                  <strong>Warning:</strong> This action will permanently delete the user's account from the system. This action cannot be undone.
+                </p>
+              </div>
+            </div>
+
+            <div className="flex justify-end space-x-3">
+              <button
+                onClick={() => setDeleteConfirmation(null)}
+                className="px-4 py-2 text-gray-600 hover:text-gray-800 transition-colors"
+                disabled={deleting === deleteConfirmation}
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => deleteConfirmation && handleDeleteUser(deleteConfirmation)}
+                disabled={deleting === deleteConfirmation}
+                className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg flex items-center transition-colors disabled:opacity-50"
+              >
+                {deleting === deleteConfirmation && (
+                  <div className="animate-spin rounded-full h-4 w-4 border-t-2 border-b-2 border-white mr-2"></div>
+                )}
+                {deleting === deleteConfirmation ? 'Deleting...' : 'Delete User'}
+              </button>
+            </div>
           </div>
         </div>
       )}

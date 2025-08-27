@@ -7,7 +7,7 @@ import { AlertCircle, Loader2, Image as ImageIcon, Tag as TagIcon, X, ArrowLeft,
 import blogService from '../../../../src/services/blogService';
 
 export default function CreateBlogPostPage() {
-  const { currentUser, userRole, isLoading: authLoading } = useAuth();
+  const { currentUser, userRole, hasPermission, isLoading: authLoading } = useAuth();
   const router = useRouter();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -199,9 +199,17 @@ export default function CreateBlogPostPage() {
     }
   };
 
-  // Redirect if not admin
-  if (!authLoading && (!currentUser || userRole !== 'admin')) {
-    router.push('/admin/login');
+  // Show loading while auth is being checked
+  if (authLoading) {
+    return (
+      <div className="flex justify-center items-center p-8">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
+      </div>
+    );
+  }
+
+  // The admin layout already handles authentication, so we don't need to redirect here
+  if (!currentUser) {
     return null;
   }
 
