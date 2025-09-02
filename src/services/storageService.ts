@@ -58,6 +58,21 @@ export const uploadFile = async (
     
   } catch (error: any) {
     console.error('Upload error:', error);
+    console.error('Error code:', error.code);
+    console.error('Error message:', error.message);
+    
+    // Check for CORS errors early (before processing other errors)
+    if (error.message?.includes('CORS') || 
+        error.message?.includes('cross-origin') ||
+        error.message?.includes('blocked by CORS') ||
+        error.code === 'storage/unknown') {
+      console.log('CORS error detected in storage service');
+      const corsError = new Error('CORS configuration issue detected');
+      (corsError as any).code = 'storage/cors';
+      (corsError as any).isCorsError = true;
+      (corsError as any).originalError = error;
+      throw corsError;
+    }
     
     // Provide user-friendly error messages
     if (error.code === 'storage/unauthorized') {
@@ -73,8 +88,6 @@ export const uploadFile = async (
       throw new Error('Upload was canceled. Please try again.');
     } else if (error.message?.includes('timeout')) {
       throw new Error('Upload timeout. Please check your internet connection and try again.');
-    } else if (error.message?.includes('CORS') || error.message?.includes('cross-origin')) {
-      throw new Error('CORS configuration issue. Please contact support.');
     } else {
       console.error('Unexpected upload error:', error);
       throw new Error(`Upload failed: ${error.message || 'Please try again'}`);

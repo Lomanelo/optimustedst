@@ -777,15 +777,30 @@ class ProgramService {
         console.log('Program photo uploaded successfully via storage service');
       } catch (uploadError: any) {
         console.error('Storage service upload failed:', uploadError);
+        console.error('Error details:', {
+          code: uploadError.code,
+          message: uploadError.message,
+          isCorsError: (uploadError as any).isCorsError
+        });
         
         // For CORS issues, try uploadImageAsDataUrl like in program creation
-        if (uploadError.message?.includes('CORS') || 
-            uploadError.code === 'storage/unknown' ||
-            uploadError.message?.includes('cross-origin')) {
+        const isCorsError = uploadError.message?.includes('CORS') || 
+                           uploadError.code === 'storage/unknown' ||
+                           uploadError.code === 'storage/cors' ||
+                           (uploadError as any).isCorsError ||
+                           uploadError.message?.includes('cross-origin') ||
+                           uploadError.message?.includes('blocked by CORS');
+        
+        if (isCorsError) {
           console.log('CORS issue detected, falling back to data URL...');
-          const { uploadImageAsDataUrl } = await import('../services/storageService');
-          downloadURL = await uploadImageAsDataUrl(file);
-          console.log('Photo uploaded as data URL successfully');
+          try {
+            const { uploadImageAsDataUrl } = await import('../services/storageService');
+            downloadURL = await uploadImageAsDataUrl(file);
+            console.log('Photo uploaded as data URL successfully');
+          } catch (dataUrlError) {
+            console.error('Data URL fallback also failed:', dataUrlError);
+            throw new Error(`Upload failed: ${uploadError.message}. Data URL fallback also failed: ${dataUrlError}`);
+          }
         } else {
           throw uploadError;
         }
