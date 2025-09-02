@@ -768,10 +768,28 @@ class ProgramService {
         projectId: storage.app.options.projectId
       });
       
-      // Use the storage service directly
-      const { uploadFile } = await import('../services/storageService');
-      const downloadURL = await uploadFile(file, fileName);
-      console.log('Program photo uploaded successfully');
+      // Use the exact same upload method as program creation page
+      let downloadURL: string;
+      try {
+        // Try upload using the same method as program creation
+        const { uploadFile } = await import('../services/storageService');
+        downloadURL = await uploadFile(file, fileName);
+        console.log('Program photo uploaded successfully via storage service');
+      } catch (uploadError: any) {
+        console.error('Storage service upload failed:', uploadError);
+        
+        // For CORS issues, try uploadImageAsDataUrl like in program creation
+        if (uploadError.message?.includes('CORS') || 
+            uploadError.code === 'storage/unknown' ||
+            uploadError.message?.includes('cross-origin')) {
+          console.log('CORS issue detected, falling back to data URL...');
+          const { uploadImageAsDataUrl } = await import('../services/storageService');
+          downloadURL = await uploadImageAsDataUrl(file);
+          console.log('Photo uploaded as data URL successfully');
+        } else {
+          throw uploadError;
+        }
+      }
       
       // Create photo metadata
       const photoId = `photo_${timestamp}`;
