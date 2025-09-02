@@ -758,7 +758,7 @@ class ProgramService {
 
       // Generate unique filename with timestamp
       const timestamp = Date.now();
-      const fileExtension = file.name.split('.').pop() || 'jpg';
+      const fileExtension = file.type.split('/')[1] || 'png';
       const fileName = `program_photos/${programId}/${timestamp}.${fileExtension}`;
       
       // Upload with maximum quality (no compression for program photos)
@@ -771,38 +771,34 @@ class ProgramService {
       // Use the exact same upload method as program creation page
       let downloadURL: string;
       try {
-        // Try upload using the same method as program creation
-        const { uploadFile } = await import('../services/storageService');
-        downloadURL = await uploadFile(file, fileName);
-        console.log('Program photo uploaded successfully via storage service');
-      } catch (uploadError: any) {
-        console.error('Storage service upload failed:', uploadError);
-        console.error('Error details:', {
-          code: uploadError.code,
-          message: uploadError.message,
-          isCorsError: (uploadError as any).isCorsError
-        });
+        // Method 1: Try direct Firebase Storage upload like program creation does for thumbnails
+        console.log('Trying direct Firebase Storage upload...');
+        const { ref, uploadBytes, getDownloadURL } = await import('firebase/storage');
+        const { storage } = await import('../firebase/firebase');
         
-        // For CORS issues, try uploadImageAsDataUrl like in program creation
-        const isCorsError = uploadError.message?.includes('CORS') || 
-                           uploadError.code === 'storage/unknown' ||
-                           uploadError.code === 'storage/cors' ||
-                           (uploadError as any).isCorsError ||
-                           uploadError.message?.includes('cross-origin') ||
-                           uploadError.message?.includes('blocked by CORS');
+        const storageRef = ref(storage, fileName);
+        const snapshot = await uploadBytes(storageRef, file);
+        downloadURL = await getDownloadURL(snapshot.ref);
+        console.log('Program photo uploaded successfully via direct Firebase Storage');
         
-        if (isCorsError) {
-          console.log('CORS issue detected, falling back to data URL...');
-          try {
-            const { uploadImageAsDataUrl } = await import('../services/storageService');
-            downloadURL = await uploadImageAsDataUrl(file);
-            console.log('Photo uploaded as data URL successfully');
-          } catch (dataUrlError) {
-            console.error('Data URL fallback also failed:', dataUrlError);
-            throw new Error(`Upload failed: ${uploadError.message}. Data URL fallback also failed: ${dataUrlError}`);
-          }
-        } else {
-          throw uploadError;
+      } catch (directUploadError: any) {
+        console.error('Direct Firebase Storage upload failed:', directUploadError);
+        
+        try {
+          // Method 2: Fallback to storage service like program creation brochures
+          console.log('Falling back to storage service...');
+          const { uploadFile } = await import('../services/storageService');
+          downloadURL = await uploadFile(file, fileName);
+          console.log('Program photo uploaded successfully via storage service');
+          
+        } catch (storageServiceError: any) {
+          console.error('Storage service also failed:', storageServiceError);
+          
+          // Method 3: Final fallback to data URL
+          console.log('Final fallback to data URL...');
+          const { uploadImageAsDataUrl } = await import('../services/storageService');
+          downloadURL = await uploadImageAsDataUrl(file);
+          console.log('Photo uploaded as data URL successfully');
         }
       }
       
