@@ -38,6 +38,7 @@ export interface Program {
   durationHours?: number;
   price: number;
   thumbnail?: string;
+  photos?: ProgramPhoto[];
   brochure_en?: string;
   brochure_ar?: string;
   requirements?: string[];
@@ -55,6 +56,19 @@ export interface Program {
   exclusive?: boolean;
   createdAt: any;
   updatedAt: any;
+}
+
+export interface ProgramPhoto {
+  id: string;
+  url: string;
+  fileName: string;
+  description?: string;
+  description_ar?: string;
+  altText?: string;
+  altText_ar?: string;
+  isPrimary?: boolean;
+  displayOrder: number;
+  uploadedAt: any;
 }
 
 export interface ProgramModule {
@@ -719,6 +733,263 @@ class ProgramService {
     } catch (error) {
       console.error('Error setting up published program listener:', error);
       return () => {};
+    }
+  }
+
+  /**
+   * Upload a photo for a program with maximum quality preservation
+   */
+  async uploadProgramPhoto(
+    programId: string, 
+    file: File, 
+    description?: string, 
+    description_ar?: string,
+    altText?: string,
+    altText_ar?: string,
+    isPrimary: boolean = false
+  ): Promise<ProgramPhoto> {
+    try {
+      console.log('Uploading program photo:', { programId, fileName: file.name, size: file.size, isPrimary });
+
+      // Validate file
+      if (!file.type.startsWith('image/')) {
+        throw new Error('File must be an image');
+      }
+
+      // Generate unique filename with timestamp
+      const timestamp = Date.now();
+      const fileExtension = file.name.split('.').pop() || 'jpg';
+      const fileName = `program_photos/${programId}/${timestamp}.${fileExtension}`;
+      
+      // Upload with maximum quality (no compression for program photos)
+      console.log('Uploading program photo with max quality...');
+      console.log('Storage configuration:', {
+        bucket: storage.app.options.storageBucket,
+        projectId: storage.app.options.projectId
+      });
+      
+      // Use the storage service directly
+      const { uploadFile } = await import('../services/storageService');
+      const downloadURL = await uploadFile(file, fileName);
+      console.log('Program photo uploaded successfully');
+      
+      // Create photo metadata
+      const photoId = `photo_${timestamp}`;
+      const photoData: ProgramPhoto = {
+        id: photoId,
+        url: downloadURL,
+        fileName: file.name,
+        description: description || '',
+        description_ar: description_ar || '',
+        altText: altText || '',
+        altText_ar: altText_ar || '',
+        isPrimary,
+        displayOrder: 0, // Will be set properly when added to program
+        uploadedAt: new Date() // Use regular Date instead of serverTimestamp in arrays
+      };
+
+      // Get current program to update photos array
+      const program = await this.getProgramById(programId);
+      if (!program) {
+        throw new Error('Program not found');
+      }
+
+      const currentPhotos = program.photos || [];
+      
+      // If this is set as primary, make sure no other photo is primary
+      if (isPrimary) {
+        currentPhotos.forEach(photo => {
+          photo.isPrimary = false;
+        });
+      }
+
+      // Set display order
+      photoData.displayOrder = currentPhotos.length;
+
+      // Add the new photo
+      const updatedPhotos = [...currentPhotos, photoData];
+
+      // Update program with new photos array
+      const programRef = doc(this.programsRef, programId);
+      await updateDoc(programRef, {
+        photos: updatedPhotos,
+        updatedAt: serverTimestamp()
+      });
+
+      console.log('Program photo uploaded successfully:', photoData);
+      return photoData;
+    } catch (error) {
+      console.error('Error uploading program photo:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Delete a photo from a program
+   */
+  async deleteProgramPhoto(programId: string, photoId: string): Promise<void> {
+    try {
+      console.log('Deleting program photo:', { programId, photoId });
+
+      // Get current program
+      const program = await this.getProgramById(programId);
+      if (!program || !program.photos) {
+        throw new Error('Program or photos not found');
+      }
+
+      // Find the photo to delete
+      const photoToDelete = program.photos.find(photo => photo.id === photoId);
+      if (!photoToDelete) {
+        throw new Error('Photo not found');
+      }
+
+      // Delete from Firebase Storage
+      try {
+        const fileName = `program_photos/${programId}/${photoToDelete.url.split('/').pop()?.split('?')[0]}`;
+        const fileRef = ref(storage, fileName);
+        await deleteObject(fileRef);
+        console.log('Photo deleted from storage');
+      } catch (storageError) {
+        console.warn('Failed to delete photo from storage:', storageError);
+        // Continue with database update even if storage delete fails
+      }
+
+      // Remove from photos array
+      const updatedPhotos = program.photos.filter(photo => photo.id !== photoId);
+
+      // Reorder remaining photos
+      updatedPhotos.forEach((photo, index) => {
+        photo.displayOrder = index;
+      });
+
+      // Update program
+      const programRef = doc(this.programsRef, programId);
+      await updateDoc(programRef, {
+        photos: updatedPhotos,
+        updatedAt: serverTimestamp()
+      });
+
+      console.log('Program photo deleted successfully');
+    } catch (error) {
+      console.error('Error deleting program photo:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Update photo metadata (description, alt text, primary status)
+   */
+  async updateProgramPhoto(
+    programId: string, 
+    photoId: string, 
+    updates: Partial<Pick<ProgramPhoto, 'description' | 'description_ar' | 'altText' | 'altText_ar' | 'isPrimary'>>
+  ): Promise<void> {
+    try {
+      console.log('Updating program photo:', { programId, photoId, updates });
+
+      // Get current program
+      const program = await this.getProgramById(programId);
+      if (!program || !program.photos) {
+        throw new Error('Program or photos not found');
+      }
+
+      // Find and update the photo
+      const updatedPhotos = program.photos.map(photo => {
+        if (photo.id === photoId) {
+          // If setting as primary, remove primary from others
+          if (updates.isPrimary && !photo.isPrimary) {
+            program.photos?.forEach(p => {
+              if (p.id !== photoId) p.isPrimary = false;
+            });
+          }
+          return { ...photo, ...updates };
+        }
+        // If another photo is being set as primary, remove primary from this one
+        if (updates.isPrimary && photo.isPrimary && photo.id !== photoId) {
+          return { ...photo, isPrimary: false };
+        }
+        return photo;
+      });
+
+      // Update program
+      const programRef = doc(this.programsRef, programId);
+      await updateDoc(programRef, {
+        photos: updatedPhotos,
+        updatedAt: serverTimestamp()
+      });
+
+      console.log('Program photo updated successfully');
+    } catch (error) {
+      console.error('Error updating program photo:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Reorder program photos
+   */
+  async reorderProgramPhotos(programId: string, photoIds: string[]): Promise<void> {
+    try {
+      console.log('Reordering program photos:', { programId, photoIds });
+
+      // Get current program
+      const program = await this.getProgramById(programId);
+      if (!program || !program.photos) {
+        throw new Error('Program or photos not found');
+      }
+
+      // Create a map for quick lookup
+      const photoMap = new Map(program.photos.map(photo => [photo.id, photo]));
+
+      // Reorder photos based on the provided order
+      const reorderedPhotos = photoIds
+        .map(id => photoMap.get(id))
+        .filter(photo => photo !== undefined)
+        .map((photo, index) => ({
+          ...photo!,
+          displayOrder: index
+        }));
+
+      // Update program
+      const programRef = doc(this.programsRef, programId);
+      await updateDoc(programRef, {
+        photos: reorderedPhotos,
+        updatedAt: serverTimestamp()
+      });
+
+      console.log('Program photos reordered successfully');
+    } catch (error) {
+      console.error('Error reordering program photos:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Set a photo as the primary photo for a program
+   */
+  async setPrimaryProgramPhoto(programId: string, photoId: string): Promise<void> {
+    try {
+      await this.updateProgramPhoto(programId, photoId, { isPrimary: true });
+    } catch (error) {
+      console.error('Error setting primary program photo:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Get photos for a specific program
+   */
+  async getProgramPhotos(programId: string): Promise<ProgramPhoto[]> {
+    try {
+      const program = await this.getProgramById(programId);
+      if (!program) {
+        throw new Error('Program not found');
+      }
+      
+      return program.photos || [];
+    } catch (error) {
+      console.error('Error getting program photos:', error);
+      throw error;
     }
   }
 }

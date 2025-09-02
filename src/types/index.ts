@@ -15,6 +15,7 @@ export interface Program {
   specialization?: string;
   specialization_ar?: string;
   price?: number;
+  photos?: ProgramPhoto[];
   requirements?: string[];
   requirements_ar?: string[];
   whatYouWillLearn?: string[];
@@ -26,6 +27,19 @@ export interface Program {
   exclusive?: boolean;
   createdAt?: any;
   updatedAt?: any;
+}
+
+export interface ProgramPhoto {
+  id: string;
+  url: string;
+  fileName: string;
+  description?: string;
+  description_ar?: string;
+  altText?: string;
+  altText_ar?: string;
+  isPrimary?: boolean;
+  displayOrder: number;
+  uploadedAt: any;
 }
 
 

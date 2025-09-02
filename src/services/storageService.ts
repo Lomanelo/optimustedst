@@ -1,4 +1,4 @@
-import { storage } from '../firebase/firebase';
+import { storage, auth } from '../firebase/firebase';
 import { ref, uploadBytes, getDownloadURL, deleteObject } from 'firebase/storage';
 
 /**
@@ -21,12 +21,18 @@ export const uploadFile = async (
       throw new Error('Invalid file: File is empty or not provided');
     }
 
-    // Check if this is a thumbnail upload
+    // Check if this is a thumbnail or program photo upload
     const isThumbnail = path.includes('thumbnail') || path.includes('thumbnails');
+    const isProgramPhoto = path.includes('program_photos');
     
-    // For production, compress large images but preserve thumbnails
+    // For program photos and thumbnails, ALWAYS preserve maximum quality (no compression)
     let fileToUpload: File | Blob = file;
-    if (!isThumbnail && file.type.startsWith('image/') && file.size > 500000) {
+    if (isProgramPhoto || isThumbnail) {
+      console.log('Program photo or thumbnail detected - preserving MAXIMUM QUALITY (no compression)');
+      console.log(`Original file size: ${(file.size / (1024 * 1024)).toFixed(2)} MB`);
+      fileToUpload = file; // Use original file without any compression
+    } else if (file.type.startsWith('image/') && file.size > 500000) {
+      // Only compress other images that are not program photos or thumbnails
       try {
         console.log('Compressing large image before upload...');
         fileToUpload = await compressImage(file, 800, 0.8);
@@ -35,14 +41,12 @@ export const uploadFile = async (
         console.warn('Image compression failed, using original file:', compressionError);
         fileToUpload = file;
       }
-    } else if (isThumbnail) {
-      console.log('Thumbnail detected, preserving original quality');
-      fileToUpload = file;
     }
 
     // Upload to Firebase Storage
     const storageRef = ref(storage, path);
     console.log('Uploading to Firebase Storage...');
+    console.log('Storage bucket:', storage.app.options.storageBucket);
     
     const snapshot = await uploadBytes(storageRef, fileToUpload);
     console.log('Upload completed, getting download URL...');
@@ -57,7 +61,10 @@ export const uploadFile = async (
     
     // Provide user-friendly error messages
     if (error.code === 'storage/unauthorized') {
-      throw new Error('You do not have permission to upload files. Please ensure you are logged in.');
+      console.error('Storage permission error. Path:', path);
+      console.error('User auth state:', !!auth?.currentUser);
+      console.error('Error details:', error);
+      throw new Error('Storage permission denied. Please ensure you have admin or programs permission and try refreshing the page.');
     } else if (error.code === 'storage/invalid-url') {
       throw new Error('Invalid file path. Please try again.');
     } else if (error.code === 'storage/retry-limit-exceeded') {
@@ -69,6 +76,7 @@ export const uploadFile = async (
     } else if (error.message?.includes('CORS') || error.message?.includes('cross-origin')) {
       throw new Error('CORS configuration issue. Please contact support.');
     } else {
+      console.error('Unexpected upload error:', error);
       throw new Error(`Upload failed: ${error.message || 'Please try again'}`);
     }
   }

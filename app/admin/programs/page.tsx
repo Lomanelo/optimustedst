@@ -4,12 +4,13 @@ import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '../../contexts/auth-context';
-import { Plus, Trash2, Eye, AlertCircle, Bookmark, BookmarkCheck, Filter, ChevronsUpDown, Copy, CheckCircle, Edit3, Save, X } from 'lucide-react';
+import { Plus, Trash2, Eye, AlertCircle, Bookmark, BookmarkCheck, Filter, ChevronsUpDown, Copy, CheckCircle, Edit3, Save, X, Camera } from 'lucide-react';
 import { doc, deleteDoc, updateDoc, Timestamp, addDoc, serverTimestamp, collection, deleteField } from 'firebase/firestore';
 import { db } from '../../../src/firebase/firebase';
 import { uploadFile } from '../../../src/services/storageService';
 import { allPrograms as staticPrograms } from '../../../src/data/optimus-data';
-import programService, { Program as ServiceProgram } from '../../../src/services/programService';
+import programService, { Program as ServiceProgram, ProgramPhoto } from '../../../src/services/programService';
+import ProgramPhotoManager from '../../components/ProgramPhotoManager';
 
 // Define the Program type
 interface Program {
@@ -22,6 +23,7 @@ interface Program {
   description?: string;
   description_ar?: string;
   thumbnail?: string;
+  photos?: ProgramPhoto[];
   duration?: string;
   duration_ar?: string;
   studyTime?: string;
@@ -80,6 +82,10 @@ export default function AdminProgramsPage() {
   const [editSuccess, setEditSuccess] = useState<string | null>(null);
   const [activeEditLanguage, setActiveEditLanguage] = useState<'en' | 'ar'>('en');
   const [includeArabicEdit, setIncludeArabicEdit] = useState(false);
+  
+  // Photo management state
+  const [showPhotoManager, setShowPhotoManager] = useState(false);
+  const [currentProgramPhotos, setCurrentProgramPhotos] = useState<ProgramPhoto[]>([]);
   
   // Input states for adding items during edit
     const [newModule, setNewModule] = useState('');
@@ -211,8 +217,13 @@ export default function AdminProgramsPage() {
       careerOpportunities: program.careerOpportunities || [],
       careerOpportunities_ar: program.careerOpportunities_ar || [],
       keyFeatures: program.keyFeatures || [],
-      keyFeatures_ar: program.keyFeatures_ar || []
+      keyFeatures_ar: program.keyFeatures_ar || [],
+      photos: program.photos || []
     });
+    
+    // Load current photos
+    setCurrentProgramPhotos(program.photos || []);
+    
     setActiveEditLanguage('en');
     setNewModule('');
     setNewCareer('');
@@ -223,6 +234,7 @@ export default function AdminProgramsPage() {
     setAutoFillSuccess('');
     setTranslateSuccess('');
     setError('');
+    setShowPhotoManager(false);
   };
 
   // Cancel editing
@@ -240,6 +252,17 @@ export default function AdminProgramsPage() {
     setAutoFillText('');
     setAutoFillSuccess('');
     setTranslateSuccess('');
+    setShowPhotoManager(false);
+    setCurrentProgramPhotos([]);
+  };
+
+  // Handle photo updates
+  const handlePhotosUpdate = (updatedPhotos: ProgramPhoto[]) => {
+    setCurrentProgramPhotos(updatedPhotos);
+    setEditFormData(prev => ({
+      ...prev,
+      photos: updatedPhotos
+    }));
   };
 
   // Handle form changes
@@ -1169,6 +1192,8 @@ export default function AdminProgramsPage() {
         </div>
       )}
 
+
+
       {/* Filters */}
       <div className="bg-white shadow-sm border border-gray-200 rounded-lg mb-6">
         <div className="p-4">
@@ -1741,6 +1766,71 @@ export default function AdminProgramsPage() {
                         </div>
                       </div>
 
+                      {/* Photo Management */}
+                      <div className="mb-6">
+                        <div className="flex items-center justify-between mb-4">
+                          <h4 className="text-md font-semibold text-gray-900">
+                            {activeEditLanguage === 'en' ? 'Program Photos' : 'صور البرنامج'}
+                          </h4>
+                          <button
+                            type="button"
+                            onClick={() => setShowPhotoManager(!showPhotoManager)}
+                            className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
+                          >
+                            <Camera className="h-4 w-4 mr-2" />
+                            {showPhotoManager 
+                              ? (activeEditLanguage === 'en' ? 'Hide Photo Manager' : 'إخفاء مدير الصور')
+                              : (activeEditLanguage === 'en' ? 'Manage Photos' : 'إدارة الصور')
+                            }
+                          </button>
+                        </div>
+                        
+                        {/* Current photos preview */}
+                        {currentProgramPhotos.length > 0 && (
+                          <div className="mb-4">
+                            <p className="text-sm text-gray-600 mb-2">
+                              {activeEditLanguage === 'en' 
+                                ? `${currentProgramPhotos.length} photo(s) uploaded` 
+                                : `تم رفع ${currentProgramPhotos.length} صورة`}
+                            </p>
+                            <div className="flex space-x-2 overflow-x-auto">
+                              {currentProgramPhotos
+                                .sort((a, b) => a.displayOrder - b.displayOrder)
+                                .slice(0, 5)
+                                .map((photo) => (
+                                  <div key={photo.id} className="relative flex-shrink-0">
+                                    <img
+                                      src={photo.url}
+                                      alt={photo.altText || photo.fileName}
+                                      className="w-20 h-20 object-cover rounded-lg border-2 border-gray-200"
+                                    />
+                                    {photo.isPrimary && (
+                                      <div className="absolute -top-1 -right-1 bg-yellow-500 text-white rounded-full p-1">
+                                        <span className="text-xs">★</span>
+                                      </div>
+                                    )}
+                                  </div>
+                                ))}
+                              {currentProgramPhotos.length > 5 && (
+                                <div className="flex-shrink-0 w-20 h-20 bg-gray-100 rounded-lg border-2 border-gray-200 flex items-center justify-center">
+                                  <span className="text-sm text-gray-500">+{currentProgramPhotos.length - 5}</span>
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        )}
+
+                        {/* Photo Manager */}
+                        {showPhotoManager && (
+                          <ProgramPhotoManager
+                            programId={program.id}
+                            photos={currentProgramPhotos}
+                            onPhotosUpdate={handlePhotosUpdate}
+                            language={activeEditLanguage}
+                          />
+                        )}
+                      </div>
+
                       {/* Action Buttons */}
                       <div className="flex items-center space-x-3 pt-4">
                         <button
@@ -1843,6 +1933,17 @@ export default function AdminProgramsPage() {
                               <Edit3 className="h-5 w-5" aria-hidden="true" />
                             </button>
                         <button
+                          onClick={() => {
+                            setEditingProgram(program.id);
+                            setCurrentProgramPhotos(program.photos || []);
+                            setShowPhotoManager(true);
+                          }}
+                          className="inline-flex items-center p-2 border border-gray-300 rounded-full shadow-sm text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
+                          title="Manage Photos"
+                        >
+                          <Camera className="h-5 w-5" aria-hidden="true" />
+                        </button>
+                        <button
                           onClick={() => handleStatusToggle(program.id, program.status)}
                           disabled={statusToggleLoading === program.id}
                           className={`inline-flex items-center p-2 border border-gray-300 rounded-full shadow-sm hover:shadow-md focus:outline-none focus:ring-2 focus:ring-offset-2 transition-colors ${
@@ -1876,6 +1977,34 @@ export default function AdminProgramsPage() {
                     )}
                   </div>
                 </div>
+                  )}
+
+                  {/* Standalone Photo Manager */}
+                  {editingProgram === program.id && showPhotoManager && !editFormData.title && (
+                    <div className="mt-4 p-6 bg-gray-50 border border-gray-200 rounded-lg">
+                      <div className="flex items-center justify-between mb-4">
+                        <h4 className="text-lg font-semibold text-gray-900">
+                          Managing Photos for: {program.title}
+                        </h4>
+                        <button
+                          onClick={() => {
+                            setEditingProgram(null);
+                            setShowPhotoManager(false);
+                            setCurrentProgramPhotos([]);
+                          }}
+                          className="inline-flex items-center px-3 py-1.5 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"
+                        >
+                          <X className="h-4 w-4 mr-1" />
+                          Close
+                        </button>
+                      </div>
+                      <ProgramPhotoManager
+                        programId={program.id}
+                        photos={currentProgramPhotos}
+                        onPhotosUpdate={handlePhotosUpdate}
+                        language="en"
+                      />
+                    </div>
                   )}
 
                 {/* Delete confirmation */}

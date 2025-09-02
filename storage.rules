@@ -51,6 +51,13 @@ service firebase.storage {
                     firestore.get(/databases/(default)/documents/users/$(request.auth.uid)).data.permissions.programs == true);
     }
     
+    // Allow users with programs permission to upload program photos (NEW - for photo management)
+    match /program_photos/{programId}/{fileName} {
+      allow read, write, delete: if request.auth != null && 
+                   (firestore.get(/databases/(default)/documents/users/$(request.auth.uid)).data.role == 'admin' ||
+                    firestore.get(/databases/(default)/documents/users/$(request.auth.uid)).data.permissions.programs == true);
+    }
+    
     // Allow users with blog permission to upload blog cover images
     match /blog_covers/{fileName} {
       allow write: if request.auth != null && 
