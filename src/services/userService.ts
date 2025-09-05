@@ -24,6 +24,7 @@ export interface UserPermissions {
   contacts: boolean;
   users: boolean;
   settings: boolean;
+  seo: boolean;
   terms: boolean;
 }
 
@@ -47,6 +48,7 @@ export const DEFAULT_PERMISSIONS: UserPermissions = {
   contacts: false,
   users: false,
   settings: false,
+  seo: false,
   terms: false,
 };
 
@@ -58,6 +60,7 @@ export const ADMIN_PERMISSIONS: UserPermissions = {
   contacts: true,
   users: true,
   settings: true,
+  seo: true,
   terms: true,
 };
 

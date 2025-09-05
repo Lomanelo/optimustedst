@@ -63,6 +63,12 @@ export default function HomePage() {
   // Show homepage for both logged-in and non-logged-in users
   return (
     <ClientLayout>
+      {/* Global Organization Schema from Firestore (if available) */}
+      <Script id="org-schema-dynamic" type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: `{"@context":"https://schema.org","@type":"WebSite"}`
+        }}
+      />
       {/* WhatsApp floating button */}
       <WhatsAppButton />
 

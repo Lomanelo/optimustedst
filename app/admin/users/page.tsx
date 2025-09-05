@@ -502,6 +502,7 @@ export default function AdminUsersPage() {
                             contacts: 'Contacts',
                             users: 'User Management',
                             settings: 'Settings',
+                            seo: 'SEO',
                             terms: 'Terms & Privacy'
                           };
                           

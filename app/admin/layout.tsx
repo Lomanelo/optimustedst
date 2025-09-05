@@ -118,6 +118,7 @@ export default function AdminLayout({
     { href: '/admin/programs', label: t('programs'), icon: Layers, permission: 'programs' as const },
     { href: '/admin/blog', label: t('blog'), icon: FileText, permission: 'blog' as const },
     { href: '/admin/cms', label: t('cms'), icon: FileText, permission: 'cms' as const },
+    { href: '/admin/seo', label: 'SEO', icon: ExternalLink, permission: 'seo' as const },
     { href: '/admin/contacts', label: t('contacts'), icon: Mail, permission: 'contacts' as const },
     { href: '/admin/terms', label: t('terms'), icon: BookOpen, permission: 'terms' as const },
     { href: '/admin/users', label: t('users'), icon: Users, permission: 'users' as const },

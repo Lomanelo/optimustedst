@@ -4,6 +4,8 @@ import React, { useState, useRef, useEffect, use } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '../../../../contexts/auth-context';
 import { AlertCircle, Loader2, Image as ImageIcon, Tag as TagIcon, X, ArrowLeft, CheckCircle, Globe } from 'lucide-react';
+import dynamic from 'next/dynamic';
+const MarkdownEditor = dynamic(() => import('../../../../components/MarkdownEditor'), { ssr: false });
 import blogService, { BlogPost } from '../../../../../src/services/blogService';
 
 interface PageProps {
@@ -18,6 +20,8 @@ export default function EditBlogPostPage({ params }: PageProps) {
   const { currentUser, userRole, hasPermission, isLoading: authLoading } = useAuth();
   const router = useRouter();
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const contentRef = useRef<HTMLTextAreaElement>(null);
+  const contentArRef = useRef<HTMLTextAreaElement>(null);
 
   // Language toggles
   const [enableEnglish, setEnableEnglish] = useState(true);
@@ -42,6 +46,15 @@ export default function EditBlogPostPage({ params }: PageProps) {
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [status, setStatus] = useState<'draft' | 'published'>('draft');
   const [featured, setFeatured] = useState(false);
+
+  // SEO state
+  const [seoTitle, setSeoTitle] = useState('');
+  const [seoDescription, setSeoDescription] = useState('');
+  const [customSlug, setCustomSlug] = useState('');
+  const [slugPreview, setSlugPreview] = useState('');
+  const [slugAvailable, setSlugAvailable] = useState<boolean | null>(null);
+  const [robotsNoindex, setRobotsNoindex] = useState(false);
+  const [robotsNofollow, setRobotsNofollow] = useState(false);
 
   // UI state
   const [isLoading, setIsLoading] = useState(true);
@@ -90,6 +103,14 @@ export default function EditBlogPostPage({ params }: PageProps) {
         }
         setStatus(post.status);
         setFeatured(post.featured || false);
+
+        // SEO fields
+        setSeoTitle(post.seoTitle || '');
+        setSeoDescription(post.seoDescription || '');
+        setRobotsNoindex(!!post.robots?.noindex);
+        setRobotsNofollow(!!post.robots?.nofollow);
+        setCustomSlug(post.slug || '');
+        setSlugPreview(post.slug || '');
       } else {
         setError('Blog post not found');
       }
@@ -169,6 +190,110 @@ export default function EditBlogPostPage({ params }: PageProps) {
     }
   };
 
+  // Slug utilities
+  const updateSlugPreview = async (value: string) => {
+    const sanitized = blogService.sanitizeSlug(value);
+    setSlugPreview(sanitized);
+    setCustomSlug(value);
+    if (sanitized) {
+      try {
+        const available = await blogService.isSlugAvailable(sanitized, id);
+        setSlugAvailable(available);
+      } catch (e) {
+        setSlugAvailable(null);
+      }
+    } else {
+      setSlugAvailable(null);
+    }
+  };
+
+  const titleForSeo = enableEnglish ? title : titleAr;
+  useEffect(() => {
+    if (!seoTitle && titleForSeo) {
+      setSeoTitle(titleForSeo.substring(0, 60));
+    }
+  }, [titleForSeo]);
+
+  const titleLen = seoTitle.length;
+  const descLen = seoDescription.length;
+  const titleColor = titleLen === 0 ? 'text-gray-400' : titleLen <= 60 ? 'text-green-600' : titleLen <= 70 ? 'text-amber-600' : 'text-red-600';
+  const descColor = descLen === 0 ? 'text-gray-400' : descLen <= 160 ? 'text-green-600' : descLen <= 180 ? 'text-amber-600' : 'text-red-600';
+
+  // --- Lightweight Markdown Toolbar helpers (same as create) ---
+  const wrapSelection = (
+    ref: React.RefObject<HTMLTextAreaElement>,
+    value: string,
+    setValue: (v: string) => void,
+    wrapWith: { before: string; after: string },
+    placeholder = 'text'
+  ) => {
+    const el = ref.current;
+    if (!el) return;
+    const start = el.selectionStart ?? 0;
+    const end = el.selectionEnd ?? 0;
+    const selected = value.slice(start, end) || placeholder;
+    const beforeText = value.slice(0, start);
+    const afterText = value.slice(end);
+    const newText = `${beforeText}${wrapWith.before}${selected}${wrapWith.after}${afterText}`;
+    setValue(newText);
+    const caretPos = beforeText.length + wrapWith.before.length + selected.length + wrapWith.after.length;
+    requestAnimationFrame(() => {
+      el.focus();
+      el.setSelectionRange(caretPos, caretPos);
+    });
+  };
+
+  const prefixLines = (
+    ref: React.RefObject<HTMLTextAreaElement>,
+    value: string,
+    setValue: (v: string) => void,
+    prefix: string,
+    enumerate = false
+  ) => {
+    const el = ref.current;
+    if (!el) return;
+    const start = el.selectionStart ?? 0;
+    const end = el.selectionEnd ?? 0;
+    const lineStart = value.lastIndexOf('\n', start - 1) + 1;
+    const lineEndIdx = value.indexOf('\n', end);
+    const lineEnd = lineEndIdx === -1 ? value.length : lineEndIdx;
+    const before = value.slice(0, lineStart);
+    const block = value.slice(lineStart, lineEnd);
+    const after = value.slice(lineEnd);
+    const lines = block.split('\n');
+    const newBlock = lines
+      .map((ln, idx) => (enumerate ? `${idx + 1}. ${ln}` : `${prefix}${ln}`))
+      .join('\n');
+    const newText = `${before}${newBlock}${after}`;
+    setValue(newText);
+    const newStart = before.length;
+    const newEnd = before.length + newBlock.length;
+    requestAnimationFrame(() => {
+      el.focus();
+      el.setSelectionRange(newStart, newEnd);
+    });
+  };
+
+  const MarkdownToolbar = ({
+    refEl,
+    value,
+    setValue,
+    rtl
+  }: { refEl: React.RefObject<HTMLTextAreaElement>; value: string; setValue: (v: string) => void; rtl?: boolean }) => (
+    <div className={`flex flex-wrap items-center gap-2 mb-2 ${rtl ? 'justify-end' : ''}`}>
+      <button type="button" onClick={() => prefixLines(refEl, value, setValue, '## ')} className="px-2 py-1 text-xs bg-gray-100 rounded hover:bg-gray-200">H2</button>
+      <button type="button" onClick={() => prefixLines(refEl, value, setValue, '### ')} className="px-2 py-1 text-xs bg-gray-100 rounded hover:bg-gray-200">H3</button>
+      <span className="mx-1 text-gray-300">|</span>
+      <button type="button" onClick={() => wrapSelection(refEl, value, setValue, { before: '**', after: '**' }, 'bold')} className="px-2 py-1 text-xs bg-gray-100 rounded hover:bg-gray-200">Bold</button>
+      <button type="button" onClick={() => wrapSelection(refEl, value, setValue, { before: '*', after: '*' }, 'italic')} className="px-2 py-1 text-xs bg-gray-100 rounded hover:bg-gray-200">Italic</button>
+      <span className="mx-1 text-gray-300">|</span>
+      <button type="button" onClick={() => prefixLines(refEl, value, setValue, '- ')} className="px-2 py-1 text-xs bg-gray-100 rounded hover:bg-gray-200">Bullets</button>
+      <button type="button" onClick={() => prefixLines(refEl, value, setValue, '', true)} className="px-2 py-1 text-xs bg-gray-100 rounded hover:bg-gray-200">Numbered</button>
+      <button type="button" onClick={() => prefixLines(refEl, value, setValue, '> ')} className="px-2 py-1 text-xs bg-gray-100 rounded hover:bg-gray-200">Quote</button>
+      <span className="text-[11px] text-gray-500 ml-auto">Supports #, ##, ###, lists, bold/italic</span>
+    </div>
+  );
+
   // Handle tag removal - English
   const handleRemoveTag = (tagToRemove: string) => {
     setTags(tags.filter(tag => tag !== tagToRemove));
@@ -237,7 +362,12 @@ export default function EditBlogPostPage({ params }: PageProps) {
         tags_ar: enableArabic ? tagsAr : undefined,
         status,
         featured,
-        languages
+        languages,
+        // SEO fields
+        seoTitle: seoTitle || undefined,
+        seoDescription: seoDescription || undefined,
+        robots: (robotsNoindex || robotsNofollow) ? { noindex: robotsNoindex, nofollow: robotsNofollow } : undefined,
+        customSlug: slugPreview || undefined
       };
       
       await blogService.updateBlogPost(postData);
@@ -409,15 +539,7 @@ export default function EditBlogPostPage({ params }: PageProps) {
                 <label htmlFor="content" className="block text-sm font-medium text-gray-700 mb-1">
                   Content <span className="text-red-500">*</span>
                 </label>
-                <textarea
-                  id="content"
-                  value={content}
-                  onChange={(e) => setContent(e.target.value)}
-                  placeholder="Write your blog post content in English"
-                  rows={12}
-                  className="w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary focus:border-primary"
-                  required={enableEnglish}
-                />
+                <MarkdownEditor value={content} onChange={setContent} placeholder="Write your blog post content in English" />
                 <p className="mt-1 text-xs text-gray-500">
                   {content.length} characters
                 </p>
@@ -518,16 +640,7 @@ export default function EditBlogPostPage({ params }: PageProps) {
                 <label htmlFor="content-ar" className="block text-sm font-medium text-gray-700 mb-1">
                   المحتوى (Content) <span className="text-red-500">*</span>
                 </label>
-                <textarea
-                  id="content-ar"
-                  value={contentAr}
-                  onChange={(e) => setContentAr(e.target.value)}
-                  placeholder="اكتب محتوى المقال باللغة العربية"
-                  rows={12}
-                  className="w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary focus:border-primary text-right"
-                  dir="rtl"
-                  required={enableArabic}
-                />
+                <MarkdownEditor value={contentAr} onChange={setContentAr} placeholder="اكتب محتوى المقال باللغة العربية" rtl />
                 <p className="mt-1 text-xs text-gray-500">
                   {contentAr.length} حرف
                 </p>
@@ -716,6 +829,102 @@ export default function EditBlogPostPage({ params }: PageProps) {
               <p className="text-xs text-gray-500">
                 Featured posts will be highlighted on the blog page
               </p>
+            </div>
+          </div>
+        </div>
+
+        {/* SEO Settings */}
+        <div className="mb-8 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+          <h3 className="text-lg font-medium text-gray-900 mb-2">SEO Settings</h3>
+          <p className="text-sm text-gray-600 mb-4">Optimize how this post appears in search engines</p>
+
+          {/* Meta Title */}
+          <div className="mb-4">
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Meta Title
+            </label>
+            <input
+              type="text"
+              value={seoTitle}
+              onChange={(e) => setSeoTitle(e.target.value)}
+              placeholder="Up to ~60 characters is ideal"
+              className="w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary focus:border-primary"
+            />
+            <div className="mt-1 text-xs">
+              <span className={titleColor}>{titleLen}</span>
+              <span className="text-gray-500"> / 60 characters</span>
+            </div>
+          </div>
+
+          {/* Meta Description */}
+          <div className="mb-4">
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Meta Description
+            </label>
+            <textarea
+              value={seoDescription}
+              onChange={(e) => setSeoDescription(e.target.value)}
+              placeholder="Up to ~160 characters is ideal"
+              rows={3}
+              className="w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary focus:border-primary"
+            />
+            <div className="mt-1 text-xs">
+              <span className={descColor}>{descLen}</span>
+              <span className="text-gray-500"> / 160 characters</span>
+            </div>
+          </div>
+
+          {/* Custom Slug */}
+          <div className="mb-4">
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              URL Slug / Permalink
+            </label>
+            <input
+              type="text"
+              value={customSlug}
+              onChange={(e) => updateSlugPreview(e.target.value)}
+              placeholder="your-custom-slug"
+              className="w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary focus:border-primary"
+            />
+            {slugPreview && (
+              <div className="mt-1 text-xs">
+                <span className="text-gray-600">Preview: </span>
+                <span className="font-mono">/blog/{slugPreview}</span>
+                {slugAvailable === true && (
+                  <span className="ml-2 text-green-700">Available</span>
+                )}
+                {slugAvailable === false && (
+                  <span className="ml-2 text-red-700">Already taken</span>
+                )}
+              </div>
+            )}
+            <p className="mt-1 text-xs text-gray-500">Lowercase, hyphens only; special characters removed automatically.</p>
+          </div>
+
+          {/* Robots */}
+          <div className="mb-2">
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Robots Meta Directives
+            </label>
+            <div className="flex items-center space-x-6">
+              <label className="inline-flex items-center">
+                <input
+                  type="checkbox"
+                  className="h-4 w-4 text-primary focus:ring-primary border-gray-300 rounded"
+                  checked={robotsNoindex}
+                  onChange={(e) => setRobotsNoindex(e.target.checked)}
+                />
+                <span className="ml-2 text-sm text-gray-700">Add noindex</span>
+              </label>
+              <label className="inline-flex items-center">
+                <input
+                  type="checkbox"
+                  className="h-4 w-4 text-primary focus:ring-primary border-gray-300 rounded"
+                  checked={robotsNofollow}
+                  onChange={(e) => setRobotsNofollow(e.target.checked)}
+                />
+                <span className="ml-2 text-sm text-gray-700">Add nofollow</span>
+              </label>
             </div>
           </div>
         </div>

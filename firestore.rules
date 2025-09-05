@@ -91,6 +91,14 @@ service cloud.firestore {
       allow read: if true; // Allow all users to read settings (including contactInfo)
       allow write: if hasPermission('settings'); // Users with settings permission can modify settings
     }
+
+    // SEO Settings collection - robots, organization schema, faq schema
+    match /seo_settings/{docId} {
+      // Public read so frontend and server routes (robots.txt) can load without auth
+      allow read, list: if true;
+      // Restrict writes to admins or users with 'settings' permission
+      allow create, update, delete: if hasPermission('settings');
+    }
     
     // CMS Content collection - allow reading for all users, system auto-population, admin management
     match /cms_content/{contentId} {

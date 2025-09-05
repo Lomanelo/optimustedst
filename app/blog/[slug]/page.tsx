@@ -1,6 +1,9 @@
 'use client';
 
 import React, { useState, useEffect, use } from 'react';
+import Head from 'next/head';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import ClientLayout from '../../components/ClientLayout';
@@ -9,14 +12,14 @@ import blogService, { BlogPost } from '../../../src/services/blogService';
 import { useCMS } from '../../contexts/cms-context';
 
 interface PageProps {
-  params: {
+  params: Promise<{
     slug: string;
-  };
+  }>;
 }
 
 export default function BlogPostPage({ params }: PageProps) {
-  // Extract slug directly from params (Next.js still supports this for migration)
-  const slug = params.slug;
+  const resolvedParams = use(params);
+  const slug = resolvedParams.slug;
   const router = useRouter();
   const { currentLanguage } = useCMS();
   
@@ -140,6 +143,21 @@ export default function BlogPostPage({ params }: PageProps) {
   
   return (
     <ClientLayout>
+      <Head>
+        <title>{blogPost.seoTitle || getLocalizedContent(blogPost, 'title')}</title>
+        {blogPost.seoDescription && (
+          <meta name="description" content={blogPost.seoDescription} />
+        )}
+        {blogPost.robots?.noindex && (
+          <meta name="robots" content={`${blogPost.robots.noindex ? 'noindex' : 'index'}, ${blogPost.robots.nofollow ? 'nofollow' : 'follow'}`} />
+        )}
+        {/* Open Graph basics */}
+        <meta property="og:type" content="article" />
+        <meta property="og:title" content={blogPost.seoTitle || getLocalizedContent(blogPost, 'title')} />
+        <meta property="og:description" content={blogPost.seoDescription || getLocalizedContent(blogPost, 'excerpt')} />
+        {blogPost.coverImage && <meta property="og:image" content={blogPost.coverImage} />}
+        <meta name="twitter:card" content="summary_large_image" />
+      </Head>
       <div className={`bg-gray-50 min-h-screen ${currentLanguage === 'ar' ? 'rtl-content' : ''}`}>
         {/* Hero Section with Cover Image */}
         {blogPost.coverImage && (
@@ -208,6 +226,22 @@ export default function BlogPostPage({ params }: PageProps) {
                 
                 {/* Post Content */}
                 <div className="bg-white shadow-sm rounded-lg p-6 md:p-8">
+                  {/* JSON-LD Article Schema */}
+                  <script
+                    type="application/ld+json"
+                    dangerouslySetInnerHTML={{
+                      __html: JSON.stringify({
+                        '@context': 'https://schema.org',
+                        '@type': 'Article',
+                        headline: blogPost.seoTitle || getLocalizedContent(blogPost, 'title'),
+                        description: blogPost.seoDescription || getLocalizedContent(blogPost, 'excerpt'),
+                        image: blogPost.coverImage ? [blogPost.coverImage] : undefined,
+                        author: { '@type': 'Person', name: blogPost.author?.name },
+                        datePublished: blogPost.publishedAt || blogPost.createdAt,
+                        dateModified: blogPost.updatedAt,
+                      })
+                    }}
+                  />
                   {/* Tags */}
                   {getLocalizedTags(blogPost).length > 0 && (
                     <div className="flex flex-wrap gap-2 mb-6">
@@ -224,14 +258,9 @@ export default function BlogPostPage({ params }: PageProps) {
                     </div>
                   )}
                   
-                  {/* Content */}
+                  {/* Content rendered via Markdown */}
                   <div className={`prose max-w-none ${currentLanguage === 'ar' ? 'rtl-content' : ''}`}>
-                    {/* Split content by paragraphs and add proper formatting */}
-                    {getLocalizedContent(blogPost, 'content').split('\n\n').map((paragraph, index) => (
-                      <p key={index} className="mb-4">
-                        {paragraph}
-                      </p>
-                    ))}
+                    <ReactMarkdown remarkPlugins={[remarkGfm]}>{getLocalizedContent(blogPost, 'content') || ''}</ReactMarkdown>
                   </div>
                   
                   {/* Share Links */}

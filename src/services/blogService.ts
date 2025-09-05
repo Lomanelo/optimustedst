@@ -41,6 +41,13 @@ export interface BlogPost {
   featured: boolean;
   views: number;
   languages: ('en' | 'ar')[];
+  // SEO fields
+  seoTitle?: string;
+  seoDescription?: string;
+  robots?: {
+    noindex?: boolean;
+    nofollow?: boolean;
+  };
   createdAt: any;
   updatedAt: any;
   publishedAt?: any;
@@ -62,6 +69,15 @@ export interface CreateBlogPostData {
   status: 'published' | 'draft';
   featured?: boolean;
   languages: ('en' | 'ar')[];
+  // Optional SEO fields
+  seoTitle?: string;
+  seoDescription?: string;
+  robots?: {
+    noindex?: boolean;
+    nofollow?: boolean;
+  };
+  // Optional custom slug (sanitized and de-duplicated)
+  customSlug?: string;
 }
 
 export interface UpdateBlogPostData extends Partial<CreateBlogPostData> {
@@ -91,6 +107,30 @@ class BlogService {
       .replace(/[^\w\s]/gi, '')
       .replace(/\s+/g, '-')
       + '-' + Date.now().toString().slice(-6);
+  }
+
+  /**
+   * Sanitize a user-provided slug
+   */
+  public sanitizeSlug(input: string): string {
+    return input
+      .toLowerCase()
+      .trim()
+      .replace(/[^a-z0-9\s-]/g, '')
+      .replace(/\s+/g, '-')
+      .replace(/-+/g, '-');
+  }
+
+  /**
+   * Check if a slug is available (optionally excluding a specific post id)
+   */
+  public async isSlugAvailable(slug: string, excludeId?: string): Promise<boolean> {
+    const qSlug = query(this.blogPostsRef, where('slug', '==', slug), limit(1));
+    const snapshot = await getDocs(qSlug);
+    if (snapshot.empty) return true;
+    const docSnap = snapshot.docs[0];
+    if (excludeId && docSnap.id === excludeId) return true;
+    return false;
   }
 
   /**
@@ -333,8 +373,13 @@ class BlogService {
    */
   async createBlogPost(data: CreateBlogPostData): Promise<string> {
     try {
-      // Generate a slug from the title
-      const slug = this.generateSlug(data.title);
+      // Resolve slug: use sanitized custom slug if provided and available; otherwise generate
+      let slug = this.generateSlug(data.title);
+      if (data.customSlug) {
+        const desired = this.sanitizeSlug(data.customSlug);
+        const available = await this.isSlugAvailable(desired);
+        slug = available ? desired : this.generateSlug(desired);
+      }
       
       // Process the excerpt if not provided
       const excerpt = data.excerpt || data.content.substring(0, 160).trim() + '...';
@@ -369,6 +414,11 @@ class BlogService {
         updatedAt: serverTimestamp(),
         ...(data.status === 'published' ? { publishedAt: serverTimestamp() } : {})
       };
+
+      // Apply SEO fields if provided
+      if (data.seoTitle) blogPostData.seoTitle = data.seoTitle;
+      if (data.seoDescription) blogPostData.seoDescription = data.seoDescription;
+      if (data.robots) blogPostData.robots = { ...data.robots };
 
       // Add Arabic content if provided
       if (data.title_ar) blogPostData.title_ar = data.title_ar;
@@ -411,9 +461,19 @@ class BlogService {
         coverImageUrl = data.coverImage;
       }
       
-      // Prepare update data
+      // Helper to strip undefined values from an object
+      const removeUndefined = (obj: Record<string, any>) => {
+        const entries = Object.entries(obj).filter(([, v]) => v !== undefined);
+        return entries.reduce((acc, [k, v]) => {
+          acc[k] = v;
+          return acc;
+        }, {} as Record<string, any>);
+      };
+
+      // Prepare update data without undefined fields
+      const cleanedInput = removeUndefined(updateData as Record<string, any>);
       const blogPostUpdateData: any = {
-        ...updateData,
+        ...cleanedInput,
         coverImage: coverImageUrl,
         updatedAt: serverTimestamp()
       };
@@ -432,9 +492,18 @@ class BlogService {
         blogPostUpdateData.publishedAt = serverTimestamp();
       }
       
-      // If title is changed, update the slug
-      if (data.title && data.title !== blogPost.title) {
+      // If title is changed and no explicit customSlug, update the slug
+      if (data.title && data.title !== blogPost.title && !(updateData as any).customSlug) {
         blogPostUpdateData.slug = this.generateSlug(data.title);
+      }
+
+      // If customSlug provided, sanitize and ensure availability
+      const maybeCustom = (cleanedInput as any).customSlug as string | undefined;
+      if (maybeCustom) {
+        const desired = this.sanitizeSlug(maybeCustom);
+        const available = await this.isSlugAvailable(desired, id);
+        blogPostUpdateData.slug = available ? desired : this.generateSlug(desired);
+        delete (blogPostUpdateData as any).customSlug;
       }
       
       // If content is changed but excerpt isn't provided, update the excerpt
@@ -442,7 +511,9 @@ class BlogService {
         blogPostUpdateData.excerpt = data.content.substring(0, 160).trim() + '...';
       }
       
-      await updateDoc(docRef, blogPostUpdateData);
+      // Final clean to ensure no undefined values slip through
+      const finalUpdate = removeUndefined(blogPostUpdateData);
+      await updateDoc(docRef, finalUpdate);
     } catch (error) {
       console.error('Error updating blog post:', error);
       throw error;

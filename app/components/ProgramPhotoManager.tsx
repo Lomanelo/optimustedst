@@ -244,6 +244,10 @@ const ProgramPhotoManager: React.FC<ProgramPhotoManagerProps> = ({
 
     try {
       clearMessages();
+      if (!editData.altText && !editData.altText_ar) {
+        showError(isRtl ? 'الرجاء إضافة نص بديل للصورة (Alt Text)' : 'Please add alt text for the image');
+        return;
+      }
       await programService.updateProgramPhoto(programId, editingPhoto, editData);
       
       // Refresh photos list
@@ -485,6 +489,7 @@ const ProgramPhotoManager: React.FC<ProgramPhotoManagerProps> = ({
                       }))}
                       className="w-full text-xs border border-gray-300 rounded px-2 py-1 focus:outline-none focus:ring-1 focus:ring-blue-500"
                     />
+                    <p className="text-[10px] text-gray-500">{isRtl ? 'مطلوب لتحسين SEO وإمكانية الوصول' : 'Required for SEO and accessibility'}</p>
                     <div className="flex space-x-1">
                       <button
                         onClick={savePhotoEdits}
