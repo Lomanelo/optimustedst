@@ -96,8 +96,8 @@ service cloud.firestore {
     match /seo_settings/{docId} {
       // Public read so frontend and server routes (robots.txt) can load without auth
       allow read, list: if true;
-      // Restrict writes to admins or users with 'settings' permission
-      allow create, update, delete: if hasPermission('settings');
+      // Restrict writes to admins or users with 'seo' OR 'settings' permissions
+      allow create, update, delete: if hasPermission('seo') || hasPermission('settings');
     }
     
     // CMS Content collection - allow reading for all users, system auto-population, admin management

@@ -17,14 +17,14 @@ export default function AdminSEOPage() {
   const [saving, setSaving] = useState<'idle'|'saving'|'success'|'error'>('idle');
 
   useEffect(() => {
-    if (!isLoading && (!currentUser || (userRole !== 'admin' && !hasPermission('settings')))) {
+    if (!isLoading && (!currentUser || (userRole !== 'admin' && !(hasPermission('seo') || hasPermission('settings'))))) {
       router.push('/admin/dashboard');
       return;
     }
     if (currentUser) {
       loadData();
     }
-  }, [currentUser, userRole, isLoading]);
+  }, [currentUser, userRole, isLoading, hasPermission]);
 
   const loadData = async () => {
     try {
