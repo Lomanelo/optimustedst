@@ -133,9 +133,9 @@ const Navbar: React.FC = () => {
                 </button>
               </div>
             ) : (
-                            <a href="https://optimusksa.com/register" target="_blank" rel="noopener noreferrer">
-                  <Button variant="accent" size="md">{getContent('navbar_register')}</Button>
-                </a>
+              <Link href={`/register?lang=${currentLanguage}`}>
+                <Button variant="accent" size="md">{getContent('navbar_register')}</Button>
+              </Link>
             )}
           </div>
 
@@ -182,9 +182,9 @@ const Navbar: React.FC = () => {
               </button>
             </>
           ) : (
-              <a href="https://optimusksa.com/register" target="_blank" rel="noopener noreferrer" className="block w-full mt-2">
-                <Button variant="accent" size="md" className="w-full">{getContent('navbar_register')}</Button>
-              </a>
+            <Link href={`/register?lang=${currentLanguage}`} className="block w-full mt-2">
+              <Button variant="accent" size="md" className="w-full">{getContent('navbar_register')}</Button>
+            </Link>
           )}
         </div>
       </div>

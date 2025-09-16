@@ -84,11 +84,11 @@ const Hero: React.FC = () => {
             {getContent('hero_cta_explore')}
           </button>
         </Link>
-        <a href="https://optimusksa.com/register" target="_blank" rel="noopener noreferrer">
+        <Link href={`/register?lang=${currentLanguage}`}>
           <button className="bg-white hover:bg-gray-100 text-primary font-medium py-3 px-6 rounded-md transition-colors duration-300">
             {getContent('hero_cta_register')}
           </button>
-        </a>
+        </Link>
       </motion.div>
     </div>
   );
@@ -126,11 +126,11 @@ const Hero: React.FC = () => {
             {getContent('hero_cta_explore')}
           </button>
         </Link>
-        <a href="https://optimusksa.com/register" target="_blank" rel="noopener noreferrer">
+        <Link href={`/register?lang=${currentLanguage}`}>
           <button className="bg-white hover:bg-gray-100 text-primary font-medium py-3 px-6 rounded-md transition-colors duration-300">
             {getContent('hero_cta_register')}
           </button>
-        </a>
+        </Link>
       </motion.div>
     </div>
   );

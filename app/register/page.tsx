@@ -67,9 +67,16 @@ export default function ComingSoonPage() {
     loadSocialMediaLinks();
     captureUTMParameters();
     
-    // Check if we're on the thank you page (success parameter)
     if (typeof window !== 'undefined') {
       const urlParams = new URLSearchParams(window.location.search);
+      const langParam = urlParams.get('lang');
+      if (langParam === 'en' || langParam === 'ar') {
+        setLanguage(langParam);
+        document.documentElement.lang = langParam;
+        document.documentElement.dir = langParam === 'ar' ? 'rtl' : 'ltr';
+      }
+
+      // Check if we're on the thank you page (success parameter)
       if (urlParams.get('success') === 'true') {
         setIsSubmitted(true);
       }

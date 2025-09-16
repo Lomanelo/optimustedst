@@ -5,6 +5,7 @@ import { Toaster } from 'react-hot-toast';
 import { AuthProvider } from './contexts/auth-context';
 import { CMSProvider } from './contexts/cms-context';
 import { ContactProvider } from './contexts/contact-context';
+import WhatsAppButton from '../src/components/WhatsAppButton';
 
 interface ProvidersProps {
   children: React.ReactNode;
@@ -40,6 +41,8 @@ export function Providers({ children }: ProvidersProps) {
               },
             }}
           />
+          {/* Global WhatsApp floating button */}
+          <WhatsAppButton />
         </ContactProvider>
       </CMSProvider>
     </AuthProvider>
