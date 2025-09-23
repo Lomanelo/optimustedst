@@ -6,7 +6,8 @@ import { useRouter } from 'next/navigation';
 import { useAuth } from '../../contexts/auth-context';
 import { Plus, Trash2, Eye, AlertCircle, Bookmark, BookmarkCheck, Filter, ChevronsUpDown, Copy, CheckCircle, Edit3, Save, X, Camera } from 'lucide-react';
 import { doc, deleteDoc, updateDoc, Timestamp, addDoc, serverTimestamp, collection, deleteField } from 'firebase/firestore';
-import { db } from '../../../src/firebase/firebase';
+import { ref, deleteObject } from 'firebase/storage';
+import { db, storage } from '../../../src/firebase/firebase';
 import { uploadFile } from '../../../src/services/storageService';
 import { allPrograms as staticPrograms } from '../../../src/data/optimus-data';
 import programService, { Program as ServiceProgram, ProgramPhoto } from '../../../src/services/programService';
@@ -218,7 +219,9 @@ export default function AdminProgramsPage() {
       careerOpportunities_ar: program.careerOpportunities_ar || [],
       keyFeatures: program.keyFeatures || [],
       keyFeatures_ar: program.keyFeatures_ar || [],
-      photos: program.photos || []
+      photos: program.photos || [],
+      brochure_en: program.brochure_en || '',
+      brochure_ar: program.brochure_ar || ''
     });
     
     // Load current photos
@@ -1746,6 +1749,25 @@ export default function AdminProgramsPage() {
                                 {activeEditLanguage === 'en' ? 'File selected:' : 'تم اختيار الملف:'} {editBrochureEnFile.name}
                               </p>
                             )}
+                            {editFormData.brochure_en && !editBrochureEnFile && (
+                              <div className="mt-2 flex items-center justify-between bg-gray-50 p-2 rounded">
+                                <a href={editFormData.brochure_en} target="_blank" rel="noreferrer" className="text-blue-600 text-sm underline">Current English brochure</a>
+                                <button
+                                  type="button"
+                                  onClick={async () => {
+                                    try {
+                                      // Try deleting by URL reference (SDK accepts download URLs)
+                                      const fileRef = ref(storage, editFormData.brochure_en as string);
+                                      await deleteObject(fileRef).catch(() => Promise.resolve());
+                                    } catch (_) {}
+                                    setEditFormData(prev => ({ ...prev, brochure_en: '' }));
+                                  }}
+                                  className="text-red-600 text-sm hover:text-red-800"
+                                >
+                                  {activeEditLanguage === 'en' ? 'Remove' : 'حذف'}
+                                </button>
+                              </div>
+                            )}
                           </div>
                           <div>
                             <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -1761,6 +1783,24 @@ export default function AdminProgramsPage() {
                               <p className="mt-1 text-sm text-green-600">
                                 {activeEditLanguage === 'en' ? 'File selected:' : 'تم اختيار الملف:'} {editBrochureArFile.name}
                               </p>
+                            )}
+                            {editFormData.brochure_ar && !editBrochureArFile && (
+                              <div className="mt-2 flex items-center justify-between bg-gray-50 p-2 rounded">
+                                <a href={editFormData.brochure_ar} target="_blank" rel="noreferrer" className="text-blue-600 text-sm underline">Current Arabic brochure</a>
+                                <button
+                                  type="button"
+                                  onClick={async () => {
+                                    try {
+                                      const fileRef = ref(storage, editFormData.brochure_ar as string);
+                                      await deleteObject(fileRef).catch(() => Promise.resolve());
+                                    } catch (_) {}
+                                    setEditFormData(prev => ({ ...prev, brochure_ar: '' }));
+                                  }}
+                                  className="text-red-600 text-sm hover:text-red-800"
+                                >
+                                  {activeEditLanguage === 'en' ? 'Remove' : 'حذف'}
+                                </button>
+                              </div>
                             )}
                           </div>
                         </div>

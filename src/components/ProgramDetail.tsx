@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useCMS } from '../../app/contexts/cms-context';
+import { partnerships } from '../data/optimus-data';
 
 interface ProgramDetailProps {
   id: string;
@@ -309,6 +310,18 @@ const ProgramDetail: React.FC<ProgramDetailProps> = ({ id, program: propProgram 
                 ))}
               </div>
             </section>
+
+      {/* Accreditations (logos from home page, excluding VERN/IBAS) */}
+      <section className="bg-white rounded-lg shadow-md p-6 mt-8">
+        <h2 className="text-2xl font-bold text-primary mb-6">{getCurrentData('accreditations_title') || 'Accreditations'}</h2>
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 gap-6 justify-items-center">
+          {partnerships.map((partner) => (
+            <div key={partner.id} className="h-20 w-full rounded-lg bg-white ring-1 ring-gray-100 flex items-center justify-center">
+              <img src={partner.logo} alt={partner.name} title={partner.name} className="max-h-12 max-w-[80%] object-contain" />
+            </div>
+          ))}
+        </div>
+      </section>
           </div>
           
           {/* Sidebar */}

@@ -1,4 +1,4 @@
-import { initializeApp, FirebaseApp } from 'firebase/app';
+import { initializeApp, FirebaseApp, getApps, getApp } from 'firebase/app';
 import { 
   getAuth, 
   connectAuthEmulator, 
@@ -45,8 +45,14 @@ let functions: Functions;
 let analytics: Analytics | undefined;
 
 try {
-  console.log("Initializing Firebase...");
-  app = initializeApp(firebaseConfig);
+  const existingApps = getApps();
+  if (existingApps.length === 0) {
+    console.log("Initializing Firebase (client)...");
+    app = initializeApp(firebaseConfig);
+  } else {
+    console.log("Reusing existing Firebase app (client)...");
+    app = getApp();
+  }
   
   // Initialize Firebase services
   auth = getAuth(app);

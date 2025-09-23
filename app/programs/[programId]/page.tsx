@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, use } from 'react';
+import { partnerships } from '../../../src/data/optimus-data';
 import ClientLayout from '../../components/ClientLayout';
 import programService, { Program } from '../../../src/services/programService';
 import { Award, Clock, DollarSign, BookOpen, CheckCircle, Download, FileText } from 'lucide-react';
@@ -187,26 +188,15 @@ export default function ProgramDetailPage({ params }: PageProps) {
               </p>
             )}
 
-                {/* Accreditation Logos */}
+                {/* Accreditation Logos (Home page set) */}
                 <div className="mb-8">
                   <p className="text-white/80 text-sm font-medium mb-4 uppercase tracking-wider">
-                    {currentLanguage === 'ar' ? 'معتمد من قبل' : 'Accredited By'}
+                    {currentLanguage === 'ar' ? 'الاعتمادات' : 'Accreditations'}
                   </p>
-                  <div className="flex items-center gap-6">
-                    <div className="bg-white rounded-xl p-3 hover:bg-gray-100 transition-all duration-300 shadow-lg">
-                      <img 
-                        src="/VERN.jpg" 
-                        alt="VERN University" 
-                        className="h-12 w-auto object-contain"
-                      />
-                    </div>
-                    <div className="bg-white rounded-xl p-3 hover:bg-gray-100 transition-all duration-300 shadow-lg">
-                      <img 
-                        src="/IBAS.jpg" 
-                        alt="IBAS Business School" 
-                        className="h-12 w-auto object-contain"
-                      />
-                    </div>
+                  <div className="flex items-center gap-4 flex-wrap">
+                    {partnerships.map((p) => (
+                      <img key={p.id} src={p.logo} alt={p.name} title={p.name} className="h-10 w-auto bg-white rounded-lg p-2 shadow" />
+                    ))}
                   </div>
                 </div>
 
