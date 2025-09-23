@@ -7,6 +7,7 @@ interface ContactContextType {
   contactInfo: ContactInfo;
   updateContactInfo: (contactInfo: Partial<ContactInfo>, updatedBy?: string) => Promise<void>;
   loading: boolean;
+  getWhatsAppUrl: (message?: string) => string;
 }
 
 interface ContactProviderProps {
@@ -77,7 +78,8 @@ export const ContactProvider: React.FC<ContactProviderProps> = ({ children }) =>
     <ContactContext.Provider value={{
       contactInfo,
       updateContactInfo,
-      loading
+      loading,
+      getWhatsAppUrl: contactService.getWhatsAppUrl
     }}>
       {children}
     </ContactContext.Provider>

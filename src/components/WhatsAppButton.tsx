@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { MessageCircle } from 'lucide-react';
+import { FaWhatsapp } from 'react-icons/fa';
 import { useCMS } from '../../app/contexts/cms-context';
 import { useContact } from '../../app/contexts/contact-context';
 
@@ -18,10 +18,14 @@ const WhatsAppButton: React.FC<WhatsAppButtonProps> = ({ className = '' }) => {
     window.open(whatsappUrl, '_blank');
   };
 
+  const baseClasses = `fixed bottom-6 right-6 h-14 w-14 rounded-full shadow-lg shadow-[#25D366]/40 flex items-center justify-center transition-all z-50 ${className}`;
+  const brandClasses = 'bg-[#25D366] hover:bg-[#1ebe5d] focus:outline-none focus:ring-4 focus:ring-[#25D366]/30 active:scale-95';
+  const icon = <FaWhatsapp size={28} className="text-white" />;
+
   if (cmsLoading || contactLoading) {
     return (
-      <button className={`fixed bottom-6 right-6 bg-green-500 text-white p-4 rounded-full shadow-lg opacity-50 ${className}`}>
-        <MessageCircle size={24} />
+      <button className={`${baseClasses} ${brandClasses} opacity-60`} aria-label="WhatsApp" title="WhatsApp">
+        {icon}
       </button>
     );
   }
@@ -29,10 +33,11 @@ const WhatsAppButton: React.FC<WhatsAppButtonProps> = ({ className = '' }) => {
   return (
     <button
       onClick={handleWhatsAppClick}
-      className={`fixed bottom-6 right-6 bg-green-500 hover:bg-green-600 text-white p-4 rounded-full shadow-lg transition-colors z-50 ${className}`}
+      className={`${baseClasses} ${brandClasses}`}
+      aria-label={getContent('whatsapp_button_text')}
       title={getContent('whatsapp_button_text')}
     >
-      <MessageCircle size={24} />
+      {icon}
       <span className="sr-only">{getContent('whatsapp_button_text')}</span>
     </button>
   );
