@@ -37,7 +37,7 @@ export interface ContactInfo {
 }
 
 export const DEFAULT_CONTACT_INFO: ContactInfo = {
-  phoneNumber: '+971569852211',
+  phoneNumber: '+966 9200 32654',
   ceoEmail: 'ceo@optimusksa.com',
   marketingEmail: 'marketing@optimusksa.com',
   supportEmail: 'support@optimusksa.com',
