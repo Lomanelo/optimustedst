@@ -25,6 +25,7 @@ import {
 } from 'firebase/functions';
 import { getAnalytics, Analytics } from 'firebase/analytics';
 
+
 // Your web app's Firebase configuration
 const firebaseConfig = {
   apiKey: "AIzaSyB0RLwqptWTOQJOawiM1pAHqE7wqjVgDps",
