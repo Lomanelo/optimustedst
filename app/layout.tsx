@@ -81,6 +81,8 @@ export default function RootLayout({
         <link rel="shortcut icon" href="/Favicon.png" />
         <link rel="apple-touch-icon" sizes="180x180" href="/Favicon.png" />
         <meta name="msapplication-TileImage" content="/Favicon.png" />
+        {/* Facebook Domain Verification */}
+        <meta name="facebook-domain-verification" content="eesuoymxbqq97bdgthaeda3j047hcs" />
         
         {/* Google tag (gtag.js) */}
         <Script 
