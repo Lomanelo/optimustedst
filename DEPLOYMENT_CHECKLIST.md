@@ -372,7 +372,7 @@ Before marking deployment complete:
 
 1. Development Team Lead
 2. Project Manager
-3. Backup: Review `SEO_IMPLEMENTATION_REPORT.md`
+3.   Backup: Review `SEO_IMPLEMENTATION_REPORT.md`
 
 ---
 
