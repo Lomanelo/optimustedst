@@ -376,10 +376,10 @@ Before marking deployment complete:
 
 ---
 
-**Deployment Date:** ********\_********  
-**Deployed By:** ********\_********  
-**Verified By:** ********\_********  
-**Sign-off:** ********\_********
+**Deployment Date:** **\*\*\*\***\_**\*\*\*\***  
+**Deployed By:** **\*\*\*\***\_**\*\*\*\***  
+**Verified By:** **\*\*\*\***\_**\*\*\*\***  
+**Sign-off:** **\*\*\*\***\_**\*\*\*\***
 
 ---
 
