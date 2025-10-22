@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import Image from 'next/image';
 
 interface OptimizedImageProps {
@@ -11,12 +11,17 @@ interface OptimizedImageProps {
   className?: string;
   priority?: boolean;
   fill?: boolean;
-  sizes?: string;
-  quality?: number;
-  placeholder?: 'blur' | 'empty';
-  blurDataURL?: string;
+  objectFit?: 'contain' | 'cover' | 'fill' | 'none' | 'scale-down';
+  fallbackSrc?: string;
 }
 
+/**
+ * Optimized Image Component
+ * - Lazy loading by default
+ * - Automatic WebP/AVIF conversion
+ * - Fallback handling
+ * - Blur placeholder
+ */
 export default function OptimizedImage({
   src,
   alt,
@@ -25,39 +30,97 @@ export default function OptimizedImage({
   className = '',
   priority = false,
   fill = false,
-  sizes = '(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw',
-  quality = 75,
-  placeholder = 'empty',
-  blurDataURL,
+  objectFit = 'cover',
+  fallbackSrc = '/Logo.jpeg'
 }: OptimizedImageProps) {
-  // Handle external images vs local images
-  const isExternal = src.startsWith('http') || src.startsWith('https');
-  
-  // Create placeholder blur for local images that need blur but don't have blurDataURL
-  const getBlurData = () => {
-    if (blurDataURL) return blurDataURL;
-    if (placeholder === 'blur' && !isExternal) {
-      return 'data:image/svg+xml;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+ip1sAAAAASUVORK5CYII=';
+  const [imgSrc, setImgSrc] = useState(src);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(false);
+
+  const handleError = () => {
+    if (!error) {
+      setError(true);
+      setImgSrc(fallbackSrc);
     }
-    return undefined;
   };
 
-  return (
-    <div className={`relative ${className}`} style={{ overflow: 'hidden' }}>
+  const handleLoad = () => {
+    setIsLoading(false);
+  };
+
+  // Common props for all image configurations
+  const commonProps = {
+    src: imgSrc,
+    alt: alt || 'OPTIMUS Education',
+    className: `${className} ${isLoading ? 'blur-sm' : 'blur-0'} transition-all duration-300`,
+    onError: handleError,
+    onLoad: handleLoad,
+    priority,
+    quality: 85,
+    placeholder: 'blur' as const,
+    blurDataURL: 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAwIiBoZWlnaHQ9IjQwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iNDAwIiBoZWlnaHQ9IjQwMCIgZmlsbD0iI2YzZjRmNiIvPjwvc3ZnPg==',
+  };
+
+  if (fill) {
+    return (
       <Image
+        {...commonProps}
+        fill
+        style={{ objectFit }}
+        sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+      />
+    );
+  }
+
+  return (
+    <Image
+      {...commonProps}
+      width={width || 800}
+      height={height || 600}
+      style={{ objectFit }}
+      sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+    />
+  );
+}
+
+/**
+ * Background Image Component with Lazy Loading
+ */
+export function OptimizedBackgroundImage({
+  src,
+  alt,
+  className = '',
+  children,
+  overlay = true,
+  overlayOpacity = 0.5
+}: {
+  src: string;
+  alt: string;
+  className?: string;
+  children?: React.ReactNode;
+  overlay?: boolean;
+  overlayOpacity?: number;
+}) {
+  return (
+    <div className={`relative ${className}`}>
+      <OptimizedImage
         src={src}
         alt={alt}
-        width={fill ? undefined : width}
-        height={fill ? undefined : height}
-        priority={priority}
-        fill={fill}
-        sizes={sizes}
-        quality={quality}
-        placeholder={placeholder}
-        blurDataURL={getBlurData()}
-        loading={priority ? 'eager' : 'lazy'}
-        className={`${className} ${fill ? 'object-cover' : ''}`}
+        fill
+        objectFit="cover"
+        priority={false}
       />
+      {overlay && (
+        <div 
+          className="absolute inset-0 bg-black" 
+          style={{ opacity: overlayOpacity }}
+        />
+      )}
+      {children && (
+        <div className="relative z-10">
+          {children}
+        </div>
+      )}
     </div>
   );
-} 
+}

@@ -12,9 +12,9 @@ const nextConfig = {
   eslint: {
     ignoreDuringBuilds: true,
   },
-  // Optimize images
+  // Optimize images - Enhanced for SEO
   images: {
-    domains: ['localhost'],
+    domains: ['localhost', 'optimusksa.com', 'optimusedu.netlify.app', 'firebasestorage.googleapis.com'],
     remotePatterns: [
       {
         protocol: 'https',
@@ -23,8 +23,11 @@ const nextConfig = {
     ],
     formats: ['image/avif', 'image/webp'],
     minimumCacheTTL: 60,
-    deviceSizes: [640, 750, 828, 1080, 1200, 1920, 2048],
-    imageSizes: [16, 32, 48, 64, 96, 128, 256],
+    deviceSizes: [640, 750, 828, 1080, 1200, 1920, 2048, 3840],
+    imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
+    dangerouslyAllowSVG: true,
+    contentDispositionType: 'attachment',
+    contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
   },
   // Handle Firebase and other external resources
   webpack: (config) => {
@@ -40,16 +43,44 @@ const nextConfig = {
   },
   // Compress assets
   compress: true,
-  // Experimental features for App Router
-  experimental: {
-    serverComponentsExternalPackages: ['@firebase/app', '@firebase/firestore'],
-  },
+  // Server external packages
+  serverExternalPackages: ['@firebase/app', '@firebase/firestore'],
   // Cache optimization
   onDemandEntries: {
     // period (in ms) where the server will keep pages in the buffer
     maxInactiveAge: 25 * 1000,
     // number of pages that should be kept simultaneously without being disposed
     pagesBufferLength: 2,
+  },
+  // Security headers for SEO
+  async headers() {
+    return [
+      {
+        source: '/:path*',
+        headers: [
+          {
+            key: 'X-DNS-Prefetch-Control',
+            value: 'on'
+          },
+          {
+            key: 'X-Frame-Options',
+            value: 'SAMEORIGIN'
+          },
+          {
+            key: 'X-Content-Type-Options',
+            value: 'nosniff'
+          },
+          {
+            key: 'X-XSS-Protection',
+            value: '1; mode=block'
+          },
+          {
+            key: 'Referrer-Policy',
+            value: 'origin-when-cross-origin'
+          }
+        ],
+      },
+    ];
   },
 }
 
