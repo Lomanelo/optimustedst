@@ -457,6 +457,8 @@ function ProgramsContent({ searchParams }: { searchParams: Record<string, string
                         <img 
                           src={program.thumbnail || '/Logo.jpeg'} 
                           alt={currentLanguage === 'ar' ? (program.title_ar || program.title) : program.title}
+                          loading="lazy"
+                          decoding="async"
                           className={`${program.thumbnail ? 'w-full h-full object-cover' : 'w-32 h-32 object-contain'}`}
                         />
                       </div>

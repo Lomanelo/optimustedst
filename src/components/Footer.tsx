@@ -90,6 +90,7 @@ const Footer: React.FC = () => {
               <li><a href="/faculty" className="text-white/80 hover:text-accent transition-colors">{isArabic ? 'هيئة التدريس' : 'Faculty'}</a></li>
               <li><a href="/testimonials" className="text-white/80 hover:text-accent transition-colors">{isArabic ? 'الشهادات' : 'Testimonials'}</a></li>
               <li><a href="/blog" className="text-white/80 hover:text-accent transition-colors">{getContent('footer_link_blog')}</a></li>
+              <li><a href="/resources/career-guide" className="text-white/80 hover:text-accent transition-colors">{isArabic ? 'دليل المسار المهني' : 'Career Guide'}</a></li>
               <li><a href="/contact" className="text-white/80 hover:text-accent transition-colors">{getContent('footer_link_contact')}</a></li>
             </ul>
           </div>
@@ -126,9 +127,9 @@ const Footer: React.FC = () => {
           </div>
         </div>
         
-        <div className="pt-8 border-t border-white/20 flex flex-row justify-between items-center no-rtl-flip">
+          <div className="pt-8 border-t border-white/20 flex flex-row justify-between items-center no-rtl-flip">
           <div className="flex flex-nowrap gap-6 no-rtl-flip">
-            <a href="/privacy" className="text-white/60 hover:text-white text-sm transition-colors whitespace-nowrap">{getContent('footer_privacy_policy')}</a>
+            <a href="/privacy-policy" className="text-white/60 hover:text-white text-sm transition-colors whitespace-nowrap">{getContent('footer_privacy_policy')}</a>
             <a href="/terms" className="text-white/60 hover:text-white text-sm transition-colors whitespace-nowrap">{getContent('footer_terms_of_service')}</a>
           </div>
           <p className="text-white/60 text-sm">
