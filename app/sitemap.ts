@@ -78,10 +78,13 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   //   priority: 0.8,
   // }));
 
-  return [
-    ...staticPages,
-    // ...programPages,
-    // ...blogPages,
-  ];
+  // Exclude non-canonical URLs (keep only https non-www domain)
+  const deduped = new Map<string, MetadataRoute.Sitemap[number]>();
+  [...staticPages].forEach((entry) => {
+    const url = entry.url.replace('http://', 'https://').replace('https://www.', 'https://');
+    deduped.set(url, { ...entry, url });
+  });
+
+  return Array.from(deduped.values());
 }
 

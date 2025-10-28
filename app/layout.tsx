@@ -19,8 +19,8 @@ export const metadata: Metadata = {
   alternates: {
     canonical: '/',
     languages: {
-      'en': '/en',
-      'ar': '/ar',
+      en: 'https://optimusksa.com/en',
+      ar: 'https://optimusksa.com/ar',
     }
   },
   icons: [

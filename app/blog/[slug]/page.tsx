@@ -1,7 +1,6 @@
 'use client';
 
 import React, { useState, useEffect, use } from 'react';
-import Head from 'next/head';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import Link from 'next/link';
@@ -143,21 +142,7 @@ export default function BlogPostPage({ params }: PageProps) {
   
   return (
     <ClientLayout>
-      <Head>
-        <title>{blogPost.seoTitle || getLocalizedContent(blogPost, 'title')}</title>
-        {blogPost.seoDescription && (
-          <meta name="description" content={blogPost.seoDescription} />
-        )}
-        {blogPost.robots?.noindex && (
-          <meta name="robots" content={`${blogPost.robots.noindex ? 'noindex' : 'index'}, ${blogPost.robots.nofollow ? 'nofollow' : 'follow'}`} />
-        )}
-        {/* Open Graph basics */}
-        <meta property="og:type" content="article" />
-        <meta property="og:title" content={blogPost.seoTitle || getLocalizedContent(blogPost, 'title')} />
-        <meta property="og:description" content={blogPost.seoDescription || getLocalizedContent(blogPost, 'excerpt')} />
-        {blogPost.coverImage && <meta property="og:image" content={blogPost.coverImage} />}
-        <meta name="twitter:card" content="summary_large_image" />
-      </Head>
+      {/* Metadata handled by app/blog/[slug]/metadata.ts */}
       <div className={`bg-gray-50 min-h-screen ${currentLanguage === 'ar' ? 'rtl-content' : ''}`}>
         {/* Hero Section with Cover Image */}
         {blogPost.coverImage && (
@@ -166,6 +151,8 @@ export default function BlogPostPage({ params }: PageProps) {
             <img 
               src={blogPost.coverImage} 
               alt={getLocalizedContent(blogPost, 'title')} 
+              loading="lazy"
+              decoding="async"
               className="w-full h-full object-cover"
             />
             <div className="container mx-auto px-4 absolute inset-0 z-20 flex items-center">

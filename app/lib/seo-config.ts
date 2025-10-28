@@ -117,8 +117,8 @@ export function generatePageMetadata(pageKey: keyof typeof PAGE_METADATA, locale
     alternates: {
       canonical: `${SITE_CONFIG.domain}/${pageKey === 'home' ? '' : pageKey}`,
       languages: {
-        'en': `${SITE_CONFIG.domain}/en/${pageKey === 'home' ? '' : pageKey}`,
-        'ar': `${SITE_CONFIG.domain}/ar/${pageKey === 'home' ? '' : pageKey}`,
+        en: `${SITE_CONFIG.domain}/en/${pageKey === 'home' ? '' : pageKey}`,
+        ar: `${SITE_CONFIG.domain}/ar/${pageKey === 'home' ? '' : pageKey}`,
       }
     },
     openGraph: {

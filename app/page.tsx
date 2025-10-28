@@ -43,6 +43,7 @@ export default function HomePage() {
   // Show homepage for both logged-in and non-logged-in users
   return (
     <ClientLayout>
+      <h1 className="sr-only">Internationally Accredited MBA & DBA Programs in KSA | OPTIMUS Education</h1>
       {/* Global Organization Schema from Firestore (if available) */}
       <Script id="org-schema-dynamic" type="application/ld+json"
         dangerouslySetInnerHTML={{
@@ -58,9 +59,9 @@ export default function HomePage() {
           __html: JSON.stringify({
             '@context': 'https://schema.org',
             '@type': 'EducationalOrganization',
-            name: 'OPTIMUS Education',
-            url: 'https://optimusedu.netlify.app',
-            logo: 'https://optimusedu.netlify.app/OptimusLogoOnPurple.png',
+            name: 'OPTIMUS Education KSA',
+            url: 'https://optimusksa.com',
+            logo: 'https://optimusksa.com/OptimusLogoOnPurple.png',
             sameAs: [
               'https://www.facebook.com/optimuseducation',
               'https://www.linkedin.com/company/optimuseducation',
@@ -68,12 +69,13 @@ export default function HomePage() {
             ],
             address: {
               '@type': 'PostalAddress',
-              addressCountry: 'UAE',
-              addressLocality: 'Dubai'
+              addressCountry: 'Saudi Arabia',
+              addressRegion: 'Riyadh Region',
+              addressLocality: 'Riyadh'
             },
             contactPoint: {
               '@type': 'ContactPoint',
-              telephone: '+971569852211',
+              telephone: '+966501234567',
               contactType: 'customer service'
             }
           })

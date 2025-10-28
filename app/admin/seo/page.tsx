@@ -43,8 +43,8 @@ export default function AdminSEOPage() {
           '@context': 'https://schema.org',
           '@type': 'Organization',
           name: 'OPTIMUS Education',
-          url: 'https://optimusedu.netlify.app',
-          logo: 'https://optimusedu.netlify.app/OptimusLogoOnPurple.png'
+          url: 'https://optimusksa.com',
+          logo: 'https://optimusksa.com/OptimusLogoOnPurple.png'
         }, null, 2));
       }
 

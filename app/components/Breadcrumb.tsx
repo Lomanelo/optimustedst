@@ -48,7 +48,7 @@ export default function Breadcrumb({ customItems }: BreadcrumbProps) {
       '@type': 'ListItem',
       position: index + 1,
       name: item.label,
-      item: `https://optimusedu.netlify.app${item.path}`
+      item: `https://optimusksa.com${item.path}`
     }))
   };
   

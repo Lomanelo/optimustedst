@@ -133,7 +133,7 @@ const LongLandingPage = () => {
                 <div className="absolute inset-0 bg-white/10 backdrop-blur-sm rounded-lg overflow-hidden shadow-2xl">
                   <div className="absolute inset-0 bg-gradient-to-tr from-black/20 to-transparent"></div>
                   <img 
-                    src="/images/hero-image.jpg" 
+                    src="/guyWorking.jpg" 
                     alt="Students graduating"
                     className="w-full h-full object-cover"
                     onError={(e) => {
@@ -341,7 +341,7 @@ const LongLandingPage = () => {
                 {/* Placeholder for guide image */}
                 <div className="absolute inset-0">
                   <img 
-                    src="/images/guide-image.jpg" 
+                    src="/classimage.jpg" 
                     alt="Career advancement guide" 
                     className="w-full h-full object-cover"
                     onError={(e) => {
