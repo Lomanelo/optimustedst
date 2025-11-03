@@ -104,7 +104,7 @@ const ProgramOverview: React.FC = () => {
 
             {/* Baccalaureate Section */}
             <div 
-              className="group relative overflow-hidden rounded-2xl bg-gradient-to-br from-white via-primary/10 to-accent/20 shadow-xl hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-2 h-full"
+              className="group relative overflow-hidden rounded-2xl bg-gradient-to-br from-white via-white to-accent/10 shadow-xl hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-2 h-full"
               style={isArabic ? { direction: 'rtl' } : {}}
             >
               <div className="absolute inset-0 pointer-events-none"></div>
@@ -205,7 +205,7 @@ const ProgramOverview: React.FC = () => {
 
                 <Link 
                   href="/programs?programType=DBA"
-                  className="inline-flex items-center justify-center bg-primary hover:bg-primary-dark text-white font-bold py-4 px-8 rounded-xl transition-all duration-300 group-hover:scale-105 shadow-lg"
+                  className="inline-flex items-center justify-center bg-white hover:bg-gray-100 text-primary font-bold py-4 px-8 rounded-xl transition-all duration-300 group-hover:scale-105 shadow-lg"
                   style={isArabic ? { fontFamily: 'Cairo, sans-serif' } : {}}
                 >
                   {getContent('program_explore_phd')}
