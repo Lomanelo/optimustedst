@@ -87,7 +87,6 @@ const Footer: React.FC = () => {
             <ul className="space-y-2">
               <li><a href="/programs" className="text-white/80 hover:text-accent transition-colors">{getContent('footer_link_programs')}</a></li>
               <li><a href="/about" className="text-white/80 hover:text-accent transition-colors">{getContent('footer_link_about')}</a></li>
-              <li><a href="/faculty" className="text-white/80 hover:text-accent transition-colors">{isArabic ? 'هيئة التدريس' : 'Faculty'}</a></li>
               <li><a href="/testimonials" className="text-white/80 hover:text-accent transition-colors">{isArabic ? 'الشهادات' : 'Testimonials'}</a></li>
               <li><a href="/blog" className="text-white/80 hover:text-accent transition-colors">{getContent('footer_link_blog')}</a></li>
               <li><a href="/resources/career-guide" className="text-white/80 hover:text-accent transition-colors">{isArabic ? 'دليل المسار المهني' : 'Career Guide'}</a></li>

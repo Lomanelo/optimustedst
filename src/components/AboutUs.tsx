@@ -104,6 +104,11 @@ const AboutUs: React.FC = () => {
               <p className={`text-gray-600 max-w-2xl mx-auto text-center`}>
                 {getContent('about_why_choose_subtitle')}
               </p>
+              <p className={`text-gray-700 max-w-3xl mx-auto text-center mt-3`}>
+                {currentLanguage === 'ar'
+                  ? 'معتمدة من التعليم العالي السعودي و CMI، مع شبكة تواصل مع متخصصين حول العالم، وفقًا للشروط والأحكام.'
+                  : 'Accredited by the Saudi Ministry of Higher Education and CMI, with a global network of professionals, subject to terms and conditions.'}
+              </p>
             </motion.div>
             
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8 mb-12">

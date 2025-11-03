@@ -1,7 +1,8 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Facebook, Instagram, Twitter, Linkedin, MessageCircle, Music, CheckCircle, Globe } from 'lucide-react';
+import { Facebook, Instagram, Linkedin, MessageCircle, Music, CheckCircle, Globe } from 'lucide-react';
+import { SiX } from 'react-icons/si';
 import { doc, getDoc } from 'firebase/firestore';
 import { db } from '../../src/firebase/firebase';
 import Head from 'next/head';
@@ -176,7 +177,7 @@ export default function ComingSoonPage() {
       case 'instagram':
         return <Instagram {...iconProps} className="text-pink-600 hover:text-pink-700" />;
       case 'twitter':
-        return <Twitter {...iconProps} className="text-blue-400 hover:text-blue-500" />;
+        return <SiX {...iconProps} className="text-black hover:text-gray-800" />;
       case 'snapchat':
         return <MessageCircle {...iconProps} className="text-yellow-500 hover:text-yellow-600" />;
       case 'linkedin':
@@ -379,7 +380,7 @@ export default function ComingSoonPage() {
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex justify-center items-center relative">
               {/* Main Logo */}
-              <div className="h-14 flex items-center justify-center">
+              <a href="https://optimusksa.com" className="h-14 flex items-center justify-center">
                 <img
                   src={language === 'ar' ? "/purplelogoArabic.png" : "/Logo.jpeg"}
                   alt={language === 'ar' ? "شعار أوبتيموس السعودية" : "Optimus KSA Logo"}
@@ -391,7 +392,7 @@ export default function ComingSoonPage() {
                     target.src = language === 'ar' ? "/Logo.jpeg" : "/purplelogoArabic.png";
                   }}
                 />
-              </div>
+              </a>
               
               {/* Language Switcher - Fixed position, always LTR */}
               <div className="fixed top-20 right-4 z-50" dir="ltr">
@@ -738,6 +739,7 @@ export default function ComingSoonPage() {
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
             <div className="text-center">
               <div className="h-16 flex items-center justify-center">
+                <a href="https://optimusksa.com">
                 <img
                   src={language === 'ar' ? "/whitelogoArabic.png" : "/OptimusLogoOnPurple.png"}
                   alt={language === 'ar' ? "شعار أوبتيموس السعودية" : "Optimus KSA Logo"}
@@ -749,6 +751,7 @@ export default function ComingSoonPage() {
                     target.src = language === 'ar' ? "/Logo.jpeg" : "/whitelogoArabic.png";
                   }}
                 />
+                </a>
                             </div>
               
               {activeSocialLinks.length > 0 && (

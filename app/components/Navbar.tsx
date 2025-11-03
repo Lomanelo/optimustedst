@@ -7,6 +7,7 @@ import { useRouter } from 'next/navigation';
 import { usePathname } from 'next/navigation';
 import { useAuth } from '../contexts/auth-context';
 import { useCMS } from '../contexts/cms-context';
+import { useContact } from '../contexts/contact-context';
 import Logo from '../../src/components/Logo';
 import Button from '../../src/components/Button';
 import LanguageSwitcher from '../../src/components/LanguageSwitcher';
@@ -19,6 +20,7 @@ const Navbar: React.FC = () => {
   const router = useRouter();
   const { currentUser, userRole, logout } = useAuth();
   const { getContent, loading: cmsLoading, currentLanguage } = useCMS();
+  const { contactInfo } = useContact();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -36,6 +38,22 @@ const Navbar: React.FC = () => {
 
   const isActive = (path: string) => {
     return pathname === path ? 'text-accent' : 'text-gray-800';
+  };
+
+  const renderHighlightedPhone = (phone: string) => {
+    if (!phone) return null;
+    const displayPhone = currentLanguage === 'ar' ? phone.replace(/^\+/, '') + '+' : phone;
+    const parts = displayPhone.split('9200');
+    if (parts.length === 1) {
+      return <span className="text-primary font-semibold">{phone}</span>;
+    }
+    return (
+      <span className="font-semibold">
+        <span className="text-primary">{parts[0]}</span>
+        <span className="text-green-600">9200</span>
+        <span className="text-primary">{parts.slice(1).join('9200')}</span>
+      </span>
+    );
   };
 
   const handleSignOut = async () => {
@@ -85,6 +103,12 @@ const Navbar: React.FC = () => {
   ];
   const orderedLinks = currentLanguage === 'ar' ? [...navLinks].reverse() : navLinks;
 
+  const phoneEl = contactInfo?.phoneNumber ? (
+    <a href={`tel:${contactInfo.phoneNumber}`} className="hidden lg:inline-flex items-center px-3 py-1.5 rounded-md bg-white/0" dir={currentLanguage === 'ar' ? 'rtl' : 'ltr'}>
+      {renderHighlightedPhone(contactInfo.phoneNumber)}
+    </a>
+  ) : null;
+
   return (
     <nav 
       className={`sticky top-0 z-50 transition-all duration-300 ${
@@ -101,18 +125,20 @@ const Navbar: React.FC = () => {
           </div>
 
           {/* Desktop Navigation */}
-          <div className="hidden md:flex gap-6">
+          <div className="hidden md:flex gap-6 items-center">
             {orderedLinks.map(link => (
               <Link key={link.href} href={link.href} className={`${isActive(link.href)} hover:text-accent font-medium transition-colors`}>
                 {link.label}
               </Link>
             ))}
+            {currentLanguage === 'ar' && phoneEl}
             {currentUser && (
               <Link href="/dashboard" className={`${isActive('/dashboard')} hover:text-accent font-medium transition-colors`}>{getContent('navbar_dashboard')}</Link>
             )}
           </div>
 
           <div className="hidden md:flex items-center gap-4">
+            {currentLanguage !== 'ar' && phoneEl}
             <LanguageSwitcher />
             {currentUser ? (
               <div className="flex items-center gap-4">

@@ -10,7 +10,7 @@ interface WhatsAppButtonProps {
 }
 
 const WhatsAppButton: React.FC<WhatsAppButtonProps> = ({ className = '' }) => {
-  const { getContent, loading: cmsLoading } = useCMS();
+  const { getContent, loading: cmsLoading, currentLanguage } = useCMS();
   const { getWhatsAppUrl, loading: contactLoading } = useContact();
 
   const handleWhatsAppClick = () => {
@@ -18,7 +18,7 @@ const WhatsAppButton: React.FC<WhatsAppButtonProps> = ({ className = '' }) => {
     window.open(whatsappUrl, '_blank');
   };
 
-  const baseClasses = `fixed bottom-6 right-6 h-14 w-14 rounded-full shadow-lg shadow-[#25D366]/40 flex items-center justify-center transition-all z-50 ${className}`;
+  const baseClasses = `fixed bottom-6 right-6 h-14 px-5 rounded-full shadow-lg shadow-[#25D366]/40 inline-flex items-center gap-3 transition-all z-50 ${className}`;
   const brandClasses = 'bg-[#25D366] hover:bg-[#1ebe5d] focus:outline-none focus:ring-4 focus:ring-[#25D366]/30 active:scale-95';
   const icon = <FaWhatsapp size={28} className="text-white" />;
 
@@ -26,6 +26,7 @@ const WhatsAppButton: React.FC<WhatsAppButtonProps> = ({ className = '' }) => {
     return (
       <button className={`${baseClasses} ${brandClasses} opacity-60`} aria-label="WhatsApp" title="WhatsApp">
         {icon}
+        <span className="text-white font-semibold">{currentLanguage === 'ar' ? 'تحدث معنا' : 'Chat with us'}</span>
       </button>
     );
   }
@@ -38,7 +39,7 @@ const WhatsAppButton: React.FC<WhatsAppButtonProps> = ({ className = '' }) => {
       title={getContent('whatsapp_button_text')}
     >
       {icon}
-      <span className="sr-only">{getContent('whatsapp_button_text')}</span>
+      <span className="text-white font-semibold">{currentLanguage === 'ar' ? 'تحدث معنا' : 'Chat with us'}</span>
     </button>
   );
 };

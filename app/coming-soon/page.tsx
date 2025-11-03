@@ -1,7 +1,8 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Facebook, Instagram, Twitter, Linkedin, MessageCircle, Music, CheckCircle, Globe } from 'lucide-react';
+import { Facebook, Instagram, Linkedin, MessageCircle, Music, CheckCircle, Globe } from 'lucide-react';
+import { SiX } from 'react-icons/si';
 import { doc, getDoc } from 'firebase/firestore';
 import { db } from '../../src/firebase/firebase';
 import Head from 'next/head';
@@ -169,7 +170,7 @@ export default function ComingSoonPage() {
       case 'instagram':
         return <Instagram {...iconProps} className="text-pink-600 hover:text-pink-700" />;
       case 'twitter':
-        return <Twitter {...iconProps} className="text-blue-400 hover:text-blue-500" />;
+        return <SiX {...iconProps} className="text-black hover:text-gray-800" />;
       case 'snapchat':
         return <MessageCircle {...iconProps} className="text-yellow-500 hover:text-yellow-600" />;
       case 'linkedin':

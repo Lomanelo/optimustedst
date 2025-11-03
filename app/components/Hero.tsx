@@ -47,11 +47,20 @@ const Hero: React.FC = () => {
           </span>
           
           <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold text-white leading-tight mb-6 font-sans">
-            {getContent('hero_title')}
+            {currentLanguage === 'ar' 
+              ? 'ماجستير • البكالوريا • دكتوراه' 
+              : 'MBA · Baccalaureat · DBA'}
           </h1>
           
           <p className="text-white/90 text-xl md:text-2xl mb-6 font-sans">
             {getFormattedContent('hero_subtitle')}
+          </p>
+
+          {/* Certifications note (EN/AR) */}
+          <p className="text-white/90 text-base md:text-lg">
+            {currentLanguage === 'ar'
+              ? 'شهادات معتمدة في القطاع الخاص وفي القطاع الحكومي'
+              : 'Recognized certificates in the private and public sectors'}
           </p>
           
           <div className="flex gap-4 mt-8">
