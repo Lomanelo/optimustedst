@@ -26,6 +26,49 @@ const ProgramOverview: React.FC = () => {
 
         <div className="max-w-6xl mx-auto">
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-stretch">
+            {/* Baccalaureate Section */}
+            <div 
+              className="group relative overflow-hidden rounded-2xl bg-gradient-to-br from-white via-white to-accent/10 shadow-xl hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-2 h-full"
+              style={isArabic ? { direction: 'rtl' } : {}}
+            >
+              <div className="absolute inset-0 pointer-events-none"></div>
+              <div className="relative p-8 lg:p-12 text-primary min-h-[400px] h-full flex flex-col justify-between">
+                <div>
+                  <div className="flex items-center mb-6">
+                    <div className="bg-primary/10 p-3 rounded-full mr-4">
+                      <GraduationCap className="w-8 h-8 text-primary" />
+                    </div>
+                    <h3 
+                      className="text-3xl font-bold"
+                      style={isArabic ? { fontFamily: 'Cairo, sans-serif' } : {}}
+                    >
+                      {isArabic ? 'بكالوريوس' : 'Baccalaureat Degrees'}
+                    </h3>
+                  </div>
+                  <p 
+                    className="text-gray-700 text-lg mb-8 leading-relaxed"
+                    style={isArabic ? { fontFamily: 'Cairo, sans-serif' } : {}}
+                  >
+                    {getContent('programs_bachelor_description')}
+                  </p>
+                </div>
+
+                <Link 
+                  href="/programs#bachelor"
+                  className="inline-flex items-center justify-center bg-primary hover:bg-primary-dark text-white font-bold py-4 px-8 rounded-xl transition-all duration-300 group-hover:scale-105 shadow-lg"
+                  style={isArabic ? { fontFamily: 'Cairo, sans-serif' } : {}}
+                >
+                  {isArabic ? 'استكشف برامج البكالوريوس' : 'Explore Baccalaureat Degrees'}
+                  <ArrowRight 
+                    className="w-5 h-5 group-hover:translate-x-1 transition-transform ml-2"
+                    style={isArabic ? { transform: 'scaleX(-1)' } : {}}
+                  />
+                </Link>
+              </div>
+              <div className="absolute top-0 right-0 w-24 h-24 bg-primary/10 rounded-full -translate-y-12 translate-x-12"></div>
+              <div className="absolute bottom-0 left-0 w-20 h-20 bg-accent/20 rounded-full translate-y-10 -translate-x-10"></div>
+            </div>
+
             {/* MBA Section */}
             <div 
               className="group relative overflow-hidden rounded-2xl bg-gradient-to-br from-primary to-primary-dark shadow-xl hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-2 h-full"
@@ -100,49 +143,6 @@ const ProgramOverview: React.FC = () => {
               {/* Decorative Elements */}
               <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -translate-y-16 translate-x-16"></div>
               <div className="absolute bottom-0 left-0 w-24 h-24 bg-accent/20 rounded-full translate-y-12 -translate-x-12"></div>
-            </div>
-
-            {/* Baccalaureate Section */}
-            <div 
-              className="group relative overflow-hidden rounded-2xl bg-gradient-to-br from-white via-white to-accent/10 shadow-xl hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-2 h-full"
-              style={isArabic ? { direction: 'rtl' } : {}}
-            >
-              <div className="absolute inset-0 pointer-events-none"></div>
-              <div className="relative p-8 lg:p-12 text-primary min-h-[400px] h-full flex flex-col justify-between">
-                <div>
-                  <div className="flex items-center mb-6">
-                    <div className="bg-primary/10 p-3 rounded-full mr-4">
-                      <GraduationCap className="w-8 h-8 text-primary" />
-                    </div>
-                    <h3 
-                      className="text-3xl font-bold"
-                      style={isArabic ? { fontFamily: 'Cairo, sans-serif' } : {}}
-                    >
-                      {isArabic ? 'البكالوريا' : 'Baccalaureat Degrees'}
-                    </h3>
-                  </div>
-                  <p 
-                    className="text-gray-700 text-lg mb-8 leading-relaxed"
-                    style={isArabic ? { fontFamily: 'Cairo, sans-serif' } : {}}
-                  >
-                    {getContent('programs_bachelor_description')}
-                  </p>
-                </div>
-
-                <Link 
-                  href="/programs#bachelor"
-                  className="inline-flex items-center justify-center bg-primary hover:bg-primary-dark text-white font-bold py-4 px-8 rounded-xl transition-all duration-300 group-hover:scale-105 shadow-lg"
-                  style={isArabic ? { fontFamily: 'Cairo, sans-serif' } : {}}
-                >
-                  {isArabic ? 'استكشف برامج البكالوريا' : 'Explore Baccalaureat Degrees'}
-                  <ArrowRight 
-                    className="w-5 h-5 group-hover:translate-x-1 transition-transform ml-2"
-                    style={isArabic ? { transform: 'scaleX(-1)' } : {}}
-                  />
-                </Link>
-              </div>
-              <div className="absolute top-0 right-0 w-24 h-24 bg-primary/10 rounded-full -translate-y-12 translate-x-12"></div>
-              <div className="absolute bottom-0 left-0 w-20 h-20 bg-accent/20 rounded-full translate-y-10 -translate-x-10"></div>
             </div>
 
             {/* PHD Section */}
