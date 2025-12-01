@@ -103,16 +103,16 @@ export default function DashboardLayout({
         <div className="p-6 border-b border-white/10">
           <Link href="/" className="flex items-center justify-center hover:opacity-80 transition-opacity">
             <img
-              src="/Final%20Logo01-03.jpg"
+              src={currentLanguage === 'ar' ? '/OptimusSolutionsWhiteAR.png' : '/OptimusSolutionsWhiteEN.png'}
               alt="Optimus Solutions Logo"
-              width={220}
-              height={72}
+              width={currentLanguage === 'ar' ? 200 : 220}
+              height={currentLanguage === 'ar' ? 66 : 72}
               className="object-contain"
-              style={{ width: '220px', height: '72px' }}
+              style={{ width: currentLanguage === 'ar' ? '200px' : '220px', height: currentLanguage === 'ar' ? '66px' : '72px' }}
               onError={(e) => {
                 const target = e.currentTarget as HTMLImageElement;
                 target.onerror = null;
-                target.src = '/OptimusLogoOnPurple.png';
+                target.src = currentLanguage === 'ar' ? '/OptimusSolutionsWhiteAR.png' : '/OptimusSolutionsWhiteEN.png';
               }}
             />
           </Link>

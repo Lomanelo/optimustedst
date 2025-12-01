@@ -375,15 +375,16 @@ export default function ComingSoonPage() {
               {/* Main Logo */}
               <div className="h-14 flex items-center justify-center">
                 <img
-                  src={language === 'ar' ? "/Final%20Logo%20AR-03.jpg" : "/Final%20Logo01-03.jpg"}
+                  src={language === 'ar' ? "/OptimusSolutionsPurpleAR.png" : "/OptimusSolutionsPurpleEN.png"}
                   alt={language === 'ar' ? "شعار أوبتيموس سوليوشنز" : "Optimus Solutions Logo"}
                   className="h-14 w-auto object-contain max-w-[280px]"
                   onError={(e) => {
                     console.error('Header logo failed to load:', e);
                     const target = e.target as HTMLImageElement;
                     target.onerror = null;
-                    target.src = language === 'ar' ? "/purplelogoArabic.png" : "/Logo.jpeg";
+                    target.src = language === 'ar' ? "/OptimusSolutionsPurpleAR.png" : "/OptimusSolutionsPurpleEN.png";
                   }}
+                  style={{ maxWidth: language === 'ar' ? '260px' : '280px' }}
                 />
               </div>
               
@@ -733,15 +734,16 @@ export default function ComingSoonPage() {
             <div className="text-center">
               <div className="h-16 flex items-center justify-center">
                 <img
-                  src={language === 'ar' ? "/Final%20Logo%20AR-03.jpg" : "/Final%20Logo01-03.jpg"}
+                  src={language === 'ar' ? "/OptimusSolutionsWhiteAR.png" : "/OptimusSolutionsWhiteEN.png"}
                   alt={language === 'ar' ? "شعار أوبتيموس سوليوشنز" : "Optimus Solutions Logo"}
                   className="h-16 w-auto object-contain max-w-[240px]"
                   onError={(e) => {
                     console.error('Footer logo failed to load:', e);
                     const target = e.target as HTMLImageElement;
                     target.onerror = null;
-                    target.src = language === 'ar' ? "/whitelogoArabic.png" : "/OptimusLogoOnPurple.png";
+                    target.src = language === 'ar' ? "/OptimusSolutionsWhiteAR.png" : "/OptimusSolutionsWhiteEN.png";
                   }}
+                  style={{ maxWidth: language === 'ar' ? '220px' : '240px' }}
                 />
               </div>
               

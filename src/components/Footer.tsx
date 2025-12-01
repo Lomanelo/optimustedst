@@ -10,7 +10,7 @@ const Footer: React.FC = () => {
   const { getContent, getFormattedContent, loading: cmsLoading, currentLanguage } = useCMS();
   const { contactInfo } = useContact();
   const isArabic = currentLanguage === 'ar';
-  const logoSrc = isArabic ? "/Final%20Logo%20AR-03.jpg" : "/Final%20Logo01-03.jpg";
+  const logoSrc = isArabic ? "/OptimusSolutionsWhiteAR.png" : "/OptimusSolutionsWhiteEN.png";
   
   // Helper function to format phone number for RTL
   const formatPhoneNumber = (phoneNumber: string) => {
@@ -74,11 +74,11 @@ const Footer: React.FC = () => {
                 src={logoSrc} 
                 alt="Optimus Solutions Logo" 
                 className="h-16 md:h-20" 
-                style={{ width: 'auto' }} 
+                style={{ width: 'auto', height: isArabic ? '64px' : undefined }} 
                 onError={(e) => {
                   const target = e.currentTarget as HTMLImageElement;
                   target.onerror = null;
-                  target.src = isArabic ? '/whitelogoArabic.png' : '/OptimusLogoOnPurple.png';
+                  target.src = isArabic ? '/OptimusSolutionsWhiteAR.png' : '/OptimusSolutionsWhiteEN.png';
                 }}
               />
             </div>

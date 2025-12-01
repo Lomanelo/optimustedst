@@ -11,8 +11,8 @@ const Logo: React.FC<LogoProps> = ({ className = '', withText = true, variant = 
   const { currentLanguage } = useCMS();
   const isArabic = currentLanguage === 'ar';
   
-  // Select the appropriate logo based on language (use new branding assets)
-  let logoSrc = isArabic ? '/Final%20Logo%20AR-03.jpg' : '/Final%20Logo01-03.jpg';
+  // Select the appropriate logo for light backgrounds (purple label)
+  let logoSrc = isArabic ? '/OptimusSolutionsPurpleAR.png' : '/OptimusSolutionsPurpleEN.png';
   
   return (
     <div className={`logo-container flex items-center ${className}`}>
@@ -20,11 +20,11 @@ const Logo: React.FC<LogoProps> = ({ className = '', withText = true, variant = 
         src={logoSrc} 
         alt="Optimus Solutions Logo" 
         className="h-16 md:h-20" 
-        style={{ width: 'auto' }}
+        style={{ width: 'auto', height: isArabic ? '60px' : undefined }}
         onError={(e) => {
           const target = e.currentTarget as HTMLImageElement;
           target.onerror = null;
-          target.src = isArabic ? '/purplelogoArabic.png' : '/Logo.jpeg';
+          target.src = isArabic ? '/OptimusSolutionsPurpleAR.png' : '/OptimusSolutionsPurpleEN.png';
         }}
       />
     </div>
