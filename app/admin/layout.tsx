@@ -156,13 +156,18 @@ export default function AdminLayout({
         {/* Logo */}
         <div className="p-6 border-b border-white/10">
           <Link href="/" className="flex items-center justify-center hover:opacity-80 transition-opacity">
-            <Image
+            <img
               src="/Final%20Logo01-03.jpg"
               alt="Optimus Solutions Logo"
               width={180}
               height={60}
               className="object-contain"
-              priority
+              style={{ width: '180px', height: '60px' }}
+              onError={(e) => {
+                const target = e.currentTarget as HTMLImageElement;
+                target.onerror = null;
+                target.src = '/OptimusLogoOnPurple.png';
+              }}
             />
           </Link>
         </div>

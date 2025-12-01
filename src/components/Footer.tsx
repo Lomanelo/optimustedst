@@ -70,7 +70,17 @@ const Footer: React.FC = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-8">
           <div className="flex flex-col items-start">
             <div className="mb-4 inline-block rounded">
-              <img src={logoSrc} alt="Optimus Solutions Logo" className="h-14" style={{ width: 'auto' }} />
+              <img 
+                src={logoSrc} 
+                alt="Optimus Solutions Logo" 
+                className="h-14" 
+                style={{ width: 'auto' }} 
+                onError={(e) => {
+                  const target = e.currentTarget as HTMLImageElement;
+                  target.onerror = null;
+                  target.src = isArabic ? '/whitelogoArabic.png' : '/OptimusLogoOnPurple.png';
+                }}
+              />
             </div>
             {/* Social Media Links */}
             <div className="mt-6">

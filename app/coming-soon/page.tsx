@@ -380,9 +380,9 @@ export default function ComingSoonPage() {
                   className="h-11 w-auto object-contain max-w-[220px]"
                   onError={(e) => {
                     console.error('Header logo failed to load:', e);
-                    // Fallback to the other logo if one fails
                     const target = e.target as HTMLImageElement;
-                    target.src = language === 'ar' ? "/Final%20Logo01-03.jpg" : "/Final%20Logo%20AR-03.jpg";
+                    target.onerror = null;
+                    target.src = language === 'ar' ? "/purplelogoArabic.png" : "/Logo.jpeg";
                   }}
                 />
               </div>
@@ -738,9 +738,9 @@ export default function ComingSoonPage() {
                   className="h-12 w-auto object-contain max-w-[200px]"
                   onError={(e) => {
                     console.error('Footer logo failed to load:', e);
-                    // Fallback to the other logo if one fails
                     const target = e.target as HTMLImageElement;
-                    target.src = language === 'ar' ? "/Final%20Logo01-03.jpg" : "/Final%20Logo%20AR-03.jpg";
+                    target.onerror = null;
+                    target.src = language === 'ar' ? "/whitelogoArabic.png" : "/OptimusLogoOnPurple.png";
                   }}
                 />
               </div>

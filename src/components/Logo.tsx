@@ -21,6 +21,11 @@ const Logo: React.FC<LogoProps> = ({ className = '', withText = true, variant = 
         alt="Optimus Solutions Logo" 
         className="h-12 md:h-14" 
         style={{ width: 'auto' }}
+        onError={(e) => {
+          const target = e.currentTarget as HTMLImageElement;
+          target.onerror = null;
+          target.src = isArabic ? '/purplelogoArabic.png' : '/Logo.jpeg';
+        }}
       />
     </div>
   );

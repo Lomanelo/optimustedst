@@ -31,7 +31,7 @@ export default function OptimizedImage({
   priority = false,
   fill = false,
   objectFit = 'cover',
-  fallbackSrc = '/Final%20Logo01-03.jpg'
+  fallbackSrc = '/Logo.jpeg'
 }: OptimizedImageProps) {
   const [imgSrc, setImgSrc] = useState(src);
   const [isLoading, setIsLoading] = useState(true);
