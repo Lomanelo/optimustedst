@@ -4,8 +4,8 @@
  */
 
 export const SITE_CONFIG = {
-  name: 'OPTIMUS Education KSA',
-  domain: 'https://optimusksa.com',
+  name: 'Optimus Solutions KSA',
+  domain: 'https://optimus-solutions.org',
   defaultLocale: 'en',
   supportedLocales: ['en', 'ar'],
   description: {
@@ -34,7 +34,7 @@ export const SITE_CONFIG = {
 export const PAGE_METADATA = {
   home: {
     title: {
-      en: 'Internationally Accredited MBA & DBA Programs | OPTIMUS Education KSA',
+      en: 'Internationally Accredited MBA & DBA Programs | Optimus Solutions KSA',
       ar: 'برامج ماجستير ودكتوراه معتمدة دولياً | أوبتيموس التعليمية السعودية'
     },
     description: {
@@ -44,7 +44,7 @@ export const PAGE_METADATA = {
   },
   programs: {
     title: {
-      en: 'MBA & DBA Programs - Internationally Accredited | OPTIMUS KSA',
+      en: 'MBA & DBA Programs - Internationally Accredited | Optimus Solutions KSA',
       ar: 'برامج ماجستير ودكتوراه - معتمدة دولياً | أوبتيموس السعودية'
     },
     description: {
@@ -54,27 +54,27 @@ export const PAGE_METADATA = {
   },
   about: {
     title: {
-      en: 'About OPTIMUS Education - Leading Business Education in KSA',
+      en: 'About Optimus Solutions - Leading Business Education in KSA',
       ar: 'عن أوبتيموس التعليمية - الريادة في التعليم التجاري بالسعودية'
     },
     description: {
-      en: 'Learn about OPTIMUS Education\'s mission to empower Saudi professionals through internationally accredited business education programs. Partnered with world-class universities and aligned with Vision 2030 objectives.',
+      en: 'Learn about Optimus Solutions\' mission to empower Saudi professionals through internationally accredited business education programs. Partnered with world-class universities and aligned with Vision 2030 objectives.',
       ar: 'تعرف على مهمة أوبتيموس التعليمية في تمكين المهنيين السعوديين من خلال برامج التعليم التجاري المعتمدة دولياً. شريك مع جامعات عالمية ومتوافق مع أهداف رؤية 2030.'
     }
   },
   contact: {
     title: {
-      en: 'Contact Us - OPTIMUS Education KSA | Admissions & Inquiries',
+      en: 'Contact Us - Optimus Solutions KSA | Admissions & Inquiries',
       ar: 'اتصل بنا - أوبتيموس التعليمية السعودية | القبول والاستفسارات'
     },
     description: {
-      en: 'Get in touch with OPTIMUS Education for program inquiries, admissions information, and enrollment assistance. Our team is ready to help you start your educational journey in Saudi Arabia.',
+      en: 'Get in touch with Optimus Solutions for program inquiries, admissions information, and enrollment assistance. Our team is ready to help you start your educational journey in Saudi Arabia.',
       ar: 'تواصل مع أوبتيموس التعليمية لاستفسارات البرامج ومعلومات القبول والمساعدة في التسجيل. فريقنا جاهز لمساعدتك في بدء رحلتك التعليمية في المملكة العربية السعودية.'
     }
   },
   blog: {
     title: {
-      en: 'Educational Insights & Industry News | OPTIMUS Education Blog',
+      en: 'Educational Insights & Industry News | Optimus Solutions Blog',
       ar: 'رؤى تعليمية وأخبار الصناعة | مدونة أوبتيموس التعليمية'
     },
     description: {
@@ -84,21 +84,21 @@ export const PAGE_METADATA = {
   },
   faculty: {
     title: {
-      en: 'Our Expert Faculty - World-Class Business Educators | OPTIMUS KSA',
+      en: 'Our Expert Faculty - World-Class Business Educators | Optimus Solutions KSA',
       ar: 'هيئة التدريس الخبيرة - معلمون أعمال عالميون | أوبتيموس السعودية'
     },
     description: {
-      en: 'Meet our distinguished faculty of international business experts, industry leaders, and academic scholars bringing decades of experience to OPTIMUS Education programs in Saudi Arabia.',
+      en: 'Meet our distinguished faculty of international business experts, industry leaders, and academic scholars bringing decades of experience to Optimus Solutions programs in Saudi Arabia.',
       ar: 'تعرف على هيئة التدريس المتميزة لدينا من خبراء الأعمال الدوليين وقادة الصناعة والباحثين الأكاديميين الذين يجلبون عقوداً من الخبرة لبرامج أوبتيموس التعليمية في المملكة.'
     }
   },
   testimonials: {
     title: {
-      en: 'Student Success Stories & Reviews | OPTIMUS Education KSA',
+      en: 'Student Success Stories & Reviews | Optimus Solutions KSA',
       ar: 'قصص نجاح الطلاب والمراجعات | أوبتيموس التعليمية السعودية'
     },
     description: {
-      en: 'Discover how OPTIMUS Education has transformed careers across Saudi Arabia. Read authentic testimonials from our MBA and DBA graduates about their learning experience and career advancement.',
+      en: 'Discover how Optimus Solutions has transformed careers across Saudi Arabia. Read authentic testimonials from our MBA and DBA graduates about their learning experience and career advancement.',
       ar: 'اكتشف كيف غيرت أوبتيموس التعليمية المسيرات المهنية في جميع أنحاء المملكة العربية السعودية. اقرأ شهادات حقيقية من خريجي برامجنا حول تجربتهم التعليمية وتقدمهم الوظيفي.'
     }
   }
@@ -129,7 +129,7 @@ export function generatePageMetadata(pageKey: keyof typeof PAGE_METADATA, locale
       locale: locale === 'ar' ? 'ar_SA' : 'en_US',
       type: 'website',
       images: [{
-        url: `${SITE_CONFIG.domain}/OptimusLogoOnPurple.png`,
+        url: `${SITE_CONFIG.domain}/Final%20Logo01-03.jpg`,
         width: 1200,
         height: 630,
         alt: SITE_CONFIG.name
@@ -139,7 +139,7 @@ export function generatePageMetadata(pageKey: keyof typeof PAGE_METADATA, locale
       card: 'summary_large_image',
       title: pageData.title[locale],
       description: pageData.description[locale],
-      images: [`${SITE_CONFIG.domain}/OptimusLogoOnPurple.png`]
+      images: [`${SITE_CONFIG.domain}/Final%20Logo01-03.jpg`]
     },
     robots: {
       index: true,
@@ -165,7 +165,7 @@ export function generateProgramMetadata(
   specialization: string,
   locale: 'en' | 'ar' = 'en'
 ) {
-  const title = `${programTitle} - ${programType} | OPTIMUS Education KSA`;
+  const title = `${programTitle} - ${programType} | Optimus Solutions KSA`;
   const description = programDescription.length >= 150 
     ? programDescription.substring(0, 157) + '...'
     : `${programDescription} Internationally accredited ${programType} program in ${specialization} designed for Saudi professionals.`;

@@ -1,6 +1,6 @@
 [
   {
-    "origin": ["http://localhost:3000", "http://localhost:3001", "https://optimus-3fb40.web.app", "https://optimustesting.netlify.app", "https://optimusksa.com"],
+    "origin": ["http://localhost:3000", "http://localhost:3001", "https://optimus-3fb40.web.app", "https://optimustesting.netlify.app", "https://optimus-solutions.org"],
     "method": ["GET", "POST", "PUT", "DELETE", "HEAD", "OPTIONS"],
     "maxAgeSeconds": 3600,
     "responseHeader": ["Content-Type", "Authorization", "Content-Length", "User-Agent", "x-goog-resumable", "Access-Control-Allow-Origin", "Access-Control-Allow-Methods", "Access-Control-Allow-Headers"]

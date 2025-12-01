@@ -237,7 +237,7 @@ export default function EnrollmentSuccessPage({ params }: PageProps) {
                 <div className="bg-gray-50 rounded-lg p-6">
                   <h3 className="font-bold text-gray-800 mb-3">Need Help?</h3>
                   <div className="space-y-2 text-sm text-gray-600">
-                    <p><strong>Email:</strong> support@optimusksa.com</p>
+                  <p><strong>Email:</strong> support@optimusksa.com</p>
                     <p><strong>Phone:</strong> +966 123 456 789</p>
                     <p><strong>WhatsApp:</strong> +966 123 456 789</p>
                     <p><strong>Hours:</strong> 9 AM - 6 PM (Sun-Thu)</p>

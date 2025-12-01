@@ -31,7 +31,7 @@ export default function OptimizedImage({
   priority = false,
   fill = false,
   objectFit = 'cover',
-  fallbackSrc = '/Logo.jpeg'
+  fallbackSrc = '/Final%20Logo01-03.jpg'
 }: OptimizedImageProps) {
   const [imgSrc, setImgSrc] = useState(src);
   const [isLoading, setIsLoading] = useState(true);
@@ -51,7 +51,7 @@ export default function OptimizedImage({
   // Common props for all image configurations
   const commonProps = {
     src: imgSrc,
-    alt: alt || 'OPTIMUS Education',
+    alt: alt || 'Optimus Solutions',
     className: `${className} ${isLoading ? 'blur-sm' : 'blur-0'} transition-all duration-300`,
     onError: handleError,
     onLoad: handleLoad,

@@ -8,7 +8,7 @@ interface CanonicalURLProps {
 export default function CanonicalURL({ path }: CanonicalURLProps) {
   const pathname = usePathname();
   const canonicalPath = path || pathname;
-  const canonicalURL = `https://optimusksa.com${canonicalPath}`;
+  const canonicalURL = `https://optimus-solutions.org${canonicalPath}`;
 
   return (
     <Head>

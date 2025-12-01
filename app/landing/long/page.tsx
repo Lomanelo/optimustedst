@@ -102,7 +102,7 @@ const LongLandingPage = () => {
                   Elevate Your Career to New Heights
                 </h1>
                 <p className="text-xl md:text-2xl opacity-90 mb-8">
-                  Join the elite network of professionals with internationally recognized degrees from Optimus Education
+                  Join the elite network of professionals with internationally recognized degrees from Optimus Solutions
                 </p>
                 <div className="space-y-4">
                   <div className="flex items-center">

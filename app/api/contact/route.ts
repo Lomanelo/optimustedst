@@ -148,7 +148,7 @@ export async function POST(request: NextRequest) {
           </div>
           
           <div style="background-color: #2B1F4F; color: white; padding: 15px; text-align: center;">
-            <p style="margin: 0;">Optimus Education - Contact Form System</p>
+            <p style="margin: 0;">Optimus Solutions - Contact Form System</p>
           </div>
         </div>
       `,
@@ -158,7 +158,7 @@ export async function POST(request: NextRequest) {
     const confirmationEmail = {
       from: process.env.SMTP_FROM_EMAIL || process.env.SMTP_USER,
       to: email,
-      subject: 'Thank you for contacting Optimus Education',
+      subject: 'Thank you for contacting Optimus Solutions',
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
           <div style="background-color: #2B1F4F; color: white; padding: 20px; text-align: center;">
@@ -168,7 +168,7 @@ export async function POST(request: NextRequest) {
           <div style="padding: 20px;">
             <p>Dear ${name},</p>
             
-            <p>Thank you for reaching out to Optimus Education. We have received your inquiry and our team will get back to you within 24 hours.</p>
+            <p>Thank you for reaching out to Optimus Solutions. We have received your inquiry and our team will get back to you within 24 hours.</p>
             
             <div style="background-color: #f9f9f9; padding: 15px; border-left: 4px solid #058C42; margin: 20px 0;">
               <h3 style="color: #2B1F4F; margin-top: 0;">Your Inquiry Summary:</h3>
@@ -181,11 +181,11 @@ export async function POST(request: NextRequest) {
             <p>If you have any urgent questions, you can also reach us via WhatsApp at +971569852211.</p>
             
             <p>Best regards,<br>
-            The Optimus Education Team</p>
+            The Optimus Solutions Team</p>
           </div>
           
           <div style="background-color: #2B1F4F; color: white; padding: 15px; text-align: center;">
-            <p style="margin: 0;">Optimus Education - Transforming Careers, Shaping Futures</p>
+            <p style="margin: 0;">Optimus Solutions - Transforming Careers, Shaping Futures</p>
           </div>
         </div>
       `,

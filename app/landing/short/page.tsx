@@ -100,7 +100,7 @@ const ShortLandingPage = () => {
               Transform Your Career with an Internationally Recognized Degree
             </h1>
             <p className="text-xl opacity-90 mb-6">
-              Join thousands of successful professionals who have advanced their careers with Optimus Education
+              Join thousands of successful professionals who have advanced their careers with Optimus Solutions
             </p>
           </div>
         </div>

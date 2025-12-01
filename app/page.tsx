@@ -43,7 +43,7 @@ export default function HomePage() {
   // Show homepage for both logged-in and non-logged-in users
   return (
     <ClientLayout>
-      <h1 className="sr-only">Internationally Accredited MBA & DBA Programs in KSA | OPTIMUS Education</h1>
+      <h1 className="sr-only">Internationally Accredited MBA & DBA Programs in KSA | Optimus Solutions</h1>
       {/* Global Organization Schema from Firestore (if available) */}
       <Script id="org-schema-dynamic" type="application/ld+json"
         dangerouslySetInnerHTML={{
@@ -59,9 +59,9 @@ export default function HomePage() {
           __html: JSON.stringify({
             '@context': 'https://schema.org',
             '@type': 'EducationalOrganization',
-            name: 'OPTIMUS Education KSA',
-            url: 'https://optimusksa.com',
-            logo: 'https://optimusksa.com/OptimusLogoOnPurple.png',
+            name: 'Optimus Solutions KSA',
+            url: 'https://optimus-solutions.org',
+            logo: 'https://optimus-solutions.org/Final%20Logo01-03.jpg',
             sameAs: [
               'https://www.facebook.com/optimuseducation',
               'https://www.linkedin.com/company/optimuseducation',
@@ -100,7 +100,7 @@ export default function HomePage() {
                   description: 'Undergraduate programs designed for future leaders',
                   provider: {
                     '@type': 'Organization',
-                    name: 'OPTIMUS Education'
+                    name: 'Optimus Solutions'
                   }
                 }
               },
@@ -113,7 +113,7 @@ export default function HomePage() {
                   description: 'Master of Business Administration programs',
                   provider: {
                     '@type': 'Organization',
-                    name: 'OPTIMUS Education'
+                    name: 'Optimus Solutions'
                   }
                 }
               },
@@ -126,7 +126,7 @@ export default function HomePage() {
                   description: 'Doctorate of Business Administration programs',
                   provider: {
                     '@type': 'Organization',
-                    name: 'OPTIMUS Education'
+                    name: 'Optimus Solutions'
                   }
                 }
               }
@@ -146,23 +146,23 @@ export default function HomePage() {
             mainEntity: [
               {
                 '@type': 'Question',
-                name: 'What programs does OPTIMUS Education offer?',
+                name: 'What programs does Optimus Solutions offer?',
                 acceptedAnswer: {
                   '@type': 'Answer',
-                  text: 'OPTIMUS Education offers Bachelor\'s degree programs, MBA programs, and DBA programs designed for future leaders in the UAE and Middle East.'
+                  text: 'Optimus Solutions offers Bachelor\'s degree programs, MBA programs, and DBA programs designed for future leaders in the UAE and Middle East.'
                 }
               },
               {
                 '@type': 'Question',
-                name: 'Are OPTIMUS Education programs accredited?',
+                name: 'Are Optimus Solutions programs accredited?',
                 acceptedAnswer: {
                   '@type': 'Answer',
-                  text: 'Yes, all OPTIMUS Education programs are fully accredited by recognized educational authorities in the UAE and internationally.'
+                  text: 'Yes, all Optimus Solutions programs are fully accredited by recognized educational authorities in the UAE and internationally.'
                 }
               },
               {
                 '@type': 'Question',
-                name: 'How can I enroll in an OPTIMUS Education program?',
+                name: 'How can I enroll in an Optimus Solutions program?',
                 acceptedAnswer: {
                   '@type': 'Answer',
                   text: 'You can enroll through our website by visiting the program page of your choice and clicking the "Enroll Now" button, or by contacting our admissions team directly.'

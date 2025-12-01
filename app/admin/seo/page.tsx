@@ -42,9 +42,9 @@ export default function AdminSEOPage() {
         setOrgSchema(JSON.stringify({
           '@context': 'https://schema.org',
           '@type': 'Organization',
-          name: 'OPTIMUS Education',
-          url: 'https://optimusksa.com',
-          logo: 'https://optimusksa.com/OptimusLogoOnPurple.png'
+          name: 'Optimus Solutions',
+          url: 'https://optimus-solutions.org',
+          logo: 'https://optimus-solutions.org/Final%20Logo01-03.jpg'
         }, null, 2));
       }
 

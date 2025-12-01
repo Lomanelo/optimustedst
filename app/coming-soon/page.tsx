@@ -375,14 +375,14 @@ export default function ComingSoonPage() {
               {/* Main Logo */}
               <div className="h-14 flex items-center justify-center">
                 <img
-                  src={language === 'ar' ? "/purplelogoArabic.png" : "/Logo.jpeg"}
-                  alt={language === 'ar' ? "شعار أوبتيموس السعودية" : "Optimus KSA Logo"}
+                  src={language === 'ar' ? "/Final%20Logo%20AR-03.jpg" : "/Final%20Logo01-03.jpg"}
+                  alt={language === 'ar' ? "شعار أوبتيموس سوليوشنز" : "Optimus Solutions Logo"}
                   className="h-11 w-auto object-contain max-w-[220px]"
                   onError={(e) => {
                     console.error('Header logo failed to load:', e);
                     // Fallback to the other logo if one fails
                     const target = e.target as HTMLImageElement;
-                    target.src = language === 'ar' ? "/Logo.jpeg" : "/purplelogoArabic.png";
+                    target.src = language === 'ar' ? "/Final%20Logo01-03.jpg" : "/Final%20Logo%20AR-03.jpg";
                   }}
                 />
               </div>
@@ -733,14 +733,14 @@ export default function ComingSoonPage() {
             <div className="text-center">
               <div className="h-16 flex items-center justify-center">
                 <img
-                  src={language === 'ar' ? "/whitelogoArabic.png" : "/OptimusLogoOnPurple.png"}
-                  alt={language === 'ar' ? "شعار أوبتيموس السعودية" : "Optimus KSA Logo"}
+                  src={language === 'ar' ? "/Final%20Logo%20AR-03.jpg" : "/Final%20Logo01-03.jpg"}
+                  alt={language === 'ar' ? "شعار أوبتيموس سوليوشنز" : "Optimus Solutions Logo"}
                   className="h-12 w-auto object-contain max-w-[200px]"
                   onError={(e) => {
                     console.error('Footer logo failed to load:', e);
                     // Fallback to the other logo if one fails
                     const target = e.target as HTMLImageElement;
-                    target.src = language === 'ar' ? "/Logo.jpeg" : "/whitelogoArabic.png";
+                    target.src = language === 'ar' ? "/Final%20Logo01-03.jpg" : "/Final%20Logo%20AR-03.jpg";
                   }}
                 />
               </div>

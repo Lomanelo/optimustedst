@@ -10,7 +10,7 @@ const Footer: React.FC = () => {
   const { getContent, getFormattedContent, loading: cmsLoading, currentLanguage } = useCMS();
   const { contactInfo } = useContact();
   const isArabic = currentLanguage === 'ar';
-  const logoSrc = isArabic ? "/whitelogoArabic.png" : "/OptimusLogoOnPurple.png";
+  const logoSrc = isArabic ? "/Final%20Logo%20AR-03.jpg" : "/Final%20Logo01-03.jpg";
   
   // Helper function to format phone number for RTL
   const formatPhoneNumber = (phoneNumber: string) => {
@@ -70,7 +70,7 @@ const Footer: React.FC = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-8">
           <div className="flex flex-col items-start">
             <div className="mb-4 inline-block rounded">
-              <img src={logoSrc} alt="Optimus Logo" className="h-14" style={{ width: 'auto' }} />
+              <img src={logoSrc} alt="Optimus Solutions Logo" className="h-14" style={{ width: 'auto' }} />
             </div>
             {/* Social Media Links */}
             <div className="mt-6">
@@ -132,7 +132,7 @@ const Footer: React.FC = () => {
             <a href="/terms" className="text-white/60 hover:text-white text-sm transition-colors whitespace-nowrap">{getContent('footer_terms_of_service')}</a>
           </div>
           <p className="text-white/60 text-sm">
-            © {currentYear} {getContent('footer_copyright')}
+            © {currentYear} {isArabic ? 'Optimus Solutions • جميع الحقوق محفوظة' : 'Optimus Solutions • All rights reserved'}
           </p>
         </div>
       </div>

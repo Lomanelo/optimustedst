@@ -35,44 +35,70 @@
 # Consolidated redirects: force HTTPS and non-www in a single hop
 [[redirects]]
   from = "http://optimusksa.com/*"
-  to = "https://optimusksa.com/:splat"
+  to = "https://optimus-solutions.org/:splat"
   status = 301
   force = true
 
 [[redirects]]
   from = "http://www.optimusksa.com/*"
-  to = "https://optimusksa.com/:splat"
+  to = "https://optimus-solutions.org/:splat"
   status = 301
   force = true
 
 [[redirects]]
   from = "https://www.optimusksa.com/*"
-  to = "https://optimusksa.com/:splat"
+  to = "https://optimus-solutions.org/:splat"
   status = 301
   force = true
 
 # Domain redirects
 [[redirects]]
   from = "https://ibasksa.com/*"
-  to = "https://optimusksa.com/:splat"
+  to = "https://optimus-solutions.org/:splat"
   status = 301
   force = true
 
 [[redirects]]
   from = "https://www.ibasksa.com/*"
-  to = "https://optimusksa.com/:splat"
+  to = "https://optimus-solutions.org/:splat"
   status = 301
   force = true
 
 [[redirects]]
   from = "http://ibasksa.com/*"
-  to = "https://optimusksa.com/:splat"
+  to = "https://optimus-solutions.org/:splat"
   status = 301
   force = true
 
 [[redirects]]
   from = "http://www.ibasksa.com/*"
-  to = "https://optimusksa.com/:splat"
+  to = "https://optimus-solutions.org/:splat"
+  status = 301
+  force = true
+
+# Redirect legacy UAE domain
+[[redirects]]
+  from = "http://optimus-edu.ae/*"
+  to = "https://optimus-solutions.org/:splat"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "https://optimus-edu.ae/*"
+  to = "https://optimus-solutions.org/:splat"
+  status = 301
+  force = true
+
+# Enforce HTTPS and apex on new domain
+[[redirects]]
+  from = "http://optimus-solutions.org/*"
+  to = "https://optimus-solutions.org/:splat"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "https://www.optimus-solutions.org/*"
+  to = "https://optimus-solutions.org/:splat"
   status = 301
   force = true
 

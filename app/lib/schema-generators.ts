@@ -14,11 +14,11 @@ export function generateOrganizationSchema() {
     '@type': 'EducationalOrganization',
     '@id': `${SITE_CONFIG.domain}/#organization`,
     name: SITE_CONFIG.name,
-    alternateName: 'OPTIMUS KSA',
+    alternateName: 'Optimus Solutions KSA',
     url: SITE_CONFIG.domain,
     logo: {
       '@type': 'ImageObject',
-      url: `${SITE_CONFIG.domain}/OptimusLogoOnPurple.png`,
+      url: `${SITE_CONFIG.domain}/Final%20Logo01-03.jpg`,
       width: 800,
       height: 600
     },
@@ -226,7 +226,7 @@ export function generateArticleSchema(article: {
       name: SITE_CONFIG.name,
       logo: {
         '@type': 'ImageObject',
-        url: `${SITE_CONFIG.domain}/OptimusLogoOnPurple.png`
+        url: `${SITE_CONFIG.domain}/Final%20Logo01-03.jpg`
       }
     },
     mainEntityOfPage: {

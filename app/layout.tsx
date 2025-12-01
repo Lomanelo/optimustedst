@@ -11,7 +11,7 @@ const inter = Inter({ subsets: ['latin'] })
 export const metadata: Metadata = {
   title: {
     default: PAGE_METADATA.home.title.en,
-    template: '%s | OPTIMUS Education KSA'
+    template: '%s | Optimus Solutions KSA'
   },
   description: PAGE_METADATA.home.description.en,
   keywords: SITE_CONFIG.keywords,
@@ -19,8 +19,8 @@ export const metadata: Metadata = {
   alternates: {
     canonical: '/',
     languages: {
-      en: 'https://optimusksa.com/en',
-      ar: 'https://optimusksa.com/ar',
+      en: 'https://optimus-solutions.org/en',
+      ar: 'https://optimus-solutions.org/ar',
     }
   },
   icons: [
@@ -47,7 +47,7 @@ export const metadata: Metadata = {
     siteName: SITE_CONFIG.name,
     images: [
       {
-        url: `${SITE_CONFIG.domain}/OptimusLogoOnPurple.png`,
+        url: `${SITE_CONFIG.domain}/Final%20Logo01-03.jpg`,
         width: 1200,
         height: 630,
         alt: SITE_CONFIG.name,
@@ -60,7 +60,7 @@ export const metadata: Metadata = {
     card: 'summary_large_image',
     title: PAGE_METADATA.home.title.en,
     description: PAGE_METADATA.home.description.en,
-    images: [`${SITE_CONFIG.domain}/OptimusLogoOnPurple.png`],
+    images: [`${SITE_CONFIG.domain}/Final%20Logo01-03.jpg`],
   },
   robots: {
     index: true,

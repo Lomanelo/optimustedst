@@ -14,7 +14,7 @@ const nextConfig = {
   },
   // Optimize images - Enhanced for SEO
   images: {
-    domains: ['localhost', 'optimusksa.com', 'firebasestorage.googleapis.com'],
+    domains: ['localhost', 'optimus-solutions.org', 'firebasestorage.googleapis.com'],
     remotePatterns: [
       {
         protocol: 'https',

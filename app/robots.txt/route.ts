@@ -15,7 +15,7 @@ export async function GET() {
 
     if (!content) {
       // Default fallback similar to previous static robots.txt
-      content = `User-agent: *\nAllow: /\n\n# Disallow sensitive or admin routes\nDisallow: /admin/\nDisallow: /dashboard/\nDisallow: /api/\n\n# Sitemap location\nSitemap: https://optimusksa.com/sitemap.xml`;
+      content = `User-agent: *\nAllow: /\n\n# Disallow sensitive or admin routes\nDisallow: /admin/\nDisallow: /dashboard/\nDisallow: /api/\n\n# Sitemap location\nSitemap: https://optimus-solutions.org/sitemap.xml`;
     }
 
     return new NextResponse(content, {
