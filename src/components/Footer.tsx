@@ -73,7 +73,7 @@ const Footer: React.FC = () => {
               <img 
                 src={logoSrc} 
                 alt="Optimus Solutions Logo" 
-                className="h-14" 
+                className="h-16 md:h-20" 
                 style={{ width: 'auto' }} 
                 onError={(e) => {
                   const target = e.currentTarget as HTMLImageElement;

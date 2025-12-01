@@ -51,6 +51,13 @@
   status = 301
   force = true
 
+# Handle HTTPS apex for optimusksa.com
+[[redirects]]
+  from = "https://optimusksa.com/*"
+  to = "https://optimus-solutions.org/:splat"
+  status = 301
+  force = true
+
 # Domain redirects
 [[redirects]]
   from = "https://ibasksa.com/*"
@@ -97,7 +104,7 @@
   force = true
 
 [[redirects]]
-  from = "https://www.optimus-solutions.org/*"
+  from = "http://www.optimus-solutions.org/*"
   to = "https://optimus-solutions.org/:splat"
   status = 301
   force = true

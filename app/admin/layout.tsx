@@ -159,10 +159,10 @@ export default function AdminLayout({
             <img
               src="/Final%20Logo01-03.jpg"
               alt="Optimus Solutions Logo"
-              width={180}
-              height={60}
+              width={220}
+              height={72}
               className="object-contain"
-              style={{ width: '180px', height: '60px' }}
+              style={{ width: '220px', height: '72px' }}
               onError={(e) => {
                 const target = e.currentTarget as HTMLImageElement;
                 target.onerror = null;

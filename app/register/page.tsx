@@ -384,7 +384,7 @@ export default function ComingSoonPage() {
                 <img
                   src={language === 'ar' ? "/Final%20Logo%20AR-03.jpg" : "/Final%20Logo01-03.jpg"}
                   alt={language === 'ar' ? "شعار أوبتيموس سوليوشنز" : "Optimus Solutions Logo"}
-                  className="h-11 w-auto object-contain max-w-[220px]"
+                  className="h-14 w-auto object-contain max-w-[280px]"
                   onError={(e) => {
                     console.error('Header logo failed to load:', e);
                     const target = e.target as HTMLImageElement;
@@ -743,7 +743,7 @@ export default function ComingSoonPage() {
                 <img
                   src={language === 'ar' ? "/Final%20Logo%20AR-03.jpg" : "/Final%20Logo01-03.jpg"}
                   alt={language === 'ar' ? "شعار أوبتيموس سوليوشنز" : "Optimus Solutions Logo"}
-                  className="h-12 w-auto object-contain max-w-[200px]"
+                  className="h-16 w-auto object-contain max-w-[240px]"
                   onError={(e) => {
                     console.error('Footer logo failed to load:', e);
                     const target = e.target as HTMLImageElement;
