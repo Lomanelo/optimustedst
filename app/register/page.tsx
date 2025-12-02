@@ -193,7 +193,7 @@ export default function ComingSoonPage() {
 
   const content = {
     ar: {
-      title: 'التسجيل - أوبتيموس السعودية | بوابتك إلى المستقبل',
+      title: 'التسجيل - أوبتيموس سوليوشنز | بوابتك إلى المستقبل',
       description: 'اكتشف برامجنا في الماجستير وإدارة الأعمال والدكتوراه المصممة لقادة المستقبل في المملكة العربية السعودية. سجل اهتمامك لتلقي مزيد من التفاصيل.',
       comingSoon: 'التسجيل',
       subtitle: 'برامج ماجستير ودكتوراه (MBA/DBA)\nعبر الإنترنت معتمدة دوليًّا',
@@ -227,11 +227,11 @@ export default function ComingSoonPage() {
       try_again: 'حاول مرة أخرى',
       disclaimer: 'بإرسال هذا النموذج، أنت توافق على تلقي معلومات حول برامجنا.',
       stay_connected: 'تابعونا للحصول على التحديثات',
-      copyright: '© ٢٠٢٤ أوبتيموس • جميع الحقوق محفوظة',
+      copyright: '© ٢٠٢٤ أوبتيموس سوليوشنز • جميع الحقوق محفوظة',
       register_another: 'تسجيل آخر'
     },
     en: {
-      title: 'Register - OPTIMUS KSA | Your Gateway to the Future',
+      title: 'Register - Optimus Solutions KSA | Your Gateway to the Future',
       description: 'Discover our online MBA and DBA programs designed for future leaders in KSA. Register your interest to receive more details on our programs.',
       comingSoon: 'Register',
       subtitle: 'Online MBA/DBA with International Accreditation',
@@ -265,7 +265,7 @@ export default function ComingSoonPage() {
       try_again: 'Try Again',
       disclaimer: 'By submitting this form, you agree to receive information about our programs.',
       stay_connected: 'Stay Connected',
-      copyright: '© 2024 Optimus • All rights reserved',
+      copyright: '© 2024 Optimus Solutions • All rights reserved',
       register_another: 'Register Another'
     }
   };
@@ -429,7 +429,7 @@ export default function ComingSoonPage() {
         <main 
           className="py-12 lg:py-16 flex-grow relative min-h-[85vh] flex items-center"
           style={{
-            backgroundImage: 'url(/001HQ.jpg)',
+            backgroundImage: 'url(/NewHeroPhoto.png)',
             backgroundSize: 'cover',
             backgroundPosition: 'center',
             backgroundRepeat: 'no-repeat'
@@ -751,7 +751,7 @@ export default function ComingSoonPage() {
                     target.onerror = null;
                     target.src = language === 'ar' ? "/OptimusSolutionsWhiteAR.png" : "/OptimusSolutionsWhiteEN.png";
                   }}
-                  style={{ maxWidth: language === 'ar' ? '220px' : '240px' }}
+                  style={{ maxWidth: '240px' }}
                 />
                 </a>
                             </div>
