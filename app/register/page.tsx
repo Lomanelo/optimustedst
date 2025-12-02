@@ -382,16 +382,16 @@ export default function ComingSoonPage() {
               {/* Main Logo */}
               <a href="https://optimus-solutions.org" className="h-14 flex items-center justify-center">
                 <img
-                  src={language === 'ar' ? "/OptimusSolutionsPurpleAR.png" : "/OptimusSolutionsPurpleEN.png"}
+                  src={language === 'ar' ? "/OptimusSolutionsPupleAR.png?v=1" : "/OptimusSolutionsPurpleEN.png?v=1"}
                   alt={language === 'ar' ? "شعار أوبتيموس سوليوشنز" : "Optimus Solutions Logo"}
                   className="h-14 w-auto object-contain max-w-[280px]"
                   onError={(e) => {
                     console.error('Header logo failed to load:', e);
                     const target = e.target as HTMLImageElement;
                     target.onerror = null;
-                    target.src = language === 'ar' ? "/OptimusSolutionsPurpleAR.png" : "/OptimusSolutionsPurpleEN.png";
+                    target.src = language === 'ar' ? "/OptimusSolutionsPupleAR.png?v=1" : "/OptimusSolutionsPurpleEN.png?v=1";
                   }}
-                  style={{ maxWidth: language === 'ar' ? '260px' : '280px' }}
+                  style={{ height: '60px', maxWidth: '260px' }}
                 />
               </a>
               
@@ -429,7 +429,7 @@ export default function ComingSoonPage() {
         <main 
           className="py-12 lg:py-16 flex-grow relative min-h-[85vh] flex items-center"
           style={{
-            backgroundImage: 'url(/NewHeroPhoto.png)',
+            backgroundImage: 'url(/NewHeroPhoto.png?v=1)',
             backgroundSize: 'cover',
             backgroundPosition: 'center',
             backgroundRepeat: 'no-repeat'
@@ -739,25 +739,25 @@ export default function ComingSoonPage() {
           {/* Content */}
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
             <div className="text-center">
-              <div className="h-16 flex items-center justify-center">
+              <div className="h-16 flex items-center justify-center mb-4 md:mb-6">
                 <a href="https://optimus-solutions.org">
                 <img
-                  src={language === 'ar' ? "/OptimusSolutionsWhiteAR.png" : "/OptimusSolutionsWhiteEN.png"}
+                  src={language === 'ar' ? "/OptimusSolutionsWhiteAR.png?v=2" : "/OptimusSolutionsWhiteEN.png?v=2"}
                   alt={language === 'ar' ? "شعار أوبتيموس سوليوشنز" : "Optimus Solutions Logo"}
                   className="h-16 w-auto object-contain max-w-[240px]"
                   onError={(e) => {
                     console.error('Footer logo failed to load:', e);
                     const target = e.target as HTMLImageElement;
                     target.onerror = null;
-                    target.src = language === 'ar' ? "/OptimusSolutionsWhiteAR.png" : "/OptimusSolutionsWhiteEN.png";
+                    target.src = language === 'ar' ? "/OptimusSolutionsWhiteAR.png?v=2" : "/OptimusSolutionsWhiteEN.png?v=2";
                   }}
-                  style={{ maxWidth: '240px' }}
+                  style={{ height: '64px', maxWidth: '220px' }}
                 />
                 </a>
                             </div>
               
               {activeSocialLinks.length > 0 && (
-                <div className="flex justify-center gap-3 mb-6">
+                <div className="flex justify-center gap-4 mt-2 mb-6">
                   {activeSocialLinks.map(([platform, url]) => (
                     <a
                       key={platform}

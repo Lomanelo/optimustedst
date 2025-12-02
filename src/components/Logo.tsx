@@ -12,7 +12,7 @@ const Logo: React.FC<LogoProps> = ({ className = '', withText = true, variant = 
   const isArabic = currentLanguage === 'ar';
   
   // Select the appropriate logo for light backgrounds (purple label)
-  let logoSrc = isArabic ? '/OptimusSolutionsPurpleAR.png' : '/OptimusSolutionsPurpleEN.png';
+  let logoSrc = isArabic ? '/OptimusSolutionsPupleAR.png?v=1' : '/OptimusSolutionsPurpleEN.png?v=1';
   
   return (
     <div className={`logo-container flex items-center ${className}`}>
@@ -20,11 +20,11 @@ const Logo: React.FC<LogoProps> = ({ className = '', withText = true, variant = 
         src={logoSrc} 
         alt="Optimus Solutions Logo" 
         className="h-16 md:h-20" 
-        style={{ width: 'auto', height: isArabic ? '60px' : undefined }}
+        style={{ width: 'auto', height: '60px', maxWidth: '260px' }}
         onError={(e) => {
           const target = e.currentTarget as HTMLImageElement;
           target.onerror = null;
-          target.src = isArabic ? '/OptimusSolutionsPurpleAR.png' : '/OptimusSolutionsPurpleEN.png';
+          target.src = isArabic ? '/OptimusSolutionsPupleAR.png?v=1' : '/OptimusSolutionsPurpleEN.png?v=1';
         }}
       />
     </div>

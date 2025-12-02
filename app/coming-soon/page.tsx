@@ -375,16 +375,16 @@ export default function ComingSoonPage() {
               {/* Main Logo */}
               <div className="h-14 flex items-center justify-center">
                 <img
-                  src={language === 'ar' ? "/OptimusSolutionsPurpleAR.png" : "/OptimusSolutionsPurpleEN.png"}
+                  src={language === 'ar' ? "/OptimusSolutionsPupleAR.png?v=1" : "/OptimusSolutionsPurpleEN.png?v=1"}
                   alt={language === 'ar' ? "شعار أوبتيموس سوليوشنز" : "Optimus Solutions Logo"}
                   className="h-14 w-auto object-contain max-w-[280px]"
                   onError={(e) => {
                     console.error('Header logo failed to load:', e);
                     const target = e.target as HTMLImageElement;
                     target.onerror = null;
-                    target.src = language === 'ar' ? "/OptimusSolutionsPurpleAR.png" : "/OptimusSolutionsPurpleEN.png";
+                    target.src = language === 'ar' ? "/OptimusSolutionsPupleAR.png?v=1" : "/OptimusSolutionsPurpleEN.png?v=1";
                   }}
-                  style={{ maxWidth: language === 'ar' ? '260px' : '280px' }}
+                  style={{ height: '60px', maxWidth: '260px' }}
                 />
               </div>
               
