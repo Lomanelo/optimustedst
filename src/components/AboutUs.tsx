@@ -59,8 +59,8 @@ const AboutUs: React.FC = () => {
             {/* Image on the left */}
             <div className="md:w-1/2 w-full h-64 md:h-auto md:min-h-[380px]">
               <img 
-                src="/classimage.jpg" 
-                alt="Classroom" 
+                src="/NewHeroPhoto.png?v=1" 
+                alt="Optimus Solutions" 
                 className="w-full h-full object-cover rounded-none md:rounded-xl md:rounded-r-none"
                 style={{ minHeight: '100%', minWidth: '100%' }}
               />
