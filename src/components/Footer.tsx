@@ -100,7 +100,7 @@ const Footer: React.FC = () => {
               <li><a href="/testimonials" className="text-white/80 hover:text-accent transition-colors">{isArabic ? 'الشهادات' : 'Testimonials'}</a></li>
               <li><a href="/blog" className="text-white/80 hover:text-accent transition-colors">{getContent('footer_link_blog')}</a></li>
               <li><a href="/resources/career-guide" className="text-white/80 hover:text-accent transition-colors">{isArabic ? 'دليل المسار المهني' : 'Career Guide'}</a></li>
-              <li><a href="/contact" className="text-white/80 hover:text-accent transition-colors">{getContent('footer_link_contact')}</a></li>
+              <li><a href="/contact" className="text-white/80 hover:text-accent transition-colors">{isArabic ? 'تواصل معنا' : 'Contact Us'}</a></li>
             </ul>
           </div>
           

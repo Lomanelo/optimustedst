@@ -99,9 +99,10 @@ const Navbar: React.FC = () => {
     { href: "/programs", label: getContent('navbar_programs') },
     { href: "/about", label: getContent('navbar_about') },
     { href: "/blog", label: getContent('navbar_blog') },
-    { href: "/contact", label: getContent('navbar_contact') },
+    { href: "/contact", label: currentLanguage === 'ar' ? 'تواصل معنا' : 'Contact Us' },
   ];
-  const orderedLinks = currentLanguage === 'ar' ? [...navLinks].reverse() : navLinks;
+  // Keep the same visual order for EN and AR (requested), while layout/typography can still be RTL.
+  const orderedLinks = navLinks;
 
   const phoneEl = contactInfo?.phoneNumber ? (
     <a href={`tel:${contactInfo.phoneNumber}`} className="hidden lg:inline-flex items-center px-3 py-1.5 rounded-md bg-white/0" dir={currentLanguage === 'ar' ? 'rtl' : 'ltr'}>
