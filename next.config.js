@@ -1,7 +1,11 @@
 /** @type {import('next').NextConfig} */
+const path = require('path');
+
 const nextConfig = {
   reactStrictMode: true,
   poweredByHeader: false,
+  // Ensure Next resolves the correct workspace root (avoids parent lockfile interference)
+  outputFileTracingRoot: path.join(__dirname),
   // Remove trailingSlash for better API route compatibility
   trailingSlash: false,
   // Ignore TypeScript errors in production
