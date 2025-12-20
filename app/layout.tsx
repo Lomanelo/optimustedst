@@ -9,10 +9,8 @@ import { SITE_CONFIG, PAGE_METADATA } from './lib/seo-config'
 const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
-  title: {
-    default: PAGE_METADATA.home.title.en,
-    template: '%s | Optimus Solutions KSA'
-  },
+  // Keep the browser tab title consistent across the site
+  title: 'Optimus-Solutions',
   description: PAGE_METADATA.home.description.en,
   keywords: SITE_CONFIG.keywords,
   metadataBase: new URL(SITE_CONFIG.domain),

@@ -1,18 +1,18 @@
 import React from 'react';
-import { companyInfo, partnerships } from '../data/optimus-data';
+import { companyInfo } from '../data/optimus-data';
 import { useCMS } from '../../app/contexts/cms-context';
 import { Award, Clock, Users } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 interface FeatureCardProps {
-  titleKey: string;
-  descriptionKey: string;
+  title: string;
+  description: string;
   icon: React.ReactNode;
   index: number;
 }
 
-const FeatureCard: React.FC<FeatureCardProps> = ({ titleKey, descriptionKey, icon, index }) => {
-  const { getContent, getFormattedContent, currentLanguage } = useCMS();
+const FeatureCard: React.FC<FeatureCardProps> = ({ title, description, icon, index }) => {
+  const { currentLanguage } = useCMS();
   
   const getCardTextAlign = () => {
     return currentLanguage === 'ar' ? 'text-right rtl-content' : 'text-left';
@@ -29,8 +29,8 @@ const FeatureCard: React.FC<FeatureCardProps> = ({ titleKey, descriptionKey, ico
       <div className="text-[#058C42] mb-4">
         {icon}
       </div>
-      <h3 className={`text-xl font-bold text-[#2B1F4F] mb-2 ${getCardTextAlign()}`}>{getContent(titleKey)}</h3>
-      <p className={`text-gray-600 ${getCardTextAlign()}`}>{getFormattedContent(descriptionKey)}</p>
+      <h3 className={`text-xl font-bold text-[#2B1F4F] mb-2 ${getCardTextAlign()}`}>{title}</h3>
+      <p className={`text-gray-600 ${getCardTextAlign()}`}>{description}</p>
     </motion.div>
   );
 };
@@ -59,8 +59,8 @@ const AboutUs: React.FC = () => {
             {/* Image on the left */}
             <div className="md:w-1/2 w-full h-64 md:h-auto md:min-h-[380px]">
               <img 
-                src="/NewHeroPhoto.png?v=1" 
-                alt="Optimus Solutions" 
+                src="/classimage.jpg" 
+                alt="Classroom" 
                 className="w-full h-full object-cover rounded-none md:rounded-xl md:rounded-r-none"
                 style={{ minHeight: '100%', minWidth: '100%' }}
               />
@@ -100,33 +100,27 @@ const AboutUs: React.FC = () => {
               transition={{ duration: 0.7 }}
               className={`mb-8 md:mb-10 text-center`}
             >
-              <h3 className={`text-3xl md:text-4xl font-bold text-[#2B1F4F] mb-3 text-center`}>{getContent('about_why_choose_title')}</h3>
-              <p className={`text-gray-600 max-w-2xl mx-auto text-center`}>
-                {getContent('about_why_choose_subtitle')}
-              </p>
-              <p className={`text-gray-700 max-w-3xl mx-auto text-center mt-3`}>
-                {currentLanguage === 'ar'
-                  ? 'معتمدة من التعليم العالي السعودي و CMI، مع شبكة تواصل مع متخصصين حول العالم، وفقًا للشروط والأحكام.'
-                  : 'Accredited by the Saudi Ministry of Higher Education and CMI, with a global network of professionals, subject to terms and conditions.'}
-              </p>
+              <h3 className={`text-3xl md:text-4xl font-bold text-[#2B1F4F] mb-3 text-center`}>
+                {currentLanguage === 'ar' ? 'لماذا تختار أوبتيموس سوليوشنز؟' : 'Why Choose Optimus Solutions?'}
+              </h3>
             </motion.div>
             
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8 mb-12">
               <FeatureCard 
-                titleKey="about_accredited_title"
-                descriptionKey="about_accredited_desc"
+                title={currentLanguage === 'ar' ? 'برامج معتمدة' : 'Accredited Programs'}
+                description={currentLanguage === 'ar' ? 'جميع برامجنا معتمدة دوليًا باعتماد مزدوج' : 'All our programs are internationally dual-accredited'}
                 icon={<Award size={32} />}
                 index={0}
               />
               <FeatureCard 
-                titleKey="about_flexible_title"
-                descriptionKey="about_flexible_desc"
+                title={currentLanguage === 'ar' ? 'تعلم مرن' : 'Flexible Learning'}
+                description={currentLanguage === 'ar' ? 'ادرس بالسرعة التي تناسبك عبر منصتنا الإلكترونية المرنة' : 'Study at your own pace with our flexible online platform'}
                 icon={<Clock size={32} />}
                 index={1}
               />
               <FeatureCard 
-                titleKey="about_career_title"
-                descriptionKey="about_career_desc"
+                title={currentLanguage === 'ar' ? 'هيئة تدريس خبيرة' : 'Expert Faculty'}
+                description={currentLanguage === 'ar' ? 'تعلّم على يد خبراء الصناعة وقادة أكاديميين' : 'Learn from industry experts and academic leaders'}
                 icon={<Users size={32} />}
                 index={2}
               />
@@ -136,19 +130,7 @@ const AboutUs: React.FC = () => {
           </div>
         </div>
         
-        {/* Accreditations Section (show partnerships as accreditations) */}
-        <div className={`mb-16 md:mb-20 ${getTextAlignClass()}`}>
-          <h3 className={`text-3xl md:text-4xl font-bold text-primary mb-8 text-center`}>
-            {getContent('accreditations_main_title') || 'Accreditations'}
-          </h3>
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-6 md:gap-8 max-w-6xl mx-auto justify-items-center">
-            {partnerships.map((partner) => (
-              <div key={partner.id} className="group h-24 md:h-28 w-full rounded-xl bg-white shadow-sm ring-1 ring-gray-100 flex items-center justify-center transition-all duration-300 hover:shadow-md hover:-translate-y-0.5">
-                <img src={partner.logo} alt={partner.name} title={partner.name} className="max-h-10 md:max-h-14 lg:max-h-16 max-w-[80%] object-contain transition duration-300 group-hover:scale-[1.03]" />
-              </div>
-            ))}
-          </div>
-        </div>
+        {/* Accreditations section removed */}
       </div>
     </section>
   );

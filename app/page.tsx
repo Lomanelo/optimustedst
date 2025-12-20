@@ -19,10 +19,7 @@ const BlogPreview = dynamic(() => import('../src/components/BlogPreview'), {
   ssr: true,
   loading: () => <div className="py-16 flex justify-center"><div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-primary"></div></div>
 });
-const Accreditations = dynamic(() => import('../src/components/Accreditations'), { 
-  ssr: true,
-  loading: () => <div className="py-16 flex justify-center"><div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-primary"></div></div>
-});
+// Accreditations section removed per requirements
 
 
 export default function HomePage() {
@@ -175,7 +172,6 @@ export default function HomePage() {
       
       <Hero />
       <ProgramsOverview />
-      <Accreditations />
       <HowItWorks />
       <BlogPreview />
     </ClientLayout>

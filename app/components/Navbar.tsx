@@ -109,6 +109,32 @@ const Navbar: React.FC = () => {
     </a>
   ) : null;
 
+  const authEl = currentUser ? (
+    <div className="flex items-center gap-4">
+      <Link href="/profile" className="flex items-center gap-2 text-primary hover:text-primary-dark">
+        <div className="w-8 h-8 rounded-full bg-primary text-white flex items-center justify-center text-sm font-medium">
+          {currentUser.displayName?.charAt(0) || currentUser.email?.charAt(0) || 'U'}
+        </div>
+        <span className="font-medium hidden lg:inline-block">
+          {currentUser.displayName?.split(' ')[0] || currentUser.email?.split('@')[0]}
+        </span>
+      </Link>
+      <button
+        onClick={handleSignOut}
+        disabled={isSigningOut}
+        className="flex items-center text-gray-600 hover:text-primary transition-colors"
+        title={getContent('navbar_sign_out')}
+      >
+        <LogOut size={18} />
+        <span className="hidden lg:inline-block">{getContent('navbar_sign_out')}</span>
+      </button>
+    </div>
+  ) : (
+    <Link href={`/register?lang=${currentLanguage}`}>
+      <Button variant="accent" size="md">{getContent('navbar_register')}</Button>
+    </Link>
+  );
+
   return (
     <nav 
       className={`sticky top-0 z-50 transition-all duration-300 ${
@@ -131,37 +157,25 @@ const Navbar: React.FC = () => {
                 {link.label}
               </Link>
             ))}
-            {currentLanguage === 'ar' && phoneEl}
             {currentUser && (
               <Link href="/dashboard" className={`${isActive('/dashboard')} hover:text-accent font-medium transition-colors`}>{getContent('navbar_dashboard')}</Link>
             )}
           </div>
 
           <div className="hidden md:flex items-center gap-4">
-            {currentLanguage !== 'ar' && phoneEl}
-            <LanguageSwitcher />
-            {currentUser ? (
-              <div className="flex items-center gap-4">
-                <Link href="/profile" className="flex items-center gap-2 text-primary hover:text-primary-dark">
-                  <div className="w-8 h-8 rounded-full bg-primary text-white flex items-center justify-center text-sm font-medium">
-                    {currentUser.displayName?.charAt(0) || currentUser.email?.charAt(0) || 'U'}
-                  </div>
-                  <span className="font-medium hidden lg:inline-block">{currentUser.displayName?.split(' ')[0] || currentUser.email?.split('@')[0]}</span>
-                </Link>
-                <button 
-                  onClick={handleSignOut}
-                  disabled={isSigningOut}
-                  className="flex items-center text-gray-600 hover:text-primary transition-colors"
-                  title={getContent('navbar_sign_out')}
-                >
-                  <LogOut size={18} />
-                  <span className="hidden lg:inline-block">{getContent('navbar_sign_out')}</span>
-                </button>
-              </div>
+            {currentLanguage === 'ar' ? (
+              <>
+                {/* Arabic: phone should be to the RIGHT of the language switcher */}
+                {authEl}
+                <LanguageSwitcher />
+                {phoneEl}
+              </>
             ) : (
-              <Link href={`/register?lang=${currentLanguage}`}>
-                <Button variant="accent" size="md">{getContent('navbar_register')}</Button>
-              </Link>
+              <>
+                {phoneEl}
+                <LanguageSwitcher />
+                {authEl}
+              </>
             )}
           </div>
 
@@ -188,7 +202,18 @@ const Navbar: React.FC = () => {
               {getContent('navbar_dashboard')}
             </Link>
           )}
-          <LanguageSwitcher />
+          <div className="flex items-center justify-between gap-3 py-2">
+            <LanguageSwitcher />
+            {currentLanguage === 'ar' && contactInfo?.phoneNumber && (
+              <a
+                href={`tel:${contactInfo.phoneNumber}`}
+                className="inline-flex items-center px-3 py-1.5 rounded-md"
+                dir="rtl"
+              >
+                {renderHighlightedPhone(contactInfo.phoneNumber)}
+              </a>
+            )}
+          </div>
           
           {currentUser ? (
             <>

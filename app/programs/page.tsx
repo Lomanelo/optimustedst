@@ -8,12 +8,11 @@ import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import ClientLayout from '../components/ClientLayout';
 import { Filter, ChevronDown, ChevronUp, X } from 'lucide-react';
-import { allAccreditationsAndPartnerships } from '../../src/data/optimus-data';
-import programService, { Program as ServiceProgram } from '../../src/services/programService';
 import { useCMS } from '../contexts/cms-context';
 
 // Filter options - Bilingual program types
 const programTypeOptions = [
+  { en: 'BBA', ar: 'بكالوريوس إدارة الأعمال' },
   { en: 'MBA', ar: 'ماجستير إدارة الأعمال' },
   { en: 'DBA', ar: 'دكتوراه إدارة الأعمال' }
 ];
@@ -133,6 +132,8 @@ interface Program {
   exclusive?: boolean;
   createdAt?: any;
   thumbnail?: string;
+  brochure_en?: string;
+  brochure_ar?: string;
 }
 
 // Interface for search params
@@ -181,40 +182,43 @@ function ProgramsContent({ searchParams }: { searchParams: Record<string, string
     }
   }, [queryParams]);
 
-  // Set up real-time listener for programs
+  // Load programs from local JSON (no Firebase)
   useEffect(() => {
-    setLoading(true);
-    
-    // Use the ProgramService's listener to get real-time updates of published programs
-    const unsubscribe = programService.listenToPublishedProgramChanges((programs: ServiceProgram[]) => {
-      // Transform the programs to match our component's format using the correct field names
-      const transformedPrograms = programs.map((program: ServiceProgram) => ({
-        id: program.id,
-        title: program.title,
-        title_ar: program.title_ar,
-        type: (program as any).category || program.type || 'Professional Certificate',
-        type_ar: (program as any).category_ar || (program as any).type_ar,
-        programType: (program as any).programType || program.level || 'MBA',
-        speciality: (program as any).speciality || program.specialization || 'General',
-        speciality_ar: (program as any).speciality_ar || (program as any).specialization_ar,
-        studyTime: (program as any).studyTime || program.duration || '',
-        studyTime_ar: (program as any).studyTime_ar || (program as any).duration_ar,
-        price: program.price,
-        description: program.description,
-        description_ar: program.description_ar,
-        accreditations: (program as any).accreditations || [],
-        status: program.status,
-        exclusive: (program as any).exclusive,
-        createdAt: program.createdAt,
-        thumbnail: program.thumbnail,
-      } as Program));
-      
-      setAllPrograms(transformedPrograms);
-      setLoading(false);
-    });
-    
-    // Clean up the listener when the component unmounts
-    return () => unsubscribe();
+    const load = async () => {
+      try {
+        setLoading(true);
+        const res = await fetch('/programs/index.json', { cache: 'no-store' });
+        const data = await res.json();
+        const transformed: Program[] = (Array.isArray(data) ? data : []).map((p: any) => ({
+          id: p.id,
+          title: p.title || '',
+          title_ar: p.title_ar || '',
+          type: p.type || 'Program',
+          type_ar: p.type_ar || '',
+          programType: p.programType || p.level || '',
+          speciality: p.speciality || p.specialization || '',
+          speciality_ar: p.speciality_ar || p.specialization_ar || '',
+          studyTime: p.duration || p.studyTime || '',
+          studyTime_ar: p.duration_ar || p.studyTime_ar || '',
+          price: p.price || 0,
+          description: p.description || '',
+          description_ar: p.description_ar || '',
+          status: p.status || 'published',
+          exclusive: !!p.exclusive,
+          createdAt: p.createdAt || null,
+          thumbnail: p.thumbnail || '',
+          brochure_en: p.brochure_en || '',
+          brochure_ar: p.brochure_ar || ''
+        }));
+        setAllPrograms(transformed);
+      } catch (e) {
+        console.error('Failed to load local programs JSON', e);
+        setAllPrograms([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+    load();
   }, []);
 
   const toggleFilter = (filterType: keyof typeof openFilters) => {
@@ -484,23 +488,39 @@ function ProgramsContent({ searchParams }: { searchParams: Record<string, string
                         </p>
                       )}
 
-                      {program.accreditations && Array.isArray(program.accreditations) && program.accreditations.length > 0 && (
-                        <div className="mb-4">
-                          <p className="text-xs text-gray-500 mb-1">{getContent('programs_page_accredited_by')}</p>
-                          <div className="flex flex-wrap gap-1">
-                            {program.accreditations.slice(0, 2).map((acc, index) => (
-                              <span key={index} className="inline-block bg-gray-100 text-gray-700 text-xs px-2 py-1 rounded">
-                                {acc}
-                              </span>
-                            ))}
-                            {program.accreditations.length > 2 && (
-                              <span className="inline-block bg-gray-100 text-gray-700 text-xs px-2 py-1 rounded">
-                                +{program.accreditations.length - 2} {getContent('programs_page_more')}
-                              </span>
-                            )}
-                          </div>
+                      {/* Brochure downloads (local-only) */}
+                      {(program.brochure_en || program.brochure_ar) && (
+                        <div className="mb-4 flex flex-wrap gap-2">
+                          {program.brochure_en && (
+                            <button
+                              type="button"
+                              className="inline-flex items-center gap-2 text-xs px-3 py-2 rounded-md border border-primary text-primary hover:bg-primary hover:text-white transition-colors"
+                              onClick={(e) => {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                window.open(program.brochure_en, '_blank', 'noopener,noreferrer');
+                              }}
+                            >
+                              <span>{currentLanguage === 'ar' ? 'كتيب EN' : 'Brochure EN'}</span>
+                            </button>
+                          )}
+                          {program.brochure_ar && (
+                            <button
+                              type="button"
+                              className="inline-flex items-center gap-2 text-xs px-3 py-2 rounded-md border border-accent text-accent hover:bg-accent hover:text-white transition-colors"
+                              onClick={(e) => {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                window.open(program.brochure_ar, '_blank', 'noopener,noreferrer');
+                              }}
+                            >
+                              <span>{currentLanguage === 'ar' ? 'كتيب AR' : 'Brochure AR'}</span>
+                            </button>
+                          )}
                         </div>
                       )}
+
+                      {/* Accreditations removed */}
 
                         <div className="flex items-center justify-end">
                           <span className="bg-primary text-white px-4 py-2 rounded-md text-sm font-medium">

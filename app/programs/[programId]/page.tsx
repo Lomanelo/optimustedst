@@ -1,11 +1,41 @@
 'use client';
 
 import React, { useState, useEffect, use } from 'react';
-import { partnerships } from '../../../src/data/optimus-data';
 import ClientLayout from '../../components/ClientLayout';
-import programService, { Program } from '../../../src/services/programService';
 import { Award, Clock, DollarSign, BookOpen, CheckCircle, Download, FileText } from 'lucide-react';
 import { useCMS } from '../../contexts/cms-context';
+
+type ProgramLocal = {
+  id: string;
+  slug?: string;
+  title: string;
+  title_ar?: string;
+  description?: string;
+  description_ar?: string;
+  shortDescription?: string;
+  shortDescription_ar?: string;
+  programType?: string;
+  speciality?: string;
+  speciality_ar?: string;
+  duration?: string;
+  duration_ar?: string;
+  price?: number;
+  thumbnail?: string;
+  brochure_en?: string;
+  brochure_ar?: string;
+  modules?: string[];
+  modules_ar?: string[];
+  careerOpportunities?: string[];
+  careerOpportunities_ar?: string[];
+  keyFeatures?: any[];
+  keyFeatures_ar?: any[];
+  requirements?: any;
+  requirements_ar?: any;
+  benefits?: any;
+  benefits_ar?: any;
+  coreLearnings?: any;
+  coreLearnings_ar?: any;
+};
 
 interface PageProps {
   params: Promise<{
@@ -18,7 +48,7 @@ export default function ProgramDetailPage({ params }: PageProps) {
   const resolvedParams = use(params);
   const { programId } = resolvedParams;
   const { currentLanguage } = useCMS();
-  const [program, setProgram] = useState<Program | null>(null);
+  const [program, setProgram] = useState<ProgramLocal | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   
@@ -26,21 +56,14 @@ export default function ProgramDetailPage({ params }: PageProps) {
     const fetchProgram = async () => {
       try {
         setLoading(true);
-        const programData = await programService.getProgramById(programId);
-        if (programData) {
-          console.log('Fetched program data:', {
-            id: programData.id,
-            title: programData.title,
-            modules: programData.modules,
-            modules_ar: (programData as any).modules_ar,
-            coreLearnings: (programData as any).coreLearnings,
-            coreLearnings_ar: (programData as any).coreLearnings_ar,
-            careerOpportunities: (programData as any).careerOpportunities,
-            careerOpportunities_ar: (programData as any).careerOpportunities_ar,
-            keyFeatures: (programData as any).keyFeatures,
-            keyFeatures_ar: (programData as any).keyFeatures_ar
-          });
-          setProgram(programData);
+        const res = await fetch('/programs/index.json', { cache: 'no-store' });
+        const data = await res.json();
+        const list: ProgramLocal[] = Array.isArray(data) ? data : [];
+        const found =
+          list.find((p) => p.id === programId) ||
+          list.find((p) => p.slug === programId);
+        if (found) {
+          setProgram(found);
         } else {
           setError('Program not found');
         }
@@ -115,29 +138,72 @@ export default function ProgramDetailPage({ params }: PageProps) {
     return arrayEn || [];
   };
 
-  const requirementsList = currentLanguage === 'ar' && program.requirements_ar ? 
-    parseTextToArray(program.requirements_ar) : 
-    parseTextToArray(program.requirements);
+  const hasContent = (v: any) => {
+    if (!v) return false;
+    if (Array.isArray(v)) return v.length > 0;
+    if (typeof v === 'string') return v.trim().length > 0;
+    return true;
+  };
+
+  const requirementsList =
+    currentLanguage === 'ar' && hasContent((program as any).requirements_ar)
+      ? parseTextToArray((program as any).requirements_ar)
+      : parseTextToArray((program as any).requirements);
     
-  const benefitsList = currentLanguage === 'ar' && (program as any).benefits_ar ? 
-    parseTextToArray((program as any).benefits_ar) : 
-    parseTextToArray((program as any).benefits);
+  const benefitsList =
+    currentLanguage === 'ar' && hasContent((program as any).benefits_ar)
+      ? parseTextToArray((program as any).benefits_ar)
+      : parseTextToArray((program as any).benefits);
     
-  const careerOpportunities = currentLanguage === 'ar' && (program as any).careerOpportunities_ar ? 
-    parseTextToArray((program as any).careerOpportunities_ar) : 
-    parseTextToArray((program as any).careerOpportunities);
+  const careerOpportunities =
+    currentLanguage === 'ar' && hasContent((program as any).careerOpportunities_ar)
+      ? parseTextToArray((program as any).careerOpportunities_ar)
+      : parseTextToArray((program as any).careerOpportunities);
     
-  const keyFeatures: KeyFeature[] = currentLanguage === 'ar' && (program as any).keyFeatures_ar ? 
-    (program as any).keyFeatures_ar : 
-    (Array.isArray((program as any).keyFeatures) ? (program as any).keyFeatures : []);
+  const keyFeatures: KeyFeature[] =
+    currentLanguage === 'ar' && Array.isArray((program as any).keyFeatures_ar) && (program as any).keyFeatures_ar.length > 0
+      ? (program as any).keyFeatures_ar
+      : (Array.isArray((program as any).keyFeatures) ? (program as any).keyFeatures : []);
     
-  const modules = currentLanguage === 'ar' && Array.isArray((program as any).modules_ar) ? 
-    (program as any).modules_ar : 
-    (Array.isArray(program.modules) ? program.modules : []);
+  const modules =
+    currentLanguage === 'ar' && Array.isArray((program as any).modules_ar) && (program as any).modules_ar.length > 0
+      ? (program as any).modules_ar
+      : (Array.isArray((program as any).modules) ? (program as any).modules : []);
+
+  const groupModulesByYear = (items: string[]) => {
+    const buckets: Record<string, string[]> = {};
+    const order: string[] = [];
+    const re = /^\s*y\s*(\d+)\s*:\s*(.+)\s*$/i;
+    for (const raw of items) {
+      const s = (raw || '').toString().trim();
+      const m = s.match(re);
+      if (m) {
+        const year = `Y${m[1]}`;
+        const label = (m[2] || '').trim();
+        if (!buckets[year]) {
+          buckets[year] = [];
+          order.push(year);
+        }
+        if (label) buckets[year].push(label);
+      } else {
+        if (!buckets['ALL']) {
+          buckets['ALL'] = [];
+          order.push('ALL');
+        }
+        buckets['ALL'].push(s);
+      }
+    }
+    return { buckets, order };
+  };
+
+  const { buckets: moduleBuckets, order: moduleOrder } = groupModulesByYear(
+    (Array.isArray(modules) ? modules : []).filter(Boolean) as string[]
+  );
     
-  const coreLearnings = currentLanguage === 'ar' && Array.isArray((program as any).coreLearnings_ar) ? 
-    (program as any).coreLearnings_ar : 
-    (Array.isArray((program as any).coreLearnings) ? (program as any).coreLearnings : []);
+  const coreLearnings =
+    currentLanguage === 'ar' && Array.isArray((program as any).coreLearnings_ar) && (program as any).coreLearnings_ar.length > 0
+      ? (program as any).coreLearnings_ar
+      : (Array.isArray((program as any).coreLearnings) ? (program as any).coreLearnings : []);
 
   console.log('Processed modules and coreLearnings:', {
     currentLanguage,
@@ -178,7 +244,7 @@ export default function ProgramDetailPage({ params }: PageProps) {
               <div className={`text-white ${currentLanguage === 'ar' ? 'text-right lg:order-2' : 'text-left lg:order-1'}`}>
 
 
-                <h1 className="text-4xl md:text-6xl font-bold mb-6 leading-tight">
+                <h1 className="text-3xl md:text-5xl font-bold mb-5 leading-tight">
               {getLocalizedContent(program.title, (program as any).title_ar)}
             </h1>
             
@@ -188,17 +254,7 @@ export default function ProgramDetailPage({ params }: PageProps) {
               </p>
             )}
 
-                {/* Accreditation Logos (Home page set) */}
-                <div className="mb-8">
-                  <p className="text-white/80 text-sm font-medium mb-4 uppercase tracking-wider">
-                    {currentLanguage === 'ar' ? 'الاعتمادات' : 'Accreditations'}
-                  </p>
-                  <div className="flex items-center gap-4 flex-wrap">
-                    {partnerships.map((p) => (
-                      <img key={p.id} src={p.logo} alt={p.name} title={p.name} className="h-10 w-auto bg-white rounded-lg p-2 shadow" />
-                    ))}
-                  </div>
-                </div>
+                {/* Accreditations removed */}
 
                 <div className="flex flex-col sm:flex-row gap-4">
                   <a href="/contact" className="inline-flex items-center justify-center px-8 py-4 bg-accent hover:bg-accent-dark text-white font-bold rounded-xl transition-all duration-300 transform hover:scale-105 hover:shadow-lg">
@@ -215,14 +271,17 @@ export default function ProgramDetailPage({ params }: PageProps) {
               <div className={`${currentLanguage === 'ar' ? 'lg:order-1' : 'lg:order-2'}`}>
                 <div className="relative">
                   <div className="absolute inset-0 bg-gradient-to-r from-accent/20 to-white/20 rounded-3xl transform rotate-3"></div>
-                  <div className="relative bg-white/10 backdrop-blur-sm rounded-3xl p-8 border border-white/20">
-                    {program.thumbnail && (
+                  <div className="relative bg-white/10 backdrop-blur-sm rounded-3xl p-6 md:p-8 border border-white/20">
+                    {/* Fixed-size rectangular frame for consistent thumbnails */}
+                    <div className="w-full h-72 md:h-[420px] rounded-2xl overflow-hidden bg-white/5">
                       <img 
-                        src={program.thumbnail} 
+                        src={(program as any).thumbnail || '/Logo.jpeg'} 
                         alt={getLocalizedContent(program.title, (program as any).title_ar)} 
-                        className="w-full h-full object-cover rounded-2xl"
+                        className="w-full h-full object-cover object-center"
+                        loading="lazy"
+                        decoding="async"
                       />
-                    )}
+                    </div>
                   </div>
                 </div>
               </div>
@@ -267,14 +326,32 @@ export default function ProgramDetailPage({ params }: PageProps) {
                       </h2>
                     </div>
                     <div className="space-y-4">
-                      {modules.map((module: string, index: number) => (
-                        <div key={index} className="group/item flex items-center p-4 bg-gradient-to-r from-primary/5 to-primary/10 rounded-xl hover:from-primary/10 hover:to-primary/20 transition-all duration-300 border border-primary/20">
-                          <div className="w-8 h-8 bg-primary/20 rounded-lg flex items-center justify-center mr-4 group-hover/item:bg-primary/30 transition-colors duration-300">
-                            <span className="text-primary font-bold text-sm">{index + 1}</span>
-                        </div>
-                          <span className="text-gray-700 font-medium">{module}</span>
-                        </div>
-                    ))}
+                      {moduleOrder.map((yearKey) => {
+                        const list = moduleBuckets[yearKey] || [];
+                        const yearNum = yearKey === 'ALL' ? null : yearKey.replace(/^Y/i, '');
+                        const yearLabel =
+                          yearKey === 'ALL'
+                            ? (currentLanguage === 'ar' ? 'المواد' : 'Modules')
+                            : currentLanguage === 'ar'
+                              ? `السنة ${yearNum === '1' ? 'الأولى' : yearNum === '2' ? 'الثانية' : yearNum === '3' ? 'الثالثة' : yearNum}`
+                              : `Year ${yearNum}`;
+
+                        return (
+                          <div key={yearKey} className="bg-gradient-to-r from-primary/5 to-primary/10 rounded-2xl border border-primary/15 p-5">
+                            <h3 className="text-primary font-bold text-lg mb-4">{yearLabel}</h3>
+                            <ul className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                              {list.map((module, idx) => (
+                                <li key={`${yearKey}-${idx}`} className="flex items-start gap-3 bg-white/60 rounded-xl p-3 border border-primary/10">
+                                  <span className="mt-0.5 inline-flex items-center justify-center w-7 h-7 rounded-lg bg-primary/15 text-primary font-bold text-sm">
+                                    {idx + 1}
+                                  </span>
+                                  <span className="text-gray-800 font-medium leading-snug">{module}</span>
+                                </li>
+                              ))}
+                            </ul>
+                          </div>
+                        );
+                      })}
               </div>
                 </div>
                 </section>

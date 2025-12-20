@@ -7,7 +7,9 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "populate-cms": "npx tsx scripts/populate-cms.ts"
+    "populate-cms": "npx tsx scripts/populate-cms.ts",
+    "sync-program-brochures": "npx --yes tsx scripts/sync-program-brochures.ts",
+    "add-new-programs": "npx --yes tsx scripts/add-new-programs.ts"
   },
   "dependencies": {
     "@types/nodemailer": "^6.4.17",

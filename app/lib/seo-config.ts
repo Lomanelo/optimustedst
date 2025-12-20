@@ -34,8 +34,8 @@ export const SITE_CONFIG = {
 export const PAGE_METADATA = {
   home: {
     title: {
-      en: 'Internationally Accredited MBA & DBA Programs | Optimus Solutions KSA',
-      ar: 'برامج ماجستير ودكتوراه معتمدة دولياً | أوبتيموس التعليمية السعودية'
+      en: 'Optimus-Solutions',
+      ar: 'Optimus-Solutions'
     },
     description: {
       en: 'Transform your career with internationally accredited MBA and DBA programs designed for Saudi Arabia\'s future leaders. Aligned with Vision 2030, offering flexible online learning with global recognition and expert faculty.',
@@ -44,8 +44,8 @@ export const PAGE_METADATA = {
   },
   programs: {
     title: {
-      en: 'MBA & DBA Programs - Internationally Accredited | Optimus Solutions KSA',
-      ar: 'برامج ماجستير ودكتوراه - معتمدة دولياً | أوبتيموس السعودية'
+      en: 'Optimus-Solutions',
+      ar: 'Optimus-Solutions'
     },
     description: {
       en: 'Explore our comprehensive range of MBA and DBA programs with specializations in Digital Transformation, Healthcare Management, Finance, and more. IACBE accredited programs designed for Saudi professionals.',
@@ -54,8 +54,8 @@ export const PAGE_METADATA = {
   },
   about: {
     title: {
-      en: 'About Optimus Solutions - Leading Business Education in KSA',
-      ar: 'عن أوبتيموس التعليمية - الريادة في التعليم التجاري بالسعودية'
+      en: 'Optimus-Solutions',
+      ar: 'Optimus-Solutions'
     },
     description: {
       en: 'Learn about Optimus Solutions\' mission to empower Saudi professionals through internationally accredited business education programs. Partnered with world-class universities and aligned with Vision 2030 objectives.',
@@ -64,8 +64,8 @@ export const PAGE_METADATA = {
   },
   contact: {
     title: {
-      en: 'Contact Us - Optimus Solutions KSA | Admissions & Inquiries',
-      ar: 'اتصل بنا - أوبتيموس التعليمية السعودية | القبول والاستفسارات'
+      en: 'Optimus-Solutions',
+      ar: 'Optimus-Solutions'
     },
     description: {
       en: 'Get in touch with Optimus Solutions for program inquiries, admissions information, and enrollment assistance. Our team is ready to help you start your educational journey in Saudi Arabia.',
@@ -74,8 +74,8 @@ export const PAGE_METADATA = {
   },
   blog: {
     title: {
-      en: 'Educational Insights & Industry News | Optimus Solutions Blog',
-      ar: 'رؤى تعليمية وأخبار الصناعة | مدونة أوبتيموس التعليمية'
+      en: 'Optimus-Solutions',
+      ar: 'Optimus-Solutions'
     },
     description: {
       en: 'Stay updated with the latest insights on business education, leadership development, industry trends, and career advancement strategies for Saudi professionals.',
@@ -84,8 +84,8 @@ export const PAGE_METADATA = {
   },
   faculty: {
     title: {
-      en: 'Our Expert Faculty - World-Class Business Educators | Optimus Solutions KSA',
-      ar: 'هيئة التدريس الخبيرة - معلمون أعمال عالميون | أوبتيموس السعودية'
+      en: 'Optimus-Solutions',
+      ar: 'Optimus-Solutions'
     },
     description: {
       en: 'Meet our distinguished faculty of international business experts, industry leaders, and academic scholars bringing decades of experience to Optimus Solutions programs in Saudi Arabia.',
@@ -94,8 +94,8 @@ export const PAGE_METADATA = {
   },
   testimonials: {
     title: {
-      en: 'Student Success Stories & Reviews | Optimus Solutions KSA',
-      ar: 'قصص نجاح الطلاب والمراجعات | أوبتيموس التعليمية السعودية'
+      en: 'Optimus-Solutions',
+      ar: 'Optimus-Solutions'
     },
     description: {
       en: 'Discover how Optimus Solutions has transformed careers across Saudi Arabia. Read authentic testimonials from our MBA and DBA graduates about their learning experience and career advancement.',

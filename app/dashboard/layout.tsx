@@ -105,8 +105,10 @@ export default function DashboardLayout({
             <img
               src={currentLanguage === 'ar' ? '/OptimusSolutionsWhiteAR.png' : '/OptimusSolutionsWhiteEN.png'}
               alt="Optimus Solutions Logo"
+              width={currentLanguage === 'ar' ? 200 : 220}
+              height={currentLanguage === 'ar' ? 66 : 72}
               className="object-contain"
-              style={{ width: 'auto', height: '60px', maxWidth: '210px' }}
+              style={{ width: currentLanguage === 'ar' ? '200px' : '220px', height: currentLanguage === 'ar' ? '66px' : '72px' }}
               onError={(e) => {
                 const target = e.currentTarget as HTMLImageElement;
                 target.onerror = null;
