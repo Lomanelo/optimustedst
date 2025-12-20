@@ -62,6 +62,7 @@ const getFilterTranslationKey = (filterType: string, value: string): string => {
   // Handle specific mappings for complex names
   const specialMappings: Record<string, string> = {
     // Program types
+    'BBA': 'filter_program_type_bba',
     'MBA': 'filter_program_type_mba',
     'DBA': 'filter_program_type_dba',
     
@@ -111,6 +112,21 @@ const getFilterOptionText = (getContent: (key: string) => string, filterType: st
   const translated = getContent(translationKey);
   // If translation is the same as key (not found), return original value
   return translated === translationKey ? value : translated;
+};
+
+// Program type label (for program cards) - show Arabic words instead of abbreviations
+const getProgramTypeLabel = (currentLanguage: 'en' | 'ar', programTypeRaw?: string): string => {
+  const pt = (programTypeRaw || '').toString().trim();
+  const up = pt.toUpperCase();
+  if (currentLanguage === 'ar') {
+    if (up === 'BBA') return 'بكالوريوس';
+    if (up === 'MBA') return 'ماجستير';
+    if (up === 'DBA') return 'دكتوراه';
+    return pt || 'غير محدد';
+  }
+  // English
+  if (up === 'BBA' || up === 'MBA' || up === 'DBA') return up;
+  return pt || 'Not specified';
 };
 
 interface Program {
@@ -475,7 +491,7 @@ function ProgramsContent({ searchParams }: { searchParams: Record<string, string
                       
                       <div className="space-y-2 mb-4">
                         <p className="text-sm text-gray-600">
-                          <span className="font-medium">{getContent('programs_page_program_type_label')}</span> {program.programType}
+                          <span className="font-medium">{getContent('programs_page_program_type_label')}</span> {getProgramTypeLabel(currentLanguage, program.programType)}
                         </p>
                         <p className="text-sm text-gray-600">
                             <span className="font-medium">{getContent('programs_page_speciality_label')}</span> {getSpecialtyTranslation(currentLanguage, program.speciality, program.speciality_ar)}
@@ -501,7 +517,14 @@ function ProgramsContent({ searchParams }: { searchParams: Record<string, string
                                 window.open(program.brochure_en, '_blank', 'noopener,noreferrer');
                               }}
                             >
-                              <span>{currentLanguage === 'ar' ? 'كتيب EN' : 'Brochure EN'}</span>
+                              {currentLanguage === 'ar' ? (
+                                <span className="inline-flex items-center gap-1" dir="ltr">
+                                  <span>EN</span>
+                                  <span dir="rtl">كتيب</span>
+                                </span>
+                              ) : (
+                                <span>Brochure EN</span>
+                              )}
                             </button>
                           )}
                           {program.brochure_ar && (
@@ -514,7 +537,7 @@ function ProgramsContent({ searchParams }: { searchParams: Record<string, string
                                 window.open(program.brochure_ar, '_blank', 'noopener,noreferrer');
                               }}
                             >
-                              <span>{currentLanguage === 'ar' ? 'كتيب AR' : 'Brochure AR'}</span>
+                              <span>{currentLanguage === 'ar' ? 'كتيب ع' : 'Brochure AR'}</span>
                             </button>
                           )}
                         </div>

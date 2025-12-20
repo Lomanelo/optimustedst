@@ -58,7 +58,7 @@ const ProgramOverview: React.FC = () => {
                   className="inline-flex items-center justify-center bg-primary hover:bg-primary-dark text-white font-bold py-4 px-8 rounded-xl transition-all duration-300 group-hover:scale-105 shadow-lg"
                   style={isArabic ? { fontFamily: 'Cairo, sans-serif' } : {}}
                 >
-                  {isArabic ? 'استكشف برامج BBA' : 'Explore BBA Programs'}
+                  {isArabic ? 'استكشف برامج البكالوريوس' : 'Explore BBA Programs'}
                   <ArrowRight 
                     className="w-5 h-5 group-hover:translate-x-1 transition-transform ml-2"
                     style={isArabic ? { transform: 'scaleX(-1)' } : {}}
