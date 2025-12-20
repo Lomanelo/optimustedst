@@ -196,7 +196,7 @@ export default function ComingSoonPage() {
       title: 'التسجيل - أوبتيموس سوليوشنز | بوابتك إلى المستقبل',
       description: 'اكتشف برامجنا في الماجستير وإدارة الأعمال والدكتوراه المصممة لقادة المستقبل في المملكة العربية السعودية. سجل اهتمامك لتلقي مزيد من التفاصيل.',
       comingSoon: 'التسجيل',
-      subtitle: 'برامج ماجستير ودكتوراه (MBA/DBA)\nعبر الإنترنت معتمدة دوليًّا',
+      subtitle: 'برامج BBA • MBA • DBA\nعبر الإنترنت معتمدة دوليًّا',
       description_text: 'للحصول على مزيد من التفاصيل حول برامجنا، يُرجى إرسال بيانتك وسنقوم بتواصل معك.',
       first_name: 'الاسم الأول',
       last_name: 'اسم العائلة',
@@ -206,11 +206,9 @@ export default function ComingSoonPage() {
       male: 'ذكر',
       female: 'أنثى',
       certificate: 'الشهادة المهتم بها',
-      certificate_mba: 'ماجيستير',
-      certificate_phd: 'دكتوراة',
-      certificate_diploma: 'دبلومة',
-      certificate_course: 'دورة تدريبية',
-      certificate_other: 'أخرى',
+      certificate_bba: 'بكالوريوس إدارة الأعمال (BBA)',
+      certificate_mba: 'ماجستير إدارة الأعمال (MBA)',
+      certificate_dba: 'دكتوراه إدارة الأعمال (DBA)',
       submit_button: 'سجل اهتمامك',
       submitting: 'جارٍ الإرسال...',
       thank_you: 'شكراً لاهتمامكم!',
@@ -234,7 +232,7 @@ export default function ComingSoonPage() {
       title: 'Optimus-Solutions',
       description: 'Discover our online MBA and DBA programs designed for future leaders in KSA. Register your interest to receive more details on our programs.',
       comingSoon: 'Register',
-      subtitle: 'Online MBA/DBA with International Accreditation',
+      subtitle: 'Online BBA · MBA · DBA with International Accreditation',
       description_text: "To receive more details on our programs, please fill the form.",
       first_name: 'First Name',
       last_name: 'Last Name',
@@ -244,11 +242,9 @@ export default function ComingSoonPage() {
       male: 'Male',
       female: 'Female',
       certificate: 'Interested in Certificate',
+      certificate_bba: 'BBA',
       certificate_mba: 'MBA',
-      certificate_phd: 'PHD/BDA',
-      certificate_diploma: 'Diploma',
-      certificate_course: 'Training Course',
-      certificate_other: 'Other',
+      certificate_dba: 'DBA',
       submit_button: 'Register Your Interest',
       submitting: 'Submitting...',
       thank_you: 'Thank you for your interest!',
@@ -659,11 +655,9 @@ export default function ComingSoonPage() {
                             <option value="" style={{ fontWeight: 'normal', color: '#6b7280' }}>
                               {language === 'ar' ? 'الشهادة المهتم بها' : 'Select Certificate'}
                             </option>
+                            <option value="BBA" style={{ color: '#374151' }}>{currentContent.certificate_bba}</option>
                             <option value="MBA" style={{ color: '#374151' }}>{currentContent.certificate_mba}</option>
-                            <option value="PHD/BDA" style={{ color: '#374151' }}>{currentContent.certificate_phd}</option>
-                            <option value="Diploma" style={{ color: '#374151' }}>{currentContent.certificate_diploma}</option>
-                            <option value="Course" style={{ color: '#374151' }}>{currentContent.certificate_course}</option>
-                            <option value="Other" style={{ color: '#374151' }}>{currentContent.certificate_other}</option>
+                            <option value="DBA" style={{ color: '#374151' }}>{currentContent.certificate_dba}</option>
                           </select>
                         </div>
                         

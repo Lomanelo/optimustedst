@@ -190,7 +190,7 @@ async function main() {
 
   // 1b) Triple MBA Exclusive - Hospitality & Events
   {
-    const title = 'Trible MBA Exclusive hospitality and events Management';
+    const title = 'Triple MBA Exclusive hospitality and events Management';
     const id = slugify(title);
     upsertProgram(programs, {
       id,
@@ -212,7 +212,7 @@ async function main() {
       exclusive: true,
       // Use the same photo as the existing exclusive Hospitality program
       thumbnail: '/ProgramPhotos/event  Management.jpeg',
-      brochure_en: '/brochures/Trible MBA Exclusive hospitality and events Management.pdf',
+      brochure_en: '/brochures/Triple MBA Exclusive hospitality and events Management.pdf',
       brochure_ar: '/brochures/ماچستير إدارة الأعمال في إداره الضيافه و الفاعليات.pdf',
       modules: [
         'Digital Tourism and Hospitality',
@@ -286,7 +286,7 @@ async function main() {
 
   // 1c) Triple MBA Exclusive - Sports
   {
-    const title = 'Trible MBA Exclusive Sports Management';
+    const title = 'Triple MBA Exclusive Sports Management';
     const id = slugify(title);
     upsertProgram(programs, {
       id,
@@ -308,7 +308,7 @@ async function main() {
       exclusive: true,
       // Use the same photo as the existing exclusive Sports program
       thumbnail: '/ProgramPhotos/Sports Management.jpg',
-      brochure_en: '/brochures/Trible MBA Exclusive Sports Management.pdf',
+      brochure_en: '/brochures/Triple MBA Exclusive Sports Management.pdf',
       brochure_ar: '/brochures/ماجيستير إداره الأعمال  في إداره الرياضه.pdf',
       modules: [
         'Marketing Management',
