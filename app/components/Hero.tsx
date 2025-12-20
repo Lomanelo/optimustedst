@@ -49,7 +49,7 @@ const Hero: React.FC = () => {
           <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold text-white leading-tight mb-6 font-sans">
             {currentLanguage === 'ar' 
               ? 'ماجستير • بكالوريوس • دكتوراه' 
-              : 'BA · MBA · DBA'}
+              : 'BBA · MBA · DBA'}
           </h1>
           
           <p className="text-white/90 text-xl md:text-2xl mb-6 font-sans">
