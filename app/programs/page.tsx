@@ -16,46 +16,28 @@ const programTypeOptions = [
   { en: 'MBA', ar: 'ماجستير إدارة الأعمال' },
   { en: 'DBA', ar: 'دكتوراه إدارة الأعمال' }
 ];
-const specialityOptions = [
-  { en: 'Digital Transformation', ar: 'التحول الرقمي' },
-  { en: 'Strategic Management', ar: 'الإدارة الاستراتيجية' },
-  { en: 'Healthcare Management', ar: 'إدارة الرعاية الصحية' },
-  { en: 'Project Management', ar: 'إدارة المشاريع' },
-  { en: 'Accounting & Finance Management', ar: 'إدارة المحاسبة والمالية' },
-  { en: 'Marketing Management', ar: 'إدارة التسويق' },
-  { en: 'Logistics & Supply Chain Management', ar: 'إدارة اللوجستيات وسلسلة التوريد' },
-  { en: 'Human Resources Management', ar: 'إدارة الموارد البشرية' },
-  { en: 'Quality Management', ar: 'إدارة الجودة' },
-  { en: 'Accounting & Finance', ar: 'المحاسبة والمالية' },
-  { en: 'Entrepreneurship & Innovation', ar: 'ريادة الأعمال والابتكار' },
-  { en: 'International Business Management', ar: 'إدارة الأعمال الدولية' },
-  { en: 'Sports Management', ar: 'إدارة الرياضة' },
-  { en: 'Hospitality & Events Management', ar: 'إدارة الضيافة والفعاليات' }
-];
+type SpecialityOption = { key: string; en?: string; ar?: string };
 
-// Helper function to get the correct specialty translation
-const getSpecialtyTranslation = (currentLanguage: 'en' | 'ar', specialtyEn?: string, specialtyAr?: string): string => {
-  // Check all possible values (both fields might contain either language)
-  const allValues = [specialtyEn, specialtyAr].filter(Boolean);
-  
-  // Find the matching specialty pair by checking against both English and Arabic options
-  for (const value of allValues) {
-    const specialtyPair = specialityOptions.find(option => 
-      option.en === value || option.ar === value
-    );
-    
-    if (specialtyPair) {
-      return currentLanguage === 'ar' ? specialtyPair.ar : specialtyPair.en;
-    }
+const isArabicText = (value: string) => /[\u0600-\u06FF]/.test(value);
+
+const normalizeSpecialityPair = (a?: string, b?: string): { en?: string; ar?: string } => {
+  const v1 = (a || '').trim();
+  const v2 = (b || '').trim();
+  if (!v1 && !v2) return {};
+  const v1IsAr = v1 ? isArabicText(v1) : false;
+  const v2IsAr = v2 ? isArabicText(v2) : false;
+
+  // If we can confidently place English/Arabic, do it.
+  if (v1 && v2) {
+    if (v1IsAr && !v2IsAr) return { en: v2, ar: v1 };
+    if (!v1IsAr && v2IsAr) return { en: v1, ar: v2 };
   }
-  
-  // Fallback to whatever we have
-  if (currentLanguage === 'ar') {
-    return specialtyAr || specialtyEn || 'غير محدد';
-  } else {
-    return specialtyEn || specialtyAr || 'Not specified';
-  }
+
+  // Otherwise, keep what we have (some datasets may store only one language).
+  return { en: v1 || undefined, ar: v2 || undefined };
 };
+
+const specialityKey = (pair: { en?: string; ar?: string }) => (pair.en || pair.ar || '').trim();
 
 // Translation key mapping functions
 const getFilterTranslationKey = (filterType: string, value: string): string => {
@@ -187,16 +169,48 @@ function ProgramsContent({ searchParams }: { searchParams: Record<string, string
     if (queryParams) {
       const programType = queryParams.get('programType');
       if (programType) {
-        // Check if the programType exists in either English or Arabic
-        const exists = programTypeOptions.some(option => 
-          option.en === programType || option.ar === programType
-        );
-        if (exists) {
-        setSelectedProgramTypes([programType]);
-        }
+        // Normalize programType from URL to canonical value (BBA/MBA/DBA)
+        const match = programTypeOptions.find(option => option.en === programType || option.ar === programType);
+        if (match) setSelectedProgramTypes([match.en]);
       }
     }
   }, [queryParams]);
+
+  // Build speciality filter options dynamically from available programs
+  const derivedSpecialityOptions: SpecialityOption[] = React.useMemo(() => {
+    const map = new Map<string, SpecialityOption>();
+    for (const p of allPrograms) {
+      const pair = normalizeSpecialityPair(p.speciality, p.speciality_ar);
+      const key = specialityKey(pair);
+      if (!key) continue;
+      const existing = map.get(key);
+      if (existing) {
+        map.set(key, {
+          key,
+          en: existing.en || pair.en,
+          ar: existing.ar || pair.ar
+        });
+      } else {
+        map.set(key, { key, en: pair.en, ar: pair.ar });
+      }
+    }
+    const list = Array.from(map.values());
+    const label = (opt: SpecialityOption) =>
+      (currentLanguage === 'ar' ? opt.ar || opt.en : opt.en || opt.ar || opt.key) || opt.key;
+    list.sort((a, b) => label(a).localeCompare(label(b)));
+    return list;
+  }, [allPrograms, currentLanguage]);
+
+  const getSpecialtyLabel = (program: Program) => {
+    const pair = normalizeSpecialityPair(program.speciality, program.speciality_ar);
+    const key = specialityKey(pair);
+    const found = derivedSpecialityOptions.find(o => o.key === key);
+    const label =
+      currentLanguage === 'ar'
+        ? found?.ar || pair.ar || found?.en || pair.en
+        : found?.en || pair.en || found?.ar || pair.ar;
+    return label || (currentLanguage === 'ar' ? 'غير محدد' : 'Not specified');
+  };
 
   // Load programs from local JSON (no Firebase)
   useEffect(() => {
@@ -271,19 +285,8 @@ function ProgramsContent({ searchParams }: { searchParams: Record<string, string
     // Program type filter - check both English and Arabic versions
     if (selectedProgramTypes.length > 0) {
       const isProgramTypeMatch = selectedProgramTypes.some(selectedType => {
-        // Find the program type pair that matches the selected filter
-        const selectedTypePair = programTypeOptions.find(option => 
-          option.en === selectedType || option.ar === selectedType
-        );
-        
-        if (selectedTypePair) {
-          // Check if program matches either English or Arabic version
-          return program.programType === selectedTypePair.en || 
-                 program.programType === selectedTypePair.ar;
-    }
-
-        // Fallback to direct matching
-        return selectedType === program.programType;
+        // selectedType is canonical (BBA/MBA/DBA)
+        return (program.programType || '').toUpperCase() === selectedType.toUpperCase();
       });
       
       if (!isProgramTypeMatch) {
@@ -294,21 +297,20 @@ function ProgramsContent({ searchParams }: { searchParams: Record<string, string
     // Speciality filter - check both English and Arabic versions
     if (selectedSpecialities.length > 0) {
       const isSpecialityMatch = selectedSpecialities.some(selectedSpec => {
-        // Find the specialty pair that matches the selected filter
-        const selectedPair = specialityOptions.find(option => 
-          option.en === selectedSpec || option.ar === selectedSpec
+        const candidates = [program.speciality, program.speciality_ar].filter(Boolean) as string[];
+        const pair = normalizeSpecialityPair(program.speciality, program.speciality_ar);
+        const key = specialityKey(pair);
+
+        if (selectedSpec === key) return true;
+        if (candidates.includes(selectedSpec)) return true;
+
+        const selectedOpt = derivedSpecialityOptions.find(o => o.key === selectedSpec);
+        if (!selectedOpt) return false;
+
+        return (
+          (!!selectedOpt.en && candidates.includes(selectedOpt.en)) ||
+          (!!selectedOpt.ar && candidates.includes(selectedOpt.ar))
         );
-        
-        if (selectedPair) {
-          // Check if program matches either English or Arabic version of the selected specialty
-          return program.speciality === selectedPair.en || 
-                 program.speciality === selectedPair.ar ||
-                 program.speciality_ar === selectedPair.ar ||
-                 program.speciality_ar === selectedPair.en;
-        }
-        
-        // Fallback to direct matching
-        return selectedSpec === program.speciality || selectedSpec === program.speciality_ar;
       });
       
       if (!isSpecialityMatch) {
@@ -382,13 +384,12 @@ function ProgramsContent({ searchParams }: { searchParams: Record<string, string
                 {openFilters.programType && (
                   <div className="mt-2 space-y-2">
                     {programTypeOptions.map((programType, index) => {
-                      const typeValue = currentLanguage === 'ar' ? programType.ar : programType.en;
                       return (
                         <label key={index} className={`flex items-center ${getTextAlignClass()}`}>
                         <input
                           type="checkbox"
-                            checked={selectedProgramTypes.includes(typeValue)}
-                            onChange={() => handleProgramTypeChange(typeValue)}
+                            checked={selectedProgramTypes.includes(programType.en)}
+                            onChange={() => handleProgramTypeChange(programType.en)}
                           className="rounded border-gray-300 text-accent focus:ring-accent"
                         />
                           <span className={`text-sm text-gray-600 ${currentLanguage === 'ar' ? 'mr-2' : 'ml-2'}`}>
@@ -424,18 +425,19 @@ function ProgramsContent({ searchParams }: { searchParams: Record<string, string
                 </button>
                 {openFilters.speciality && (
                   <div className="mt-2 space-y-2 max-h-48 overflow-y-auto">
-                    {specialityOptions.map((spec, index) => {
-                      const specValue = currentLanguage === 'ar' ? spec.ar : spec.en;
+                    {derivedSpecialityOptions.map((spec, index) => {
+                      const specLabel =
+                        currentLanguage === 'ar' ? spec.ar || spec.en || spec.key : spec.en || spec.ar || spec.key;
                       return (
                         <label key={index} className={`flex items-center ${getTextAlignClass()}`}>
                         <input
                           type="checkbox"
-                            checked={selectedSpecialities.includes(specValue)}
-                            onChange={() => handleSpecialityChange(specValue)}
+                            checked={selectedSpecialities.includes(spec.key)}
+                            onChange={() => handleSpecialityChange(spec.key)}
                           className="rounded border-gray-300 text-accent focus:ring-accent"
                         />
                           <span className={`text-sm text-gray-600 ${currentLanguage === 'ar' ? 'mr-2' : 'ml-2'}`}>
-                            {currentLanguage === 'ar' ? spec.ar : spec.en}
+                            {specLabel}
                           </span>
                       </label>
                       );
@@ -494,7 +496,7 @@ function ProgramsContent({ searchParams }: { searchParams: Record<string, string
                           <span className="font-medium">{getContent('programs_page_program_type_label')}</span> {getProgramTypeLabel(currentLanguage, program.programType)}
                         </p>
                         <p className="text-sm text-gray-600">
-                            <span className="font-medium">{getContent('programs_page_speciality_label')}</span> {getSpecialtyTranslation(currentLanguage, program.speciality, program.speciality_ar)}
+                            <span className="font-medium">{getContent('programs_page_speciality_label')}</span> {getSpecialtyLabel(program)}
                         </p>
                       </div>
 
