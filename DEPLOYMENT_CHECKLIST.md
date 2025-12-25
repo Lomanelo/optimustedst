@@ -210,7 +210,8 @@ Target Metrics After 1 Week:
 
 After deployment, update these on all social media:
 
-- [ ] Facebook page → Add website link
+- [ ] Facebook page →
+      Add website link
 - [ ] LinkedIn company page → Update website
 - [ ] Twitter profile → Add website
 - [ ] Instagram bio → Add website link
@@ -372,7 +373,7 @@ Before marking deployment complete:
 
 1. Development Team Lead
 2. Project Manager
-3.   Backup: Review `SEO_IMPLEMENTATION_REPORT.md`
+3. Backup: Review `SEO_IMPLEMENTATION_REPORT.md`
 
 ---
 
