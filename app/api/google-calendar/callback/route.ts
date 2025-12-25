@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { google } from 'googleapis';
 import googleCalendarSettingsService from '../../../../src/services/googleCalendarSettingsService';
+import { upsertGoogleCalendarSettingsAdmin } from '../../../../src/server/googleCalendarStore';
 
 export async function GET(req: NextRequest) {
   const clientId = process.env.GOOGLE_CLIENT_ID;
@@ -51,14 +52,26 @@ export async function GET(req: NextRequest) {
       );
     }
 
-    await googleCalendarSettingsService.upsert(
-      {
+    // Prefer storing via Firebase Admin (server-side) so API routes can read it reliably.
+    try {
+      await upsertGoogleCalendarSettingsAdmin({
         refreshToken: tokens.refresh_token,
         connectedEmail: email,
-        calendarId
-      },
-      email || 'google-oauth'
-    );
+        calendarId,
+        updatedBy: email || 'google-oauth'
+      });
+    } catch (adminErr) {
+      // Fallback: client SDK Firestore (may fail depending on security rules)
+      console.warn('Firebase Admin store failed, falling back to client SDK store:', adminErr);
+      await googleCalendarSettingsService.upsert(
+        {
+          refreshToken: tokens.refresh_token,
+          connectedEmail: email,
+          calendarId
+        },
+        email || 'google-oauth'
+      );
+    }
   } catch (e) {
     console.error('Failed to verify/store Google Calendar connection:', e);
     return NextResponse.redirect(new URL('/admin/settings?gcal=error&reason=verify_failed', url.origin));

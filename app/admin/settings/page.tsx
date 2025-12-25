@@ -28,7 +28,7 @@ import meetingAvailabilityService, {
   MeetingAvailabilitySettings,
   WeekdayKey
 } from '../../../src/services/meetingAvailabilityService';
-import googleCalendarSettingsService, { GoogleCalendarSettings } from '../../../src/services/googleCalendarSettingsService';
+import { useSearchParams } from 'next/navigation';
 
 interface SocialMediaLinks {
   facebook: string;
@@ -65,8 +65,16 @@ export default function AdminSettingsPage() {
     DEFAULT_MEETING_AVAILABILITY
   );
   const [meetingLoading, setMeetingLoading] = useState(false);
-  const [googleCalendar, setGoogleCalendar] = useState<GoogleCalendarSettings | null>(null);
+  const [googleCalendarStatus, setGoogleCalendarStatus] = useState<{
+    envOk: boolean;
+    adminOk: boolean;
+    connected: boolean;
+    connectedEmail?: string;
+    calendarId?: string;
+    using?: string;
+  } | null>(null);
   const [googleCalendarLoading, setGoogleCalendarLoading] = useState(false);
+  const searchParams = useSearchParams();
 
   useEffect(() => {
     if (!isLoading && (!currentUser || (userRole !== 'admin' && !hasPermission('settings')))) {
@@ -104,8 +112,13 @@ export default function AdminSettingsPage() {
       setMeetingAvailability(meeting);
 
       // Load Google Calendar connection (best-effort)
-      const gcal = await googleCalendarSettingsService.get();
-      setGoogleCalendar(gcal);
+      try {
+        const res = await fetch('/api/google-calendar/status', { cache: 'no-store' });
+        const data = await res.json();
+        setGoogleCalendarStatus(data);
+      } catch {
+        setGoogleCalendarStatus(null);
+      }
     } catch (error) {
       console.error('Error loading settings:', error);
     } finally {
@@ -152,17 +165,7 @@ export default function AdminSettingsPage() {
   };
 
   const handleDisconnectGoogleCalendar = async () => {
-    if (!currentUser) return;
-    try {
-      setSaving(true);
-      await googleCalendarSettingsService.disconnect(currentUser.email || 'Unknown');
-      const gcal = await googleCalendarSettingsService.get();
-      setGoogleCalendar(gcal);
-    } catch (e) {
-      console.error('Failed to disconnect Google Calendar:', e);
-    } finally {
-      setSaving(false);
-    }
+    alert('Disconnect is not enabled yet (requires Firebase Admin credentials). If you want this, tell me and I’ll enable it securely.');
   };
 
   const weekdayLabels: Record<WeekdayKey, string> = {
@@ -477,19 +480,33 @@ export default function AdminSettingsPage() {
               <div>
                 <p className="text-sm text-gray-700">
                   <span className="font-medium">Status:</span>{' '}
-                  {googleCalendar?.refreshToken ? (
-                    <span className="text-green-700">Connected{googleCalendar.connectedEmail ? ` (${googleCalendar.connectedEmail})` : ''}</span>
+                  {googleCalendarStatus?.connected ? (
+                    <span className="text-green-700">
+                      Connected{googleCalendarStatus.connectedEmail ? ` (${googleCalendarStatus.connectedEmail})` : ''}
+                    </span>
                   ) : (
                     <span className="text-gray-600">Not connected</span>
                   )}
                 </p>
+                {googleCalendarStatus && (
+                  <p className="text-xs text-gray-500 mt-1">
+                    Mode: <code>{googleCalendarStatus.using || 'unknown'}</code> · Env OK:{' '}
+                    <code>{String(googleCalendarStatus.envOk)}</code> · Admin OK:{' '}
+                    <code>{String(googleCalendarStatus.adminOk)}</code>
+                  </p>
+                )}
                 <p className="text-xs text-gray-500 mt-1">
                   Redirect URI must be set in Google Cloud Console and Netlify env vars.
                 </p>
+                {searchParams?.get('gcal') === 'error' && (
+                  <p className="text-xs text-red-600 mt-2">
+                    Google Calendar connect error: <code>{searchParams.get('reason') || 'unknown'}</code>
+                  </p>
+                )}
               </div>
 
               <div className="flex items-center gap-3">
-                {!googleCalendar?.refreshToken ? (
+                {!googleCalendarStatus?.connected ? (
                   <a
                     href="/api/google-calendar/auth"
                     className="inline-flex items-center px-5 py-2.5 rounded-lg text-sm font-medium bg-[#2B1F4F] text-white hover:bg-[#2B1F4F]/90 transition-colors"

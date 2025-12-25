@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import nodemailer from 'nodemailer';
 import { google } from 'googleapis';
 import googleCalendarSettingsService from '../../../src/services/googleCalendarSettingsService';
+import { getGoogleCalendarSettingsAdmin } from '../../../src/server/googleCalendarStore';
 
 interface MeetingRequestBody {
   name: string;
@@ -181,18 +182,51 @@ export async function POST(req: NextRequest) {
 
     // If Google Calendar is connected, create an event automatically
     let createdCalendarEventLink: string | undefined;
+    let calendarMode: 'firestore_admin' | 'env_refresh_token' | 'firestore_client' | 'none' = 'none';
+    let calendarError: string | undefined;
     try {
       const clientId = process.env.GOOGLE_CLIENT_ID;
       const clientSecret = process.env.GOOGLE_CLIENT_SECRET;
       const redirectUri = process.env.GOOGLE_REDIRECT_URI;
-      const gcal = await googleCalendarSettingsService.get();
+      const envRefreshToken = process.env.GOOGLE_REFRESH_TOKEN;
 
-      if (clientId && clientSecret && redirectUri && gcal?.refreshToken) {
+      // Prefer Firebase Admin store if available
+      let refreshToken: string | undefined;
+      let calendarIdFromStore: string | undefined;
+      try {
+        const adminStored = await getGoogleCalendarSettingsAdmin();
+        if (adminStored?.refreshToken) {
+          refreshToken = adminStored.refreshToken;
+          calendarIdFromStore = adminStored.calendarId;
+          calendarMode = 'firestore_admin';
+        }
+      } catch (e) {
+        // ignore; will fall back
+      }
+
+      // Fallback: env var (quickest way if Firebase Admin isn't configured)
+      if (!refreshToken && envRefreshToken) {
+        refreshToken = envRefreshToken;
+        calendarMode = 'env_refresh_token';
+      }
+
+      // Last resort fallback: client SDK store (may fail depending on Firestore rules)
+      let gcal = null as any;
+      if (!refreshToken) {
+        gcal = await googleCalendarSettingsService.get();
+        if (gcal?.refreshToken) {
+          refreshToken = gcal.refreshToken;
+          calendarIdFromStore = gcal.calendarId;
+          calendarMode = 'firestore_client';
+        }
+      }
+
+      if (clientId && clientSecret && redirectUri && refreshToken) {
         const oauth2 = new google.auth.OAuth2(clientId, clientSecret, redirectUri);
-        oauth2.setCredentials({ refresh_token: gcal.refreshToken });
+        oauth2.setCredentials({ refresh_token: refreshToken });
         const calendar = google.calendar({ version: 'v3', auth: oauth2 });
 
-        const calendarId = gcal.calendarId || process.env.GOOGLE_CALENDAR_ID || 'primary';
+        const calendarId = calendarIdFromStore || process.env.GOOGLE_CALENDAR_ID || 'primary';
         const timeZone = timezone || 'Asia/Riyadh';
 
         const event = await calendar.events.insert({
@@ -215,6 +249,7 @@ export async function POST(req: NextRequest) {
         createdCalendarEventLink = event.data.htmlLink || undefined;
       }
     } catch (e) {
+      calendarError = e instanceof Error ? e.message : 'unknown_error';
       console.error('Google Calendar event creation failed (continuing with email):', e);
     }
 
@@ -303,7 +338,15 @@ export async function POST(req: NextRequest) {
     await Promise.all([transporter.sendMail(adminEmail), transporter.sendMail(userEmail)]);
 
     return NextResponse.json(
-      { message: 'Meeting request submitted successfully. We will contact you soon!' },
+      {
+        message: 'Meeting request submitted successfully. We will contact you soon!',
+        calendar: {
+          created: !!createdCalendarEventLink,
+          link: createdCalendarEventLink,
+          mode: calendarMode,
+          error: calendarError
+        }
+      },
       { status: 200 }
     );
   } catch (e) {
