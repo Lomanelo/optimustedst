@@ -101,7 +101,7 @@ export default function RootLayout({
         <meta name="msapplication-TileImage" content="/Favicon.png" />
         
         {/* Facebook Domain Verification */}
-        <meta name="facebook-domain-verification" content="k4g424vb47jr1htoq224242jbdfjm1" />
+        <meta name="facebook-domain-verification" content="e007ydnumqsrkmb7vw7i42nxj47ll8" />
         
         {/* Force HTTPS */}
         <meta httpEquiv="Content-Security-Policy" content="upgrade-insecure-requests" />

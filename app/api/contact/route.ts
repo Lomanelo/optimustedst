@@ -9,13 +9,22 @@ interface ContactFormData {
   message: string;
 }
 
+const DEFAULT_RECIPIENT_EMAIL = process.env.CONTACT_TO_EMAIL || 'info@optimus-solutions.org';
+
 // Email routing configuration
 const EMAIL_ROUTING: Record<string, string> = {
-  general: 'info@optimusksa.com',
-  admissions: 'admissions@optimusksa.com',
-  support: 'support@optimusksa.com',
-  marketing: 'marketing@optimusksa.com',
-  executive: 'ceo@optimusksa.com'
+  // Route all contact form submissions to a single inbox
+  general: DEFAULT_RECIPIENT_EMAIL,
+  admissions: DEFAULT_RECIPIENT_EMAIL,
+  support: DEFAULT_RECIPIENT_EMAIL,
+  marketing: DEFAULT_RECIPIENT_EMAIL,
+  executive: DEFAULT_RECIPIENT_EMAIL,
+
+  // Values sent by the ContactForm UI
+  programs: DEFAULT_RECIPIENT_EMAIL,
+  financial: DEFAULT_RECIPIENT_EMAIL,
+  technical: DEFAULT_RECIPIENT_EMAIL,
+  partnership: DEFAULT_RECIPIENT_EMAIL
 };
 
 // Create transporter (configure with your SMTP settings)

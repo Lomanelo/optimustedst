@@ -42,7 +42,7 @@ export const DEFAULT_CONTACT_INFO: ContactInfo = {
   marketingEmail: 'marketing@optimusksa.com',
   supportEmail: 'support@optimusksa.com',
   admissionsEmail: 'admissions@optimusksa.com',
-  generalInquiriesEmail: 'info@optimusksa.com',
+  generalInquiriesEmail: 'info@optimus-solutions.org',
   address: 'Riyadh, Saudi Arabia',
   operatingHours: {
     monday: { isOpen: true, openTime: '09:00', closeTime: '18:00' },

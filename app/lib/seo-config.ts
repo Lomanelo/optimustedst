@@ -15,7 +15,7 @@ export const SITE_CONFIG = {
   keywords: 'MBA Saudi Arabia, DBA programs KSA, online education Saudi, Vision 2030 education, accredited MBA KSA, business administration Saudi Arabia, executive education KSA, ماجستير إدارة أعمال السعودية, دكتوراه إدارة أعمال, تعليم عن بعد السعودية, رؤية 2030',
   contact: {
     phone: '+966 50 123 4567',
-    email: 'info@optimusksa.com',
+    email: 'info@optimus-solutions.org',
     whatsapp: '+966501234567'
   },
   social: {

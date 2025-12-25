@@ -34,15 +34,22 @@ const ProgramOverview: React.FC = () => {
               <div className="absolute inset-0 pointer-events-none"></div>
               <div className="relative p-8 lg:p-12 text-primary min-h-[400px] h-full flex flex-col justify-between">
                 <div>
-                  <div className="flex items-center mb-6">
-                    <div className="bg-primary/10 p-3 rounded-full mr-4">
+                  <div className={`flex items-center gap-4 mb-6 ${isArabic ? 'flex-row-reverse justify-end text-right' : ''}`}>
+                    <div className="bg-primary/10 p-3 rounded-full">
                       <GraduationCap className="w-8 h-8 text-primary" />
                     </div>
                     <h3 
                       className="text-3xl font-bold"
                       style={isArabic ? { fontFamily: 'Cairo, sans-serif' } : {}}
                     >
-                      {isArabic ? 'برامج بكالوريوس إدارة الأعمال' : 'BBA Programs'}
+                      {isArabic ? (
+                        <>
+                          <span className="block">برامج بكالوريوس</span>
+                          <span className="block">إدارة الأعمال</span>
+                        </>
+                      ) : (
+                        'BBA Programs'
+                      )}
                     </h3>
                   </div>
                   <p 
@@ -51,16 +58,47 @@ const ProgramOverview: React.FC = () => {
                   >
                     {getContent('programs_bachelor_description')}
                   </p>
+
+                  {/* Key points (match MBA/DBA formatting) */}
+                  <div className="space-y-4 mb-8">
+                    <div className={`flex items-center gap-3 ${isArabic ? 'flex-row-reverse justify-end text-right' : ''}`}>
+                      <Users className="w-5 h-5 text-accent" />
+                      <span
+                        className="text-gray-700"
+                        style={isArabic ? { fontFamily: 'Cairo, sans-serif' } : {}}
+                      >
+                        {isArabic ? 'تعليم الأعمال الأساسي مع تخصصات متعددة' : 'Foundational business education with multiple specializations'}
+                      </span>
+                    </div>
+                    <div className={`flex items-center gap-3 ${isArabic ? 'flex-row-reverse justify-end text-right' : ''}`}>
+                      <Award className="w-5 h-5 text-accent" />
+                      <span
+                        className="text-gray-700"
+                        style={isArabic ? { fontFamily: 'Cairo, sans-serif' } : {}}
+                      >
+                        {isArabic ? 'يبني مهارات قوية للوظائف الإدارية والمهنية' : 'Builds strong skills for managerial and professional roles'}
+                      </span>
+                    </div>
+                    <div className={`flex items-center gap-3 ${isArabic ? 'flex-row-reverse justify-end text-right' : ''}`}>
+                      <Clock className="w-5 h-5 text-accent" />
+                      <span
+                        className="text-gray-700"
+                        style={isArabic ? { fontFamily: 'Cairo, sans-serif' } : {}}
+                      >
+                        {isArabic ? 'تعلم مرن عبر الإنترنت يناسب المهنيين العاملين' : 'Flexible online learning designed for working professionals'}
+                      </span>
+                    </div>
+                  </div>
                 </div>
 
                 <Link 
                   href="/programs?programType=BBA"
-                  className="inline-flex items-center justify-center bg-primary hover:bg-primary-dark text-white font-bold py-4 px-8 rounded-xl transition-all duration-300 group-hover:scale-105 shadow-lg"
+                  className="inline-flex items-center justify-center bg-primary hover:bg-primary-dark text-white font-bold py-4 px-8 rounded-xl transition-all duration-300 group-hover:scale-105 shadow-lg whitespace-nowrap"
                   style={isArabic ? { fontFamily: 'Cairo, sans-serif' } : {}}
                 >
                   {isArabic ? 'استكشف برامج البكالوريوس' : 'Explore BBA Programs'}
                   <ArrowRight 
-                    className="w-5 h-5 group-hover:translate-x-1 transition-transform ml-2"
+                    className={`w-5 h-5 transition-transform ${isArabic ? 'mr-2 group-hover:-translate-x-1' : 'ml-2 group-hover:translate-x-1'}`}
                     style={isArabic ? { transform: 'scaleX(-1)' } : {}}
                   />
                 </Link>
@@ -77,8 +115,8 @@ const ProgramOverview: React.FC = () => {
               <div className="absolute inset-0 bg-black/20"></div>
               <div className="relative p-8 lg:p-12 text-white min-h-[400px] h-full flex flex-col justify-between">
                 <div>
-                  <div className="flex items-center mb-6">
-                    <div className="bg-white/20 backdrop-blur-sm p-3 rounded-full mr-4">
+                  <div className={`flex items-center gap-4 mb-6 ${isArabic ? 'flex-row-reverse justify-end text-right' : ''}`}>
+                    <div className="bg-white/20 backdrop-blur-sm p-3 rounded-full">
                       <GraduationCap className="w-8 h-8 text-white" />
                     </div>
                     <h3 
@@ -97,8 +135,8 @@ const ProgramOverview: React.FC = () => {
                   </p>
 
                   <div className="space-y-4 mb-8">
-                    <div className="flex items-center">
-                      <Users className="w-5 h-5 text-accent mr-3" />
+                    <div className={`flex items-center gap-3 ${isArabic ? 'flex-row-reverse justify-end text-right' : ''}`}>
+                      <Users className="w-5 h-5 text-accent" />
                       <span 
                         className="text-white/90"
                         style={isArabic ? { fontFamily: 'Cairo, sans-serif' } : {}}
@@ -106,8 +144,8 @@ const ProgramOverview: React.FC = () => {
                         {getContent('program_mba_executive_focus')}
                       </span>
                     </div>
-                    <div className="flex items-center">
-                      <Award className="w-5 h-5 text-accent mr-3" />
+                    <div className={`flex items-center gap-3 ${isArabic ? 'flex-row-reverse justify-end text-right' : ''}`}>
+                      <Award className="w-5 h-5 text-accent" />
                       <span 
                         className="text-white/90"
                         style={isArabic ? { fontFamily: 'Cairo, sans-serif' } : {}}
@@ -115,8 +153,8 @@ const ProgramOverview: React.FC = () => {
                         {getContent('program_mba_international')}
                       </span>
                     </div>
-                    <div className="flex items-center">
-                      <Clock className="w-5 h-5 text-accent mr-3" />
+                    <div className={`flex items-center gap-3 ${isArabic ? 'flex-row-reverse justify-end text-right' : ''}`}>
+                      <Clock className="w-5 h-5 text-accent" />
                       <span 
                         className="text-white/90"
                         style={isArabic ? { fontFamily: 'Cairo, sans-serif' } : {}}
@@ -129,12 +167,12 @@ const ProgramOverview: React.FC = () => {
 
                 <Link 
                   href="/programs?programType=MBA"
-                  className="inline-flex items-center justify-center bg-accent hover:bg-accent-dark text-white font-bold py-4 px-8 rounded-xl transition-all duration-300 group-hover:scale-105 shadow-lg"
+                  className="inline-flex items-center justify-center bg-accent hover:bg-accent-dark text-white font-bold py-4 px-8 rounded-xl transition-all duration-300 group-hover:scale-105 shadow-lg whitespace-nowrap"
                   style={isArabic ? { fontFamily: 'Cairo, sans-serif' } : {}}
                 >
                   {getContent('program_explore_mba')}
                   <ArrowRight 
-                    className="w-5 h-5 group-hover:translate-x-1 transition-transform ml-2"
+                    className={`w-5 h-5 transition-transform ${isArabic ? 'mr-2 group-hover:-translate-x-1' : 'ml-2 group-hover:translate-x-1'}`}
                     style={isArabic ? { transform: 'scaleX(-1)' } : {}}
                   />
                 </Link>
@@ -153,8 +191,8 @@ const ProgramOverview: React.FC = () => {
               <div className="absolute inset-0 bg-black/20"></div>
               <div className="relative p-8 lg:p-12 text-white min-h-[400px] h-full flex flex-col justify-between">
                 <div>
-                  <div className="flex items-center mb-6">
-                    <div className="bg-white/20 backdrop-blur-sm p-3 rounded-full mr-4">
+                  <div className={`flex items-center gap-4 mb-6 ${isArabic ? 'flex-row-reverse justify-end text-right' : ''}`}>
+                    <div className="bg-white/20 backdrop-blur-sm p-3 rounded-full">
                       <BookOpen className="w-8 h-8 text-white" />
                     </div>
                     <h3 
@@ -173,8 +211,8 @@ const ProgramOverview: React.FC = () => {
                   </p>
 
                   <div className="space-y-4 mb-8">
-                    <div className="flex items-center">
-                      <BookOpen className="w-5 h-5 text-white mr-3" />
+                    <div className={`flex items-center gap-3 ${isArabic ? 'flex-row-reverse justify-end text-right' : ''}`}>
+                      <BookOpen className="w-5 h-5 text-white" />
                       <span 
                         className="text-white/90"
                         style={isArabic ? { fontFamily: 'Cairo, sans-serif' } : {}}
@@ -182,8 +220,8 @@ const ProgramOverview: React.FC = () => {
                         {getContent('program_phd_research')}
                       </span>
                     </div>
-                    <div className="flex items-center">
-                      <GraduationCap className="w-5 h-5 text-white mr-3" />
+                    <div className={`flex items-center gap-3 ${isArabic ? 'flex-row-reverse justify-end text-right' : ''}`}>
+                      <GraduationCap className="w-5 h-5 text-white" />
                       <span 
                         className="text-white/90"
                         style={isArabic ? { fontFamily: 'Cairo, sans-serif' } : {}}
@@ -191,8 +229,8 @@ const ProgramOverview: React.FC = () => {
                         {getContent('program_phd_academic')}
                       </span>
                     </div>
-                    <div className="flex items-center">
-                      <Users className="w-5 h-5 text-white mr-3" />
+                    <div className={`flex items-center gap-3 ${isArabic ? 'flex-row-reverse justify-end text-right' : ''}`}>
+                      <Users className="w-5 h-5 text-white" />
                       <span 
                         className="text-white/90"
                         style={isArabic ? { fontFamily: 'Cairo, sans-serif' } : {}}
@@ -205,12 +243,12 @@ const ProgramOverview: React.FC = () => {
 
                 <Link 
                   href="/programs?programType=DBA"
-                  className="inline-flex items-center justify-center bg-white hover:bg-gray-100 text-primary font-bold py-4 px-8 rounded-xl transition-all duration-300 group-hover:scale-105 shadow-lg"
+                  className="inline-flex items-center justify-center bg-white hover:bg-gray-100 text-primary font-bold py-4 px-8 rounded-xl transition-all duration-300 group-hover:scale-105 shadow-lg whitespace-nowrap"
                   style={isArabic ? { fontFamily: 'Cairo, sans-serif' } : {}}
                 >
                   {getContent('program_explore_phd')}
                   <ArrowRight 
-                    className="w-5 h-5 group-hover:translate-x-1 transition-transform ml-2"
+                    className={`w-5 h-5 transition-transform ${isArabic ? 'mr-2 group-hover:-translate-x-1' : 'ml-2 group-hover:translate-x-1'}`}
                     style={isArabic ? { transform: 'scaleX(-1)' } : {}}
                   />
                 </Link>
