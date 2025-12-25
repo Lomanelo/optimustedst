@@ -2,7 +2,11 @@ import { NextResponse } from 'next/server';
 import { getGoogleCalendarSettingsAdmin } from '../../../../src/server/googleCalendarStore';
 
 export async function GET() {
-  const envOk = !!(process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET && process.env.GOOGLE_REDIRECT_URI);
+  const missingEnv: string[] = [];
+  if (!process.env.GOOGLE_CLIENT_ID) missingEnv.push('GOOGLE_CLIENT_ID');
+  if (!process.env.GOOGLE_CLIENT_SECRET) missingEnv.push('GOOGLE_CLIENT_SECRET');
+  if (!process.env.GOOGLE_REDIRECT_URI) missingEnv.push('GOOGLE_REDIRECT_URI');
+  const envOk = missingEnv.length === 0;
 
   // Connected if either admin-store has token OR env refresh token is set.
   const envRefresh = !!process.env.GOOGLE_REFRESH_TOKEN;
@@ -10,6 +14,19 @@ export async function GET() {
   let connectedEmail: string | undefined;
   let calendarId: string | undefined;
   let adminOk = true;
+  let adminError: string | undefined;
+
+  const missingAdminEnv: string[] = [];
+  const hasServiceAccountJson = !!process.env.FIREBASE_SERVICE_ACCOUNT_JSON;
+  const hasSplitAdmin =
+    !!process.env.FIREBASE_ADMIN_PROJECT_ID &&
+    !!process.env.FIREBASE_ADMIN_CLIENT_EMAIL &&
+    !!process.env.FIREBASE_ADMIN_PRIVATE_KEY;
+  if (!hasServiceAccountJson && !hasSplitAdmin) {
+    missingAdminEnv.push(
+      'FIREBASE_SERVICE_ACCOUNT_JSON (recommended) OR FIREBASE_ADMIN_PROJECT_ID + FIREBASE_ADMIN_CLIENT_EMAIL + FIREBASE_ADMIN_PRIVATE_KEY'
+    );
+  }
 
   try {
     const s = await getGoogleCalendarSettingsAdmin();
@@ -18,6 +35,7 @@ export async function GET() {
     calendarId = s?.calendarId || undefined;
   } catch (e) {
     adminOk = false;
+    adminError = e instanceof Error ? e.message : 'unknown_admin_error';
   }
 
   return NextResponse.json({
@@ -26,7 +44,10 @@ export async function GET() {
     connected: adminConnected || envRefresh,
     connectedEmail: connectedEmail || (process.env.GOOGLE_CALENDAR_OWNER_EMAIL || process.env.CALENDAR_ORGANIZER_EMAIL || undefined),
     calendarId: calendarId || process.env.GOOGLE_CALENDAR_ID || 'primary',
-    using: adminConnected ? 'firestore_admin' : envRefresh ? 'env_refresh_token' : 'none'
+    using: adminConnected ? 'firestore_admin' : envRefresh ? 'env_refresh_token' : 'none',
+    missingEnv,
+    missingAdminEnv,
+    adminError
   });
 }
 
