@@ -9,6 +9,7 @@ import {
   Save,
   Settings,
   Globe,
+  Calendar,
   Facebook,
   Instagram,
   Twitter,
@@ -22,6 +23,12 @@ import {
 import { SiTiktok, SiSnapchat, SiX } from 'react-icons/si';
 import { doc, getDoc, setDoc, updateDoc } from 'firebase/firestore';
 import { db } from '../../../src/firebase/firebase';
+import meetingAvailabilityService, {
+  DEFAULT_MEETING_AVAILABILITY,
+  MeetingAvailabilitySettings,
+  WeekdayKey
+} from '../../../src/services/meetingAvailabilityService';
+import googleCalendarSettingsService, { GoogleCalendarSettings } from '../../../src/services/googleCalendarSettingsService';
 
 interface SocialMediaLinks {
   facebook: string;
@@ -54,6 +61,13 @@ export default function AdminSettingsPage() {
     tiktok: ''
   });
 
+  const [meetingAvailability, setMeetingAvailability] = useState<MeetingAvailabilitySettings>(
+    DEFAULT_MEETING_AVAILABILITY
+  );
+  const [meetingLoading, setMeetingLoading] = useState(false);
+  const [googleCalendar, setGoogleCalendar] = useState<GoogleCalendarSettings | null>(null);
+  const [googleCalendarLoading, setGoogleCalendarLoading] = useState(false);
+
   useEffect(() => {
     if (!isLoading && (!currentUser || (userRole !== 'admin' && !hasPermission('settings')))) {
       router.push('/admin/dashboard');
@@ -67,6 +81,8 @@ export default function AdminSettingsPage() {
 
   const loadSettings = async () => {
     try {
+      setMeetingLoading(true);
+      setGoogleCalendarLoading(true);
       const settingsRef = doc(db, 'websiteSettings', 'general');
       const settingsSnap = await getDoc(settingsRef);
       
@@ -82,8 +98,19 @@ export default function AdminSettingsPage() {
           tiktok: ''
         });
       }
+
+      // Load meeting availability settings (best-effort)
+      const meeting = await meetingAvailabilityService.getSettings();
+      setMeetingAvailability(meeting);
+
+      // Load Google Calendar connection (best-effort)
+      const gcal = await googleCalendarSettingsService.get();
+      setGoogleCalendar(gcal);
     } catch (error) {
       console.error('Error loading settings:', error);
+    } finally {
+      setMeetingLoading(false);
+      setGoogleCalendarLoading(false);
     }
   };
 
@@ -110,6 +137,9 @@ export default function AdminSettingsPage() {
       const settingsRef = doc(db, 'websiteSettings', 'general');
       await setDoc(settingsRef, settingsData, { merge: true });
 
+      // Save meeting availability
+      await meetingAvailabilityService.updateSettings(meetingAvailability, currentUser.email || 'Unknown');
+
       setSaveStatus('success');
       setTimeout(() => setSaveStatus('idle'), 3000);
     } catch (error) {
@@ -119,6 +149,44 @@ export default function AdminSettingsPage() {
     } finally {
       setSaving(false);
     }
+  };
+
+  const handleDisconnectGoogleCalendar = async () => {
+    if (!currentUser) return;
+    try {
+      setSaving(true);
+      await googleCalendarSettingsService.disconnect(currentUser.email || 'Unknown');
+      const gcal = await googleCalendarSettingsService.get();
+      setGoogleCalendar(gcal);
+    } catch (e) {
+      console.error('Failed to disconnect Google Calendar:', e);
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const weekdayLabels: Record<WeekdayKey, string> = {
+    sunday: 'Sunday (الأحد)',
+    monday: 'Monday (الاثنين)',
+    tuesday: 'Tuesday (الثلاثاء)',
+    wednesday: 'Wednesday (الأربعاء)',
+    thursday: 'Thursday (الخميس)',
+    friday: 'Friday (الجمعة)',
+    saturday: 'Saturday (السبت)'
+  };
+
+  const weekdayOrder: WeekdayKey[] = [
+    'sunday',
+    'monday',
+    'tuesday',
+    'wednesday',
+    'thursday',
+    'friday',
+    'saturday'
+  ];
+
+  const applyMeetingPreset = () => {
+    setMeetingAvailability(DEFAULT_MEETING_AVAILABILITY);
   };
 
   const getSocialIcon = (platform: keyof SocialMediaLinks) => {
@@ -272,6 +340,177 @@ export default function AdminSettingsPage() {
                 </div>
               ))}
             </div>
+          </div>
+        </div>
+
+        {/* Meeting Availability Settings */}
+        <div className="bg-white rounded-lg shadow-sm border border-gray-200 mb-8">
+          <div className="px-6 py-4 border-b border-gray-200">
+            <h2 className="text-lg font-semibold text-gray-900 flex items-center">
+              <MessageCircle size={20} className="mr-2 text-[#2B1F4F]" />
+              Book-a-Call Availability
+            </h2>
+            <p className="text-sm text-gray-600 mt-1">
+              Configure weekly hours and meeting slot duration (public page: <code>/book-a-call</code>)
+            </p>
+          </div>
+          <div className="p-6">
+            <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
+              <div className="flex items-center gap-3">
+                <label className="text-sm font-medium text-gray-700">Slot duration (minutes)</label>
+                <input
+                  type="number"
+                  min={5}
+                  step={5}
+                  value={meetingAvailability.slotDurationMinutes}
+                  onChange={(e) =>
+                    setMeetingAvailability((p) => ({
+                      ...p,
+                      slotDurationMinutes: Math.max(5, parseInt(e.target.value || '30', 10))
+                    }))
+                  }
+                  className="w-24 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2B1F4F]"
+                />
+              </div>
+              <div className="flex items-center gap-3">
+                <label className="text-sm font-medium text-gray-700">Timezone</label>
+                <input
+                  type="text"
+                  value={meetingAvailability.timezone}
+                  onChange={(e) => setMeetingAvailability((p) => ({ ...p, timezone: e.target.value }))}
+                  className="w-56 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2B1F4F]"
+                  placeholder="Asia/Riyadh"
+                />
+              </div>
+              <button
+                type="button"
+                onClick={applyMeetingPreset}
+                className="inline-flex items-center px-4 py-2 rounded-lg text-sm font-medium bg-gray-100 hover:bg-gray-200 transition-colors"
+              >
+                Apply default schedule
+              </button>
+            </div>
+
+            <div className="space-y-4">
+              {weekdayOrder.map((day) => {
+                const d = meetingAvailability.weekly[day];
+                return (
+                  <div key={day} className="border border-gray-200 rounded-lg p-4">
+                    <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                      <div className="font-medium text-gray-900">{weekdayLabels[day]}</div>
+                      <div className="flex items-center gap-3">
+                        <label className="text-sm text-gray-700">Open</label>
+                        <input
+                          type="checkbox"
+                          checked={d.isOpen}
+                          onChange={(e) =>
+                            setMeetingAvailability((p) => ({
+                              ...p,
+                              weekly: {
+                                ...p.weekly,
+                                [day]: { ...p.weekly[day], isOpen: e.target.checked }
+                              }
+                            }))
+                          }
+                          className="h-4 w-4"
+                        />
+                      </div>
+                      <div className="flex items-center gap-3">
+                        <label className="text-sm text-gray-700">From</label>
+                        <input
+                          type="time"
+                          value={d.openTime}
+                          onChange={(e) =>
+                            setMeetingAvailability((p) => ({
+                              ...p,
+                              weekly: {
+                                ...p.weekly,
+                                [day]: { ...p.weekly[day], openTime: e.target.value }
+                              }
+                            }))
+                          }
+                          className="px-3 py-2 border border-gray-300 rounded-lg"
+                        />
+                        <label className="text-sm text-gray-700">To</label>
+                        <input
+                          type="time"
+                          value={d.closeTime}
+                          onChange={(e) =>
+                            setMeetingAvailability((p) => ({
+                              ...p,
+                              weekly: {
+                                ...p.weekly,
+                                [day]: { ...p.weekly[day], closeTime: e.target.value }
+                              }
+                            }))
+                          }
+                          className="px-3 py-2 border border-gray-300 rounded-lg"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+
+            {meetingLoading && (
+              <p className="text-xs text-gray-500 mt-4">
+                Loading meeting availability settings...
+              </p>
+            )}
+          </div>
+        </div>
+
+        {/* Google Calendar Integration */}
+        <div className="bg-white rounded-lg shadow-sm border border-gray-200 mb-8">
+          <div className="px-6 py-4 border-b border-gray-200">
+            <h2 className="text-lg font-semibold text-gray-900 flex items-center">
+              <Calendar size={20} className="mr-2 text-[#2B1F4F]" />
+              Google Calendar Integration
+            </h2>
+            <p className="text-sm text-gray-600 mt-1">
+              Connect <strong>optimusksa@gmail.com</strong> once to auto-create events for Book-a-Call requests.
+            </p>
+          </div>
+          <div className="p-6">
+            <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+              <div>
+                <p className="text-sm text-gray-700">
+                  <span className="font-medium">Status:</span>{' '}
+                  {googleCalendar?.refreshToken ? (
+                    <span className="text-green-700">Connected{googleCalendar.connectedEmail ? ` (${googleCalendar.connectedEmail})` : ''}</span>
+                  ) : (
+                    <span className="text-gray-600">Not connected</span>
+                  )}
+                </p>
+                <p className="text-xs text-gray-500 mt-1">
+                  Redirect URI must be set in Google Cloud Console and Netlify env vars.
+                </p>
+              </div>
+
+              <div className="flex items-center gap-3">
+                {!googleCalendar?.refreshToken ? (
+                  <a
+                    href="/api/google-calendar/auth"
+                    className="inline-flex items-center px-5 py-2.5 rounded-lg text-sm font-medium bg-[#2B1F4F] text-white hover:bg-[#2B1F4F]/90 transition-colors"
+                  >
+                    Connect Google Calendar
+                  </a>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={handleDisconnectGoogleCalendar}
+                    className="inline-flex items-center px-5 py-2.5 rounded-lg text-sm font-medium bg-gray-100 hover:bg-gray-200 transition-colors"
+                  >
+                    Disconnect
+                  </button>
+                )}
+              </div>
+            </div>
+
+            {googleCalendarLoading && (
+              <p className="text-xs text-gray-500 mt-4">Loading Google Calendar status...</p>
+            )}
           </div>
         </div>
 

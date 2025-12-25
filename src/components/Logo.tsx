@@ -20,8 +20,8 @@ const Logo: React.FC<LogoProps> = ({ className = '', withText = true, variant = 
       <img 
         src={logoSrc} 
         alt="Optimus Solutions Logo" 
-        className="h-16 md:h-20" 
-        style={{ width: 'auto', height: isArabic ? '60px' : undefined }}
+        className="h-11 md:h-14"
+        style={{ width: 'auto', height: isArabic ? '42px' : undefined }}
         onError={(e) => {
           const target = e.currentTarget as HTMLImageElement;
           target.onerror = null;
