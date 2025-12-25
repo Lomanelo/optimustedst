@@ -196,6 +196,7 @@ Target Metrics After 1 Week:
 2. **GTmetrix**
 
    - https://gtmetrix.com/
+
    - Target: Grade A
 
 3. **Google Mobile-Friendly Test**
