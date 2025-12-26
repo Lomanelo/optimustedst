@@ -105,6 +105,21 @@ export default function BookACallPage() {
   const { currentLanguage, getContent } = useCMS();
   const isArabic = currentLanguage === 'ar';
 
+  // Resolve title/subtitle with safe fallbacks if CMS returns the key itself or empty
+  const rawTitle = getContent('book_call_title');
+  const titleText =
+    rawTitle && rawTitle !== 'book_call_title'
+      ? rawTitle
+      : (isArabic ? 'احجز موعد مكالمة' : 'Book a Call');
+
+  const rawSubtitle = getContent('book_call_subtitle');
+  const subtitleText =
+    rawSubtitle && rawSubtitle !== 'book_call_subtitle'
+      ? rawSubtitle
+      : (isArabic
+          ? 'اختر التاريخ والوقت المناسب لك ضمن أوقات العمل المتاحة. مدة كل اجتماع ٣٠ دقيقة.'
+          : 'Choose a date and time within our available hours. Each meeting is 30 minutes.');
+
   const [settings, setSettings] = useState<MeetingAvailabilitySettings>(DEFAULT_MEETING_AVAILABILITY);
   const [settingsLoaded, setSettingsLoaded] = useState(false);
 
@@ -210,13 +225,10 @@ export default function BookACallPage() {
         <div className="container mx-auto px-4 py-8 max-w-5xl">
           <div className="text-center mb-10">
             <h1 className="text-4xl font-bold text-primary mb-3">
-              {getContent('book_call_title') || (isArabic ? 'احجز موعد مكالمة' : 'Book a Call')}
+              {titleText}
             </h1>
             <p className="text-gray-600">
-              {getContent('book_call_subtitle') ||
-                (isArabic
-                  ? 'اختر التاريخ والوقت المناسب لك ضمن أوقات العمل المتاحة. مدة كل اجتماع ٣٠ دقيقة.'
-                  : 'Choose a date and time within our available hours. Each meeting is 30 minutes.')}
+              {subtitleText}
             </p>
           </div>
 
@@ -285,29 +297,59 @@ export default function BookACallPage() {
                         />
                       </div>
                     </div>
-                    <div>
-                      <label className="block text-gray-700 font-medium mb-2">
-                        {isArabic ? 'التاريخ' : 'Date'}*
-                      </label>
-                      <div className="relative">
-                        <Calendar className={`absolute top-1/2 -translate-y-1/2 text-gray-400 ${isArabic ? 'right-3' : 'left-3'}`} size={18} />
-                        <input
-                          type="date"
-                          value={dateValue}
-                          min={minDate}
-                          max={maxDate}
-                          onChange={(e) => setDateValue(e.target.value)}
-                          className={`w-full px-10 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-accent ${
-                            isArabic ? 'text-right' : 'text-left'
-                          }`}
-                          required
-                        />
-                      </div>
-                      <p className="mt-2 text-xs text-gray-500">
-                        {isArabic ? `اليوم المختار: ${weekdayLabel}` : `Selected day: ${weekdayLabel}`}
-                      </p>
-                    </div>
                   </div>
+
+              {/* Mobile-only availability block (shown between contact info and date) */}
+              <div className="bg-white rounded-lg shadow-md p-6 md:hidden">
+                <h2 className="text-xl font-bold text-primary mb-4">{isArabic ? 'مواعيدنا المتاحة' : 'Our availability'}</h2>
+                <p className="text-sm text-gray-600 mb-4">
+                  {isArabic ? 'مدة كل اجتماع: ٣٠ دقيقة' : 'Meeting duration: 30 minutes'}
+                  {settings.timezone ? ` · ${settings.timezone}` : ''}
+                </p>
+                <div className="space-y-3 text-sm">
+                  {WEEKDAY_ORDER.map((day) => {
+                    const d = settings.weekly[day];
+                    const label = isArabic ? WEEKDAY_LABELS[day].ar : WEEKDAY_LABELS[day].en;
+                    return (
+                      <div key={day} className="flex items-start justify-between gap-4">
+                        <span className="font-medium text-gray-800">{label}</span>
+                        <span className="text-gray-600">
+                          {d.isOpen ? `${d.openTime} - ${d.closeTime}` : isArabic ? 'مغلق' : 'Closed'}
+                        </span>
+                      </div>
+                    );
+                  })}
+                </div>
+                {!settingsLoaded && (
+                  <p className="mt-4 text-xs text-gray-500">
+                    {isArabic ? 'جارٍ تحميل الإعدادات...' : 'Loading settings...'}
+                  </p>
+                )}
+              </div>
+
+              {/* Date picker moved below contact info and after mobile availability */}
+              <div>
+                <label className="block text-gray-700 font-medium mb-2">
+                  {isArabic ? 'التاريخ' : 'Date'}*
+                </label>
+                <div className="relative">
+                  <Calendar className={`absolute top-1/2 -translate-y-1/2 text-gray-400 ${isArabic ? 'right-3' : 'left-3'}`} size={18} />
+                  <input
+                    type="date"
+                    value={dateValue}
+                    min={minDate}
+                    max={maxDate}
+                    onChange={(e) => setDateValue(e.target.value)}
+                    className={`w-full px-10 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-accent ${
+                      isArabic ? 'text-right' : 'text-left'
+                    }`}
+                    required
+                  />
+                </div>
+                <p className="mt-2 text-xs text-gray-500">
+                  {isArabic ? `اليوم المختار: ${weekdayLabel}` : `Selected day: ${weekdayLabel}`}
+                </p>
+              </div>
 
                   <div>
                     <label className="block text-gray-700 font-medium mb-2">
@@ -372,7 +414,7 @@ export default function BookACallPage() {
               </div>
             </div>
 
-            <div className="space-y-6">
+            <div className="space-y-6 hidden lg:block">
               <div className="bg-white rounded-lg shadow-md p-6">
                 <h2 className="text-xl font-bold text-primary mb-4">{isArabic ? 'مواعيدنا المتاحة' : 'Our availability'}</h2>
                 <p className="text-sm text-gray-600 mb-4">

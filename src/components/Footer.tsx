@@ -73,8 +73,8 @@ const Footer: React.FC = () => {
               <img 
                 src={logoSrc} 
                 alt="Optimus Solutions Logo" 
-                className="h-11 md:h-14" 
-                style={{ width: 'auto', height: isArabic ? '45px' : undefined }} 
+                className="h-16 md:h-20" 
+                style={{ width: 'auto', height: isArabic ? '64px' : undefined }} 
                 onError={(e) => {
                   const target = e.currentTarget as HTMLImageElement;
                   target.onerror = null;
@@ -99,9 +99,8 @@ const Footer: React.FC = () => {
               <li><a href="/about" className="text-white/80 hover:text-accent transition-colors">{getContent('footer_link_about')}</a></li>
               <li><a href="/testimonials" className="text-white/80 hover:text-accent transition-colors">{isArabic ? 'الشهادات' : 'Testimonials'}</a></li>
               <li><a href="/blog" className="text-white/80 hover:text-accent transition-colors">{getContent('footer_link_blog')}</a></li>
-              <li><a href="/book-a-call" className="text-white/80 hover:text-accent transition-colors">{isArabic ? 'احجز مكالمة' : 'Book a Call'}</a></li>
               <li><a href="/resources/career-guide" className="text-white/80 hover:text-accent transition-colors">{isArabic ? 'دليل المسار المهني' : 'Career Guide'}</a></li>
-              <li><a href="/contact" className="text-white/80 hover:text-accent transition-colors">{isArabic ? 'تواصل معنا' : 'Contact Us'}</a></li>
+              <li><a href="/contact" className="text-white/80 hover:text-accent transition-colors">{getContent('footer_link_contact')}</a></li>
             </ul>
           </div>
           

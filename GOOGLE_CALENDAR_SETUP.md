@@ -46,3 +46,4 @@ If the connection succeeds, the status will show **Connected**.
 Treat `GOOGLE_CLIENT_SECRET` like a password. If it is ever pasted into chat, rotated, or leaked, **rotate it immediately** in Google Cloud Console and update Netlify.
 
 
+
