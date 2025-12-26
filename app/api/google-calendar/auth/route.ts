@@ -19,8 +19,17 @@ export async function GET(req: NextRequest) {
   // to the configured origin to start the flow there.
   try {
     const configuredOrigin = new URL(redirectUri).origin;
-    const requestOrigin = req.nextUrl.origin;
-    if (configuredOrigin && requestOrigin && configuredOrigin !== requestOrigin) {
+    const configuredHost = new URL(redirectUri).host;
+
+    // On Netlify/proxies, req.nextUrl.origin can reflect an internal protocol and cause loops.
+    // Compare by hostname/host only, and prefer forwarded host headers.
+    const forwardedHost =
+      req.headers.get('x-forwarded-host')?.split(',')[0].trim() ||
+      req.headers.get('host')?.split(',')[0].trim() ||
+      '';
+
+    const requestHost = forwardedHost || req.nextUrl.host;
+    if (configuredOrigin && configuredHost && requestHost && configuredHost !== requestHost) {
       return NextResponse.redirect(new URL('/api/google-calendar/auth', configuredOrigin));
     }
   } catch {
