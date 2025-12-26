@@ -233,6 +233,25 @@ export default function BookACallPage() {
     <ClientLayout>
       <div className="pt-20 pb-16 bg-gray-50" dir={isArabic ? 'rtl' : 'ltr'}>
         <div className="container mx-auto px-4 py-8 max-w-5xl">
+          {/* Loading overlay while submitting */}
+          {submitting ? (
+            <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+              <div className="bg-white rounded-lg shadow-lg px-6 py-5 w-[min(92vw,420px)]">
+                <div className="flex items-center gap-3">
+                  <div className="h-6 w-6 rounded-full border-2 border-gray-300 border-t-accent animate-spin" />
+                  <div>
+                    <p className="text-sm font-semibold text-gray-900">
+                      {isArabic ? 'جارٍ تأكيد الحجز...' : 'Confirming your booking...'}
+                    </p>
+                    <p className="text-xs text-gray-600 mt-1">
+                      {isArabic ? 'يرجى الانتظار قليلًا.' : 'Please wait a moment.'}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          ) : null}
+
           <div className="text-center mb-10">
             <h1 className="text-4xl font-bold text-primary mb-3">
               {titleText}
@@ -261,16 +280,7 @@ export default function BookACallPage() {
                           {calendarInfo.created ? (
                             <div className="space-y-1">
                               <p>{isArabic ? 'تم إنشاء الموعد في تقويم Google.' : 'A Google Calendar event was created.'}</p>
-                              {calendarInfo.link ? (
-                                <a
-                                  href={calendarInfo.link}
-                                  target="_blank"
-                                  rel="noreferrer"
-                                  className="underline"
-                                >
-                                  {isArabic ? 'فتح الموعد في التقويم' : 'Open event in Google Calendar'}
-                                </a>
-                              ) : null}
+                              {/* Link removed per request */}
                             </div>
                           ) : (
                             <div className="space-y-1">
