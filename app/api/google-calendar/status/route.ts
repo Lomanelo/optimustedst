@@ -8,6 +8,13 @@ export async function GET() {
   if (!process.env.GOOGLE_CLIENT_SECRET) missingEnv.push('GOOGLE_CLIENT_SECRET');
   if (!process.env.GOOGLE_REDIRECT_URI) missingEnv.push('GOOGLE_REDIRECT_URI');
   const envOk = missingEnv.length === 0;
+  const configuredRedirectUri = process.env.GOOGLE_REDIRECT_URI;
+  let configuredRedirectOrigin: string | undefined;
+  try {
+    if (configuredRedirectUri) configuredRedirectOrigin = new URL(configuredRedirectUri).origin;
+  } catch {
+    configuredRedirectOrigin = undefined;
+  }
 
   // Connected if either admin-store has token OR env refresh token is set.
   const envRefresh = !!process.env.GOOGLE_REFRESH_TOKEN;
@@ -56,6 +63,7 @@ export async function GET() {
     connectedEmail: connectedEmail || (process.env.GOOGLE_CALENDAR_OWNER_EMAIL || process.env.CALENDAR_ORGANIZER_EMAIL || undefined),
     calendarId: calendarId || process.env.GOOGLE_CALENDAR_ID || 'primary',
     using: adminConnected ? 'firestore_admin' : envRefresh ? 'env_refresh_token' : 'none',
+    configuredRedirectOrigin,
     missingEnv,
     missingAdminEnv,
     adminError,
