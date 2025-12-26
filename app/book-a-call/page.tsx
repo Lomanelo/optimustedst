@@ -419,26 +419,31 @@ export default function BookACallPage() {
                         {isArabic ? 'لا توجد فترات متاحة ضمن ساعات العمل لهذا اليوم.' : 'No slots available within working hours for this day.'}
                       </div>
                     ) : (
-                      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
-                        {slots.map((s) => {
-                          const key = s.start.toISOString();
-                          const selected = selectedSlotStartIso === key;
-                          return (
-                            <button
-                              key={key}
-                              type="button"
-                              onClick={() => setSelectedSlotStartIso(key)}
-                              className={`flex items-center gap-2 px-3 py-2 rounded-md border text-sm transition-colors ${
-                                selected
-                                  ? 'border-accent bg-accent text-white'
-                                  : 'border-gray-200 hover:border-accent hover:bg-accent/5 text-gray-700'
-                              }`}
-                            >
-                              <Clock size={16} className={selected ? 'text-white' : 'text-gray-500'} />
-                              <span className="whitespace-nowrap">{s.label}</span>
-                            </button>
-                          );
-                        })}
+                      <div className="relative">
+                        <Clock
+                          size={18}
+                          className={`absolute top-1/2 -translate-y-1/2 text-gray-400 ${isArabic ? 'right-3' : 'left-3'}`}
+                        />
+                        <select
+                          value={selectedSlotStartIso}
+                          onChange={(e) => setSelectedSlotStartIso(e.target.value)}
+                          required
+                          className={`w-full px-10 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-accent ${
+                            isArabic ? 'text-right' : 'text-left'
+                          }`}
+                        >
+                          <option value="">
+                            {isArabic ? 'اختر وقتاً' : 'Select a time'}
+                          </option>
+                          {slots.map((s) => {
+                            const key = s.start.toISOString();
+                            return (
+                              <option key={key} value={key}>
+                                {s.label}
+                              </option>
+                            );
+                          })}
+                        </select>
                       </div>
                     )}
                   </div>
