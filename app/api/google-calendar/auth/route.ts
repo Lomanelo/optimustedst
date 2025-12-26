@@ -17,7 +17,9 @@ export async function GET() {
   const authUrl = oauth2.generateAuthUrl({
     access_type: 'offline',
     prompt: 'consent',
-    scope: ['https://www.googleapis.com/auth/calendar.events', 'https://www.googleapis.com/auth/calendar.readonly']
+    // Keep scopes minimal. We need Calendar write access + identity (to enforce the allowedEmail check in callback).
+    scope: ['https://www.googleapis.com/auth/calendar.events', 'openid', 'email', 'profile'],
+    include_granted_scopes: true
   });
 
   return NextResponse.redirect(authUrl);

@@ -26,7 +26,8 @@ export async function GET(req: NextRequest) {
   }
 
   if (!code) {
-    return NextResponse.json({ error: 'Missing code' }, { status: 400 });
+    // Usually means the callback URL was opened directly (not via /api/google-calendar/auth).
+    return NextResponse.redirect(new URL('/admin/settings?gcal=error&reason=missing_code', url.origin));
   }
 
   const oauth2 = new google.auth.OAuth2(clientId, clientSecret, redirectUri);
