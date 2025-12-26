@@ -98,7 +98,6 @@ const Navbar: React.FC = () => {
   const navLinks = [
     { href: "/programs", label: getContent('navbar_programs') },
     { href: "/about", label: getContent('navbar_about') },
-    { href: "/blog", label: getContent('navbar_blog') },
     { href: "/book-a-call", label: currentLanguage === 'ar' ? 'احجز مكالمة' : 'Book a Call' },
     { href: "/contact", label: currentLanguage === 'ar' ? 'تواصل معنا' : 'Contact Us' },
   ];

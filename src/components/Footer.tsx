@@ -67,7 +67,7 @@ const Footer: React.FC = () => {
       />
       
       <div className="container mx-auto px-4 md:px-6 py-12 relative z-10">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-8">
           <div className="flex flex-col items-start">
             <div className="mb-4 inline-block rounded">
               <img 
@@ -97,9 +97,6 @@ const Footer: React.FC = () => {
             <ul className="space-y-2">
               <li><a href="/programs" className="text-white/80 hover:text-accent transition-colors">{getContent('footer_link_programs')}</a></li>
               <li><a href="/about" className="text-white/80 hover:text-accent transition-colors">{getContent('footer_link_about')}</a></li>
-              <li><a href="/testimonials" className="text-white/80 hover:text-accent transition-colors">{isArabic ? 'الشهادات' : 'Testimonials'}</a></li>
-              <li><a href="/blog" className="text-white/80 hover:text-accent transition-colors">{getContent('footer_link_blog')}</a></li>
-              <li><a href="/resources/career-guide" className="text-white/80 hover:text-accent transition-colors">{isArabic ? 'دليل المسار المهني' : 'Career Guide'}</a></li>
               <li><a href="/contact" className="text-white/80 hover:text-accent transition-colors">{getContent('footer_link_contact')}</a></li>
             </ul>
           </div>
@@ -112,27 +109,6 @@ const Footer: React.FC = () => {
               <li className="text-white/80">{contactInfo.generalInquiriesEmail}</li>
               <li><a href="/contact" className="text-accent hover:underline">{getContent('footer_get_in_touch')}</a></li>
             </ul>
-          </div>
-
-          <div>
-            <h3 className="text-lg font-bold mb-4">{getContent('footer_newsletter_title')}</h3>
-            <p className="text-white/80 text-sm mb-4">
-              {getFormattedContent('footer_newsletter_description')}
-            </p>
-            <div className={`flex ${isArabic ? 'flex-row-reverse' : 'flex-row'}`}>
-              <input
-                type="email"
-                placeholder={getContent('footer_newsletter_placeholder')}
-                className={`flex-1 px-3 py-2 text-gray-900 text-sm focus:outline-none ${
-                  isArabic ? 'rounded-r-lg' : 'rounded-l-lg'
-                }`}
-              />
-              <button className={`bg-accent hover:bg-accent-dark px-4 py-2 text-sm font-medium transition-colors ${
-                isArabic ? 'rounded-l-lg' : 'rounded-r-lg'
-              }`}>
-                {getContent('footer_newsletter_subscribe')}
-              </button>
-            </div>
           </div>
         </div>
         
