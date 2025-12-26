@@ -97,7 +97,11 @@ const Footer: React.FC = () => {
             <ul className="space-y-2">
               <li><a href="/programs" className="text-white/80 hover:text-accent transition-colors">{getContent('footer_link_programs')}</a></li>
               <li><a href="/about" className="text-white/80 hover:text-accent transition-colors">{getContent('footer_link_about')}</a></li>
-              <li><a href="/contact" className="text-white/80 hover:text-accent transition-colors">{getContent('footer_link_contact')}</a></li>
+              <li>
+                <a href="/contact" className="text-white/80 hover:text-accent transition-colors">
+                  {isArabic ? 'تواصل معنا' : 'Contact Us'}
+                </a>
+              </li>
             </ul>
           </div>
           
@@ -107,7 +111,6 @@ const Footer: React.FC = () => {
               <li className="text-white/80">{getContent('footer_address')}</li>
               <li className="text-white/80">{formatPhoneNumber(contactInfo.phoneNumber)}</li>
               <li className="text-white/80">{contactInfo.generalInquiriesEmail}</li>
-              <li><a href="/contact" className="text-accent hover:underline">{getContent('footer_get_in_touch')}</a></li>
             </ul>
           </div>
         </div>
