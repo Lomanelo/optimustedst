@@ -10,12 +10,18 @@ export function middleware(request: NextRequest) {
   // Force HTTPS redirect (if not already on HTTPS)
   if (
     process.env.NODE_ENV === 'production' &&
-    request.headers.get('x-forwarded-proto') !== 'https'
+    // Netlify/edge environments can present confusing protocol info. Only redirect when the proxy
+    // explicitly reports "http" to avoid redirect loops.
+    (() => {
+      const xfProtoRaw = request.headers.get('x-forwarded-proto');
+      if (!xfProtoRaw) return false;
+      const xfProto = xfProtoRaw.split(',')[0].trim().toLowerCase();
+      return xfProto === 'http';
+    })()
   ) {
-    return NextResponse.redirect(
-      `https://${request.headers.get('host')}${pathname}`,
-      301
-    );
+    const url = request.nextUrl.clone();
+    url.protocol = 'https:';
+    return NextResponse.redirect(url, 301);
   }
 
   // Create response
@@ -43,7 +49,6 @@ export function middleware(request: NextRequest) {
 
   // Redirect old/common wrong URLs to correct ones
   const redirects: Record<string, string> = {
-    '/programme': '/programs',
     '/programme': '/programs',
     '/courses': '/programs',
     '/aboutus': '/about',
