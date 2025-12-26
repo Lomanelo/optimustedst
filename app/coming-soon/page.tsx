@@ -65,6 +65,14 @@ export default function ComingSoonPage() {
   });
 
   useEffect(() => {
+    // We are live: keep /coming-soon for old links, but redirect to /register (preserve query params).
+    if (typeof window !== 'undefined') {
+      const url = new URL(window.location.href);
+      url.pathname = '/register';
+      window.location.replace(url.toString());
+      return;
+    }
+
     loadSocialMediaLinks();
     captureUTMParameters();
     

@@ -87,7 +87,7 @@ export default function LoginPage() {
             <div className="text-center mt-4">
               <p className="text-sm text-gray-600">
                   {getContent('login_no_account')}{' '}
-                  <Link href="/coming-soon" className="font-medium text-primary-light hover:text-primary-dark">{getContent('login_sign_up')}</Link>
+                  <Link href="/register" className="font-medium text-primary-light hover:text-primary-dark">{getContent('login_sign_up')}</Link>
               </p>
             </div>
             )}

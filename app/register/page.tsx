@@ -339,9 +339,15 @@ export default function ComingSoonPage() {
         document.body.removeChild(iframe);
         document.body.removeChild(form);
         
-        // Redirect to success page
+        // Mark as submitted on THIS page (we are live; no more /coming-soon redirects)
         if (typeof window !== 'undefined') {
-          window.location.href = `/coming-soon?success=true&lang=${language}`;
+          const url = new URL(window.location.href);
+          url.pathname = '/register';
+          url.searchParams.set('success', 'true');
+          url.searchParams.set('lang', language);
+          // Keep any existing UTM params for attribution
+          window.history.replaceState({}, '', url.toString());
+          setIsSubmitted(true);
         }
       }, 1000);
 
