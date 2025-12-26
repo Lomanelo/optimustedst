@@ -7,23 +7,6 @@ import type { NextRequest } from 'next/server';
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
-  // Force HTTPS redirect (if not already on HTTPS)
-  if (
-    process.env.NODE_ENV === 'production' &&
-    // Netlify/edge environments can present confusing protocol info. Only redirect when the proxy
-    // explicitly reports "http" to avoid redirect loops.
-    (() => {
-      const xfProtoRaw = request.headers.get('x-forwarded-proto');
-      if (!xfProtoRaw) return false;
-      const xfProto = xfProtoRaw.split(',')[0].trim().toLowerCase();
-      return xfProto === 'http';
-    })()
-  ) {
-    const url = request.nextUrl.clone();
-    url.protocol = 'https:';
-    return NextResponse.redirect(url, 301);
-  }
-
   // Create response
   const response = NextResponse.next();
 
