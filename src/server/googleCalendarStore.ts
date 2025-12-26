@@ -10,6 +10,14 @@ export interface GoogleCalendarStoredSettings {
 
 const DOC_PATH = { collection: 'settings', doc: 'googleCalendar' };
 
+export interface GoogleCalendarSettingsDebug {
+  exists: boolean;
+  hasRefreshToken: boolean;
+  connectedEmail?: string | null;
+  calendarId?: string | null;
+  lastUpdated?: any;
+}
+
 export async function getGoogleCalendarSettingsAdmin(): Promise<GoogleCalendarStoredSettings | null> {
   const db = getAdminFirestore();
   const snap = await db.collection(DOC_PATH.collection).doc(DOC_PATH.doc).get();
@@ -17,6 +25,20 @@ export async function getGoogleCalendarSettingsAdmin(): Promise<GoogleCalendarSt
   const data = snap.data() as Partial<GoogleCalendarStoredSettings> | undefined;
   if (!data?.refreshToken) return null;
   return data as GoogleCalendarStoredSettings;
+}
+
+export async function getGoogleCalendarSettingsAdminDebug(): Promise<GoogleCalendarSettingsDebug> {
+  const db = getAdminFirestore();
+  const snap = await db.collection(DOC_PATH.collection).doc(DOC_PATH.doc).get();
+  if (!snap.exists) return { exists: false, hasRefreshToken: false };
+  const data = (snap.data() as Partial<GoogleCalendarStoredSettings> | undefined) || {};
+  return {
+    exists: true,
+    hasRefreshToken: !!data.refreshToken,
+    connectedEmail: data.connectedEmail ?? null,
+    calendarId: data.calendarId ?? null,
+    lastUpdated: data.lastUpdated ?? null
+  };
 }
 
 export async function upsertGoogleCalendarSettingsAdmin(settings: Partial<GoogleCalendarStoredSettings>) {

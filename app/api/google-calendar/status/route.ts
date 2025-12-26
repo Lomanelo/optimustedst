@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
-import { getGoogleCalendarSettingsAdmin } from '../../../../src/server/googleCalendarStore';
+import { getGoogleCalendarSettingsAdmin, getGoogleCalendarSettingsAdminDebug } from '../../../../src/server/googleCalendarStore';
+import { getAdminApp } from '../../../../src/firebase/firebaseAdmin';
 
 export async function GET() {
   const missingEnv: string[] = [];
@@ -15,6 +16,12 @@ export async function GET() {
   let calendarId: string | undefined;
   let adminOk = true;
   let adminError: string | undefined;
+  let adminProjectId: string | undefined;
+  let debug:
+    | {
+        settingsDoc: Awaited<ReturnType<typeof getGoogleCalendarSettingsAdminDebug>>;
+      }
+    | undefined;
 
   const missingAdminEnv: string[] = [];
   const hasServiceAccountJson = !!process.env.FIREBASE_SERVICE_ACCOUNT_JSON;
@@ -29,10 +36,14 @@ export async function GET() {
   }
 
   try {
+    adminProjectId = getAdminApp().options.projectId;
     const s = await getGoogleCalendarSettingsAdmin();
     adminConnected = !!s?.refreshToken;
     connectedEmail = s?.connectedEmail || undefined;
     calendarId = s?.calendarId || undefined;
+
+    // Safe debug: does the settings doc exist / have refresh token (no secret values returned)
+    debug = { settingsDoc: await getGoogleCalendarSettingsAdminDebug() };
   } catch (e) {
     adminOk = false;
     adminError = e instanceof Error ? e.message : 'unknown_admin_error';
@@ -47,7 +58,9 @@ export async function GET() {
     using: adminConnected ? 'firestore_admin' : envRefresh ? 'env_refresh_token' : 'none',
     missingEnv,
     missingAdminEnv,
-    adminError
+    adminError,
+    adminProjectId,
+    debug
   });
 }
 
