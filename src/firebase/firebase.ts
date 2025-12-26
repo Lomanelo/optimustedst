@@ -9,9 +9,10 @@ import {
 import { 
   getFirestore, 
   connectFirestoreEmulator, 
-  FirestoreError,
   Firestore,
-  enableIndexedDbPersistence
+  initializeFirestore,
+  persistentLocalCache,
+  persistentMultipleTabManager
 } from 'firebase/firestore';
 import { 
   getStorage, 
@@ -57,7 +58,24 @@ try {
   
   // Initialize Firebase services
   auth = getAuth(app);
-  db = getFirestore(app);
+
+  // Firestore init (defensive):
+  // - In the browser: try persistent cache, but fall back to memory if IndexedDB isn't available.
+  // - On the server: always use getFirestore() (no IndexedDB).
+  if (typeof window === 'undefined') {
+    db = getFirestore(app);
+  } else {
+    try {
+      // Firestore offline cache (modern API). Replaces enableIndexedDbPersistence(), which is deprecated.
+      // Multi-tab support avoids "failed-precondition" when the site is open in multiple tabs.
+      db = initializeFirestore(app, {
+        localCache: persistentLocalCache({ tabManager: persistentMultipleTabManager() })
+      });
+    } catch (e) {
+      console.warn('Firestore persistent cache unavailable; falling back to default cache:', e);
+      db = getFirestore(app);
+    }
+  }
   storage = getStorage(app);
   
   functions = getFunctions(app);
@@ -80,33 +98,6 @@ try {
 } catch (error) {
   console.error("Error initializing Firebase:", error);
   throw error;
-}
-
-// Configure Firestore for offline persistence (only in browser environment)
-// Only enable if not already enabled to avoid the multi-tab warning
-if (typeof window !== 'undefined' && db) {
-  // Check if persistence is already enabled by looking for a flag
-  const persistenceKey = 'firestore_persistence_enabled';
-  const isPersistenceEnabled = sessionStorage.getItem(persistenceKey);
-  
-  if (!isPersistenceEnabled) {
-    try {
-      enableIndexedDbPersistence(db).then(() => {
-        console.log("Firestore offline persistence enabled");
-        sessionStorage.setItem(persistenceKey, 'true');
-      }).catch((err: FirestoreError) => {
-      if (err.code === 'failed-precondition') {
-          console.log("Firestore persistence: Multiple tabs open, using memory cache");
-      } else if (err.code === 'unimplemented') {
-          console.log("Firestore persistence: Browser doesn't support offline persistence");
-        } else {
-          console.warn("Firestore persistence error:", err);
-      }
-    });
-  } catch (e) {
-      console.log("Could not enable offline persistence, using memory cache");
-    }
-  }
 }
 
 

@@ -3,6 +3,22 @@ import { google } from 'googleapis';
 import googleCalendarSettingsService from '../../../../src/services/googleCalendarSettingsService';
 import { upsertGoogleCalendarSettingsAdmin } from '../../../../src/server/googleCalendarStore';
 
+function getEmailFromIdToken(idToken?: string | null): string | null {
+  if (!idToken) return null;
+  try {
+    const parts = idToken.split('.');
+    if (parts.length < 2) return null;
+    // base64url decode
+    const payload = parts[1].replace(/-/g, '+').replace(/_/g, '/');
+    const padded = payload.padEnd(payload.length + ((4 - (payload.length % 4)) % 4), '=');
+    const json = Buffer.from(padded, 'base64').toString('utf8');
+    const parsed = JSON.parse(json) as { email?: string };
+    return parsed.email || null;
+  } catch {
+    return null;
+  }
+}
+
 export async function GET(req: NextRequest) {
   const clientId = process.env.GOOGLE_CLIENT_ID;
   const clientSecret = process.env.GOOGLE_CLIENT_SECRET;
@@ -44,9 +60,13 @@ export async function GET(req: NextRequest) {
 
   // Validate connected account email
   try {
-    const oauth2Api = google.oauth2({ version: 'v2', auth: oauth2 });
-    const me = await oauth2Api.userinfo.get();
-    const email = me.data.email || '';
+    // Prefer email from id_token (more reliable / fewer scopes than calling userinfo)
+    let email = getEmailFromIdToken(tokens.id_token) || '';
+    if (!email) {
+      const oauth2Api = google.oauth2({ version: 'v2', auth: oauth2 });
+      const me = await oauth2Api.userinfo.get();
+      email = me.data.email || '';
+    }
     if (email.toLowerCase() !== allowedEmail.toLowerCase()) {
       return NextResponse.redirect(
         new URL(`/admin/settings?gcal=error&reason=wrong_account&email=${encodeURIComponent(email)}`, url.origin)
