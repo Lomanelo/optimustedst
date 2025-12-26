@@ -149,6 +149,7 @@ export default function BookACallPage() {
   const [submitting, setSubmitting] = useState(false);
   const [success, setSuccess] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [calendarInfo, setCalendarInfo] = useState<{ created: boolean; link?: string; error?: any } | null>(null);
 
   useEffect(() => {
     // Reset slot when date changes
@@ -178,6 +179,7 @@ export default function BookACallPage() {
     e.preventDefault();
     setError(null);
     setSuccess(null);
+    setCalendarInfo(null);
 
     if (!form.name || !form.email || !selectedSlotStartIso) {
       setError(isArabic ? 'يرجى تعبئة الاسم والبريد الإلكتروني واختيار موعد.' : 'Please fill name, email, and pick a time slot.');
@@ -203,6 +205,14 @@ export default function BookACallPage() {
 
       const data = await res.json().catch(() => ({}));
       if (!res.ok) throw new Error(data?.error || 'Failed to submit');
+
+      if (data?.calendar) {
+        setCalendarInfo({
+          created: !!data.calendar.created,
+          link: data.calendar.link,
+          error: data.calendar.error
+        });
+      }
 
       setSuccess(
         isArabic
@@ -244,7 +254,41 @@ export default function BookACallPage() {
                 {success && (
                   <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-md flex items-start gap-3">
                     <CheckCircle className="text-green-600 mt-0.5" size={18} />
-                    <p className="text-green-700 text-sm">{success}</p>
+                    <div className="text-green-700 text-sm space-y-2">
+                      <p>{success}</p>
+                      {calendarInfo ? (
+                        <div className="text-xs text-green-800">
+                          {calendarInfo.created ? (
+                            <div className="space-y-1">
+                              <p>{isArabic ? 'تم إنشاء الموعد في تقويم Google.' : 'A Google Calendar event was created.'}</p>
+                              {calendarInfo.link ? (
+                                <a
+                                  href={calendarInfo.link}
+                                  target="_blank"
+                                  rel="noreferrer"
+                                  className="underline"
+                                >
+                                  {isArabic ? 'فتح الموعد في التقويم' : 'Open event in Google Calendar'}
+                                </a>
+                              ) : null}
+                            </div>
+                          ) : (
+                            <div className="space-y-1">
+                              <p>
+                                {isArabic
+                                  ? 'لم يتم إنشاء الموعد تلقائيًّا في تقويم Google (تم إرسال الطلب فقط).'
+                                  : 'The request was submitted, but the event was not auto-created in Google Calendar.'}
+                              </p>
+                              {calendarInfo.error?.message ? (
+                                <p className="text-gray-700">
+                                  {isArabic ? 'السبب:' : 'Reason:'} {String(calendarInfo.error.message)}
+                                </p>
+                              ) : null}
+                            </div>
+                          )}
+                        </div>
+                      ) : null}
+                    </div>
                   </div>
                 )}
 

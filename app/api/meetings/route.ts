@@ -106,33 +106,6 @@ export async function POST(req: NextRequest) {
 
     const recipientEmail = process.env.MEETING_TO_EMAIL || process.env.CONTACT_TO_EMAIL || 'info@optimus-solutions.org';
 
-    // If SMTP isn't configured, accept request (so form still "works" in dev) but warn.
-    if (!process.env.SMTP_USER || !process.env.SMTP_PASSWORD) {
-      console.log('Meeting request (SMTP not configured):', {
-        name,
-        email,
-        phone,
-        preferredLanguage,
-        notes,
-        slotStartIso,
-        timezone,
-        timestamp: new Date().toISOString(),
-        recipientEmail
-      });
-
-      return NextResponse.json(
-        {
-          message: 'Request received! (Note: Email sending is not configured yet)',
-          warning: 'SMTP configuration required for email delivery',
-          recipientEmail
-        },
-        { status: 200 }
-      );
-    }
-
-    const transporter = createTransporter();
-    await transporter.verify();
-
     const durationMin = typeof slotDurationMinutes === 'number' && slotDurationMinutes > 0 ? slotDurationMinutes : 30;
     const startDate = new Date(slotStartIso);
     const endDate = new Date(startDate.getTime() + durationMin * 60 * 1000);
@@ -183,7 +156,13 @@ export async function POST(req: NextRequest) {
     // If Google Calendar is connected, create an event automatically
     let createdCalendarEventLink: string | undefined;
     let calendarMode: 'firestore_admin' | 'env_refresh_token' | 'firestore_client' | 'none' = 'none';
-    let calendarError: string | undefined;
+    let calendarError:
+      | {
+          message: string;
+          status?: number;
+          reason?: string;
+        }
+      | undefined;
     try {
       const clientId = process.env.GOOGLE_CLIENT_ID;
       const clientSecret = process.env.GOOGLE_CLIENT_SECRET;
@@ -227,10 +206,15 @@ export async function POST(req: NextRequest) {
         const calendar = google.calendar({ version: 'v3', auth: oauth2 });
 
         const calendarId = calendarIdFromStore || process.env.GOOGLE_CALENDAR_ID || 'primary';
-        const timeZone = timezone || 'Asia/Riyadh';
+        // Since slotStartIso is already an absolute ISO timestamp (UTC, from browser toISOString()),
+        // we send RFC3339 dateTime with offset ("Z") and omit timeZone to avoid mismatches.
+        // (Google will display it in the calendar/account timezone automatically.)
+        const startIso = startDate.toISOString();
+        const endIso = endDate.toISOString();
 
         const event = await calendar.events.insert({
           calendarId,
+          sendUpdates: 'all',
           requestBody: {
             summary: `Optimus Solutions Call — ${name}`,
             description: [
@@ -240,8 +224,8 @@ export async function POST(req: NextRequest) {
               `Preferred language: ${preferredLanguage || 'Not specified'}`,
               notes ? `Notes: ${notes}` : ''
             ].filter(Boolean).join('\n'),
-            start: { dateTime: startDate.toISOString(), timeZone: timeZone },
-            end: { dateTime: endDate.toISOString(), timeZone: timeZone },
+            start: { dateTime: startIso },
+            end: { dateTime: endIso },
             attendees: [{ email }]
           }
         });
@@ -249,9 +233,59 @@ export async function POST(req: NextRequest) {
         createdCalendarEventLink = event.data.htmlLink || undefined;
       }
     } catch (e) {
-      calendarError = e instanceof Error ? e.message : 'unknown_error';
-      console.error('Google Calendar event creation failed (continuing with email):', e);
+      const anyErr = e as any;
+      const status = typeof anyErr?.code === 'number' ? anyErr.code : typeof anyErr?.response?.status === 'number' ? anyErr.response.status : undefined;
+      const reason =
+        anyErr?.errors?.[0]?.reason ||
+        anyErr?.response?.data?.error?.errors?.[0]?.reason ||
+        anyErr?.response?.data?.error?.status ||
+        undefined;
+      const message =
+        anyErr?.response?.data?.error?.message ||
+        (e instanceof Error ? e.message : 'unknown_error');
+      calendarError = { message, status, reason };
+      console.error('Google Calendar event creation failed:', { status, reason, message, raw: anyErr });
     }
+
+    const smtpConfigured = !!process.env.SMTP_USER && !!process.env.SMTP_PASSWORD;
+    if (!smtpConfigured) {
+      console.log('Meeting request (SMTP not configured):', {
+        name,
+        email,
+        phone,
+        preferredLanguage,
+        notes,
+        slotStartIso,
+        timezone,
+        timestamp: new Date().toISOString(),
+        recipientEmail,
+        calendar: {
+          created: !!createdCalendarEventLink,
+          link: createdCalendarEventLink,
+          mode: calendarMode,
+          error: calendarError
+        }
+      });
+
+      // Still return success so the booking flow works; calendar creation may still succeed.
+      return NextResponse.json(
+        {
+          message: 'Meeting request received.',
+          warning: 'SMTP is not configured, so emails were not sent.',
+          recipientEmail,
+          calendar: {
+            created: !!createdCalendarEventLink,
+            link: createdCalendarEventLink,
+            mode: calendarMode,
+            error: calendarError
+          }
+        },
+        { status: 200 }
+      );
+    }
+
+    const transporter = createTransporter();
+    await transporter.verify();
 
     const adminEmail = {
       from: process.env.SMTP_FROM_EMAIL || process.env.SMTP_USER,
