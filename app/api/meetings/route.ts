@@ -10,7 +10,7 @@ interface MeetingRequestBody {
   phone?: string;
   preferredLanguage?: 'en' | 'ar';
   notes?: string;
-  // ISO string for selected slot start time in user's local time
+  // ISO string for selected slot start time (absolute timestamp, usually from browser toISOString())
   slotStartIso: string;
   timezone?: string; // display-only
   slotDurationMinutes?: number;
@@ -108,6 +108,17 @@ export async function POST(req: NextRequest) {
 
     const durationMin = typeof slotDurationMinutes === 'number' && slotDurationMinutes > 0 ? slotDurationMinutes : 30;
     const startDate = new Date(slotStartIso);
+    if (Number.isNaN(startDate.getTime())) {
+      return NextResponse.json({ error: 'Invalid slotStartIso' }, { status: 400 });
+    }
+
+    // Reject past slots (timezone-independent because ISO timestamps are absolute instants)
+    // Allow same-day bookings as long as the selected slot is still in the future.
+    const now = Date.now();
+    if (startDate.getTime() < now - 60 * 1000) {
+      return NextResponse.json({ error: 'Selected slot is in the past' }, { status: 400 });
+    }
+
     const endDate = new Date(startDate.getTime() + durationMin * 60 * 1000);
     const uid = (globalThis.crypto && 'randomUUID' in globalThis.crypto)
       ? (globalThis.crypto as Crypto).randomUUID()
@@ -116,7 +127,9 @@ export async function POST(req: NextRequest) {
     const prettySlot = (() => {
       try {
         const d = new Date(slotStartIso);
+        const tz = timezone || 'Asia/Riyadh';
         return d.toLocaleString('en-GB', {
+          timeZone: tz,
           year: 'numeric',
           month: '2-digit',
           day: '2-digit',

@@ -36,6 +36,55 @@ function pad2(n: number) {
   return String(n).padStart(2, '0');
 }
 
+const RIYADH_TZ = 'Asia/Riyadh';
+const RIYADH_OFFSET_MINUTES = 3 * 60; // Asia/Riyadh is UTC+03:00 (no DST)
+
+function getNowInTimeZoneParts(timeZone: string) {
+  const dtf = new Intl.DateTimeFormat('en-CA', {
+    timeZone,
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+    hour12: false
+  });
+
+  const parts = dtf.formatToParts(new Date());
+  const map = Object.fromEntries(parts.filter((p) => p.type !== 'literal').map((p) => [p.type, p.value]));
+  return {
+    year: parseInt(map.year || '0', 10),
+    month: parseInt(map.month || '1', 10),
+    day: parseInt(map.day || '1', 10),
+    hour: parseInt(map.hour || '0', 10),
+    minute: parseInt(map.minute || '0', 10),
+    second: parseInt(map.second || '0', 10)
+  };
+}
+
+function formatYMD(y: number, m: number, d: number) {
+  return `${y}-${pad2(m)}-${pad2(d)}`;
+}
+
+function getTodayInputValueInTimeZone(timeZone: string) {
+  const p = getNowInTimeZoneParts(timeZone);
+  return formatYMD(p.year, p.month, p.day);
+}
+
+function addDaysToYmdInput(ymd: string, days: number) {
+  const [y, m, d] = ymd.split('-').map((x) => parseInt(x, 10));
+  const dt = new Date(Date.UTC(y || 1970, (m || 1) - 1, d || 1, 12, 0, 0, 0));
+  dt.setUTCDate(dt.getUTCDate() + days);
+  return formatYMD(dt.getUTCFullYear(), dt.getUTCMonth() + 1, dt.getUTCDate());
+}
+
+function ymdInRiyadhToUtcDate(y: number, m: number, d: number, hh: number, mm: number) {
+  // Convert a Riyadh wall-clock time to an absolute Date (UTC instant).
+  const utcMs = Date.UTC(y, m - 1, d, hh, mm, 0, 0) - RIYADH_OFFSET_MINUTES * 60 * 1000;
+  return new Date(utcMs);
+}
+
 function parseHHMM(hhmm: string): { h: number; m: number } {
   const [hRaw, mRaw] = (hhmm || '').split(':');
   const h = Math.max(0, Math.min(23, parseInt(hRaw || '0', 10)));
@@ -43,17 +92,11 @@ function parseHHMM(hhmm: string): { h: number; m: number } {
   return { h, m };
 }
 
-function toWeekdayKey(date: Date): WeekdayKey {
-  // JS: 0=Sun...6=Sat
+function toWeekdayKeyFromYmdInRiyadh(y: number, m: number, d: number): WeekdayKey {
+  // JS: 0=Sun...6=Sat, computed in Riyadh regardless of user's local timezone
   const map: WeekdayKey[] = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
-  return map[date.getDay()]!;
-}
-
-function addDays(date: Date, days: number) {
-  const d = new Date(date);
-  d.setDate(d.getDate() + days);
-  d.setHours(0, 0, 0, 0);
-  return d;
+  const noonUtc = ymdInRiyadhToUtcDate(y, m, d, 12, 0);
+  return map[noonUtc.getUTCDay()]!;
 }
 
 function formatDateInputValue(d: Date) {
@@ -71,21 +114,24 @@ function formatTimeLabel(d: Date, locale: string) {
 }
 
 function buildSlotsForDate(
-  date: Date,
+  dateValue: string,
   settings: MeetingAvailabilitySettings,
   locale: 'en' | 'ar'
 ): Slot[] {
-  const dayKey = toWeekdayKey(date);
+  const [yRaw, mRaw, dRaw] = dateValue.split('-').map((x) => parseInt(x, 10));
+  const y = yRaw || 1970;
+  const m = mRaw || 1;
+  const d = dRaw || 1;
+
+  const dayKey = toWeekdayKeyFromYmdInRiyadh(y, m, d);
   const day = settings.weekly[dayKey];
   if (!day?.isOpen) return [];
 
   const { h: oh, m: om } = parseHHMM(day.openTime);
   const { h: ch, m: cm } = parseHHMM(day.closeTime);
 
-  const start = new Date(date);
-  start.setHours(oh, om, 0, 0);
-  const end = new Date(date);
-  end.setHours(ch, cm, 0, 0);
+  const start = ymdInRiyadhToUtcDate(y, m, d, oh, om);
+  const end = ymdInRiyadhToUtcDate(y, m, d, ch, cm);
 
   const slotMs = Math.max(5, settings.slotDurationMinutes) * 60 * 1000;
   const slots: Slot[] = [];
@@ -123,19 +169,25 @@ export default function BookACallPage() {
   const [settings, setSettings] = useState<MeetingAvailabilitySettings>(DEFAULT_MEETING_AVAILABILITY);
   const [settingsLoaded, setSettingsLoaded] = useState(false);
 
-  const [dateValue, setDateValue] = useState(() => formatDateInputValue(addDays(new Date(), 1)));
-  const selectedDate = useMemo(() => {
+  const effectiveTimeZone = settings?.timezone || RIYADH_TZ;
+
+  const [dateValue, setDateValue] = useState(() => getTodayInputValueInTimeZone(RIYADH_TZ));
+
+  const weekdayKey = useMemo(() => {
     const [y, m, d] = dateValue.split('-').map((x) => parseInt(x, 10));
-    const dt = new Date(y, (m || 1) - 1, d || 1);
-    dt.setHours(0, 0, 0, 0);
-    return dt;
+    return toWeekdayKeyFromYmdInRiyadh(y || 1970, m || 1, d || 1);
   }, [dateValue]);
 
-  const weekdayKey = useMemo(() => toWeekdayKey(selectedDate), [selectedDate]);
-  const slots = useMemo(
-    () => buildSlotsForDate(selectedDate, settings, currentLanguage),
-    [selectedDate, settings, currentLanguage]
-  );
+  const slots = useMemo(() => {
+    const rawSlots = buildSlotsForDate(dateValue, settings, currentLanguage);
+
+    // Filter out past slots for "today" based on Riyadh time.
+    const todayRiyadh = getTodayInputValueInTimeZone(effectiveTimeZone);
+    if (dateValue !== todayRiyadh) return rawSlots;
+
+    const now = new Date();
+    return rawSlots.filter((s) => s.start.getTime() > now.getTime());
+  }, [dateValue, settings, currentLanguage, effectiveTimeZone]);
 
   const [selectedSlotStartIso, setSelectedSlotStartIso] = useState<string>('');
 
@@ -167,8 +219,8 @@ export default function BookACallPage() {
       .catch(() => setSettingsLoaded(true));
   }, []);
 
-  const minDate = useMemo(() => formatDateInputValue(addDays(new Date(), 1)), []);
-  const maxDate = useMemo(() => formatDateInputValue(addDays(new Date(), 30)), []);
+  const minDate = useMemo(() => getTodayInputValueInTimeZone(RIYADH_TZ), []);
+  const maxDate = useMemo(() => addDaysToYmdInput(getTodayInputValueInTimeZone(RIYADH_TZ), 30), []);
 
   const dayAvailability = settings.weekly[weekdayKey];
   const isClosed = !dayAvailability?.isOpen;
