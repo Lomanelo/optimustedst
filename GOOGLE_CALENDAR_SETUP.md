@@ -3,6 +3,7 @@
 This project supports **automatic Google Calendar event creation** for Book-a-Call submissions.
 
 ## What it does
+
 - Admin connects **one Google account** once (OAuth).
 - The app stores a **refresh token** in Firestore at `settings/googleCalendar`.
 - Every new Book-a-Call submission:
@@ -10,6 +11,7 @@ This project supports **automatic Google Calendar event creation** for Book-a-Ca
   - still sends the email + `.ics` attachment as a fallback
 
 ## Required Netlify environment variables
+
 Set these in **Netlify → Site configuration → Environment variables** (do NOT commit secrets to git):
 
 - `GOOGLE_CLIENT_ID`
@@ -24,6 +26,7 @@ Set these in **Netlify → Site configuration → Environment variables** (do NO
   - Only this email is allowed to connect; prevents connecting the wrong Google account.
 
 ## Google Cloud Console checklist
+
 1. Create/select a project
 2. Enable **Google Calendar API**
 3. Configure **OAuth consent screen**
@@ -34,6 +37,7 @@ Set these in **Netlify → Site configuration → Environment variables** (do NO
 6. Add `optimusksa@gmail.com` as a test user (if consent screen is in Testing)
 
 ## Connect flow (admin)
+
 1. Login as admin
 2. Go to `/admin/settings`
 3. Click **Connect Google Calendar**
@@ -43,9 +47,5 @@ Set these in **Netlify → Site configuration → Environment variables** (do NO
 If the connection succeeds, the status will show **Connected**.
 
 ## Security note (important)
+
 Treat `GOOGLE_CLIENT_SECRET` like a password. If it is ever pasted into chat, rotated, or leaked, **rotate it immediately** in Google Cloud Console and update Netlify.
-
-
-
-
-

@@ -74,6 +74,9 @@ export const metadata: Metadata = {
   },
   verification: {
     google: 'your-google-verification-code',
+    other: {
+      'facebook-domain-verification': 'e007ydnumqsrkmb7vw7i42nxj47ll8',
+    },
   },
   authors: [{ name: SITE_CONFIG.name }],
   creator: SITE_CONFIG.name,
@@ -100,9 +103,6 @@ export default function RootLayout({
         <link rel="shortcut icon" href="/Favicon.png" />
         <link rel="apple-touch-icon" sizes="180x180" href="/Favicon.png" />
         <meta name="msapplication-TileImage" content="/Favicon.png" />
-        
-        {/* Facebook Domain Verification */}
-        <meta name="facebook-domain-verification" content="e007ydnumqsrkmb7vw7i42nxj47ll8" />
         
         {/* Force HTTPS */}
         <meta httpEquiv="Content-Security-Policy" content="upgrade-insecure-requests" />
