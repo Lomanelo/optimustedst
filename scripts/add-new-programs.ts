@@ -192,7 +192,7 @@ async function main() {
   {
     // Keep the existing id/slug stable to avoid duplicating programs if this script is rerun.
     const id = 'triple-mba-exclusive-hospitality-and-events-management';
-    const title = 'Dual MBA Exclusive hospitality and events Management';
+    const title = 'Exclusive Dual MBA in Hospitality & Events Management';
     upsertProgram(programs, {
       id,
       slug: id,
@@ -289,7 +289,7 @@ async function main() {
   {
     // Keep the existing id/slug stable to avoid duplicating programs if this script is rerun.
     const id = 'triple-mba-exclusive-sports-management';
-    const title = 'Dual MBA Exclusive Sports Management';
+    const title = 'Exclusive Dual MBA in Sports Management';
     upsertProgram(programs, {
       id,
       slug: id,
