@@ -213,7 +213,7 @@ async function main() {
       exclusive: true,
       // Use the same photo as the existing exclusive Hospitality program
       thumbnail: '/ProgramPhotos/event  Management.jpeg',
-      brochure_en: '/brochures/Triple MBA Exclusive hospitality and events Management.pdf',
+      brochure_en: '/brochures/MBA Exclusive hospitality and events Management.pdf',
       brochure_ar: '/brochures/ماچستير إدارة الأعمال في إداره الضيافه و الفاعليات.pdf',
       modules: [
         'Digital Tourism and Hospitality',
@@ -310,7 +310,7 @@ async function main() {
       exclusive: true,
       // Use the same photo as the existing exclusive Sports program
       thumbnail: '/ProgramPhotos/Sports Management.jpg',
-      brochure_en: '/brochures/Triple MBA Exclusive Sports Management.pdf',
+      brochure_en: '/brochures/MBA Exclusive Sports Management.pdf',
       brochure_ar: '/brochures/ماجيستير إداره الأعمال  في إداره الرياضه.pdf',
       modules: [
         'Marketing Management',
