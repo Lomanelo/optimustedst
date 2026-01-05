@@ -188,17 +188,18 @@ async function main() {
     });
   }
 
-  // 1b) Triple MBA Exclusive - Hospitality & Events
+  // 1b) Dual-accredited MBA Exclusive - Hospitality & Events
   {
-    const title = 'Triple MBA Exclusive hospitality and events Management';
-    const id = slugify(title);
+    // Keep the existing id/slug stable to avoid duplicating programs if this script is rerun.
+    const id = 'triple-mba-exclusive-hospitality-and-events-management';
+    const title = 'Dual MBA Exclusive hospitality and events Management';
     upsertProgram(programs, {
       id,
       slug: id,
       title,
       title_ar: 'ماچستير إدارة الأعمال في إداره الضيافه و الفاعليات',
-      shortDescription: 'Exclusive triple-accredited MBA track for Saudi Nationals aligned with Vision 2030.',
-      shortDescription_ar: 'ماجستير حصري (ثلاثي الاعتماد) للسعوديين ومتوافق مع رؤية 2030.',
+      shortDescription: 'Exclusive dual-accredited MBA track for Saudi Nationals aligned with Vision 2030.',
+      shortDescription_ar: 'ماجستير حصري (ثنائي الاعتماد) للسعوديين ومتوافق مع رؤية 2030.',
       description:
         "The rapid transformation of Saudi Arabia's hospitality and events industry, fueled by Vision 2030 and ambitious tourism development initiatives, has led to a growing demand for highly specialized management professionals. This MBA track is designed to equip students with comprehensive industry expertise and leadership skills essential for success in tourism, hospitality, and event sectors while respecting Saudi cultural values and traditions.",
       description_ar:
@@ -284,17 +285,18 @@ async function main() {
     });
   }
 
-  // 1c) Triple MBA Exclusive - Sports
+  // 1c) Dual-accredited MBA Exclusive - Sports
   {
-    const title = 'Triple MBA Exclusive Sports Management';
-    const id = slugify(title);
+    // Keep the existing id/slug stable to avoid duplicating programs if this script is rerun.
+    const id = 'triple-mba-exclusive-sports-management';
+    const title = 'Dual MBA Exclusive Sports Management';
     upsertProgram(programs, {
       id,
       slug: id,
       title,
       title_ar: 'ماجيستير إداره الأعمال  في إداره الرياضه',
-      shortDescription: 'Exclusive triple-accredited MBA track for Saudi Nationals aligned with Vision 2030.',
-      shortDescription_ar: 'ماجستير حصري (ثلاثي الاعتماد) للسعوديين ومتوافق مع رؤية 2030.',
+      shortDescription: 'Exclusive dual-accredited MBA track for Saudi Nationals aligned with Vision 2030.',
+      shortDescription_ar: 'ماجستير حصري (ثنائي الاعتماد) للسعوديين ومتوافق مع رؤية 2030.',
       description:
         "The unprecedented transformation of Saudi Arabia's sports industry, driven by Vision 2030 and ambitious initiatives for athletic development, has created urgent demand for specialized management professionals. This MBA track equips students with comprehensive industry knowledge and leadership skills for professional sports, athletic development, and sports entertainment sectors while promoting Saudi cultural values and national identity.",
       description_ar:
