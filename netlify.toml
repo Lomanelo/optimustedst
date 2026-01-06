@@ -5,6 +5,8 @@
 [build.environment]
   NODE_VERSION = "18"
   NPM_VERSION = "9"
+  # Meta domain verification (public value; safe to commit)
+  NEXT_PUBLIC_FACEBOOK_DOMAIN_VERIFICATION = "oddz68w7uqzlfi3mt4458bi9rbeguo"
 
 [[plugins]]
   package = "@netlify/plugin-nextjs"

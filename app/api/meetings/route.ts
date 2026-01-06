@@ -187,8 +187,9 @@ export async function POST(req: NextRequest) {
       contentType: 'text/calendar; charset=utf-8'
     };
 
-    // If Google Calendar is connected, create an event automatically
+    // If Google Calendar is connected, create an event automatically (and generate a Google Meet link)
     let createdCalendarEventLink: string | undefined;
+    let createdMeetLink: string | undefined;
     let calendarMode: 'firestore_admin' | 'env_refresh_token' | 'firestore_client' | 'none' = 'none';
     let calendarError:
       | {
@@ -251,6 +252,7 @@ export async function POST(req: NextRequest) {
 
         const event = await calendar.events.insert({
           calendarId,
+          conferenceDataVersion: 1,
           sendUpdates: 'all',
           requestBody: {
             summary: `Optimus Solutions Call — ${name}`,
@@ -263,11 +265,21 @@ export async function POST(req: NextRequest) {
             ].filter(Boolean).join('\n'),
             start: { dateTime: startIso },
             end: { dateTime: endIso },
-            attendees
+            attendees,
+            conferenceData: {
+              createRequest: {
+                requestId: uid,
+                conferenceSolutionKey: { type: 'hangoutsMeet' }
+              }
+            }
           }
         });
 
         createdCalendarEventLink = event.data.htmlLink || undefined;
+        createdMeetLink =
+          event.data.hangoutLink ||
+          event.data.conferenceData?.entryPoints?.find((e) => e.entryPointType === 'video')?.uri ||
+          undefined;
       }
     } catch (e) {
       const anyErr = e as any;
@@ -299,6 +311,7 @@ export async function POST(req: NextRequest) {
         calendar: {
           created: !!createdCalendarEventLink,
           link: createdCalendarEventLink,
+          meetLink: createdMeetLink,
           mode: calendarMode,
           error: calendarError
         }
@@ -313,6 +326,7 @@ export async function POST(req: NextRequest) {
           calendar: {
             created: !!createdCalendarEventLink,
             link: createdCalendarEventLink,
+            meetLink: createdMeetLink,
             mode: calendarMode,
             error: calendarError
           }
@@ -357,6 +371,7 @@ export async function POST(req: NextRequest) {
                 <td style="padding: 8px; border-bottom: 1px solid #ddd;">${prettySlot} ${timezone ? `(${timezone})` : ''}</td>
               </tr>
             </table>
+            ${createdMeetLink ? `<p style="margin-top: 12px;"><strong>Google Meet:</strong> <a href="${createdMeetLink}">${createdMeetLink}</a></p>` : ``}
             ${createdCalendarEventLink ? `<p style="margin-top: 12px;"><strong>Calendar event:</strong> <a href="${createdCalendarEventLink}">Open in Google Calendar</a></p>` : ``}
             ${
               notes
@@ -397,6 +412,11 @@ export async function POST(req: NextRequest) {
             <p><strong>${preferredLanguage === 'ar' ? 'الوقت المطلوب:' : 'Requested time:'}</strong> ${prettySlot} ${
               timezone ? `(${timezone})` : ''
             }</p>
+            ${
+              createdMeetLink
+                ? `<p><strong>${preferredLanguage === 'ar' ? 'رابط Google Meet:' : 'Google Meet link:'}</strong> <a href="${createdMeetLink}">${createdMeetLink}</a></p>`
+                : ``
+            }
             ${createdCalendarEventLink ? `<p><a href="${createdCalendarEventLink}">${preferredLanguage === 'ar' ? 'فتح الموعد في التقويم' : 'Open event in calendar'}</a></p>` : ``}
             <p style="margin-top: 18px;">
               ${preferredLanguage === 'ar' ? 'مع التحية،<br>فريق Optimus Solutions' : 'Best regards,<br>The Optimus Solutions Team'}
@@ -414,6 +434,7 @@ export async function POST(req: NextRequest) {
         calendar: {
           created: !!createdCalendarEventLink,
           link: createdCalendarEventLink,
+          meetLink: createdMeetLink,
           mode: calendarMode,
           error: calendarError
         }

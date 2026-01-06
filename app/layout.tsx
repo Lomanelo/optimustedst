@@ -8,6 +8,8 @@ import { SITE_CONFIG, PAGE_METADATA } from './lib/seo-config'
 
 const inter = Inter({ subsets: ['latin'] })
 const clarityProjectId = process.env.NEXT_PUBLIC_CLARITY_PROJECT_ID
+const facebookDomainVerification = process.env.NEXT_PUBLIC_FACEBOOK_DOMAIN_VERIFICATION || 'oddz68w7uqzlfi3mt4458bi9rbeguo'
+const facebookAppId = process.env.NEXT_PUBLIC_FACEBOOK_APP_ID
 
 export const metadata: Metadata = {
   // Keep the browser tab title consistent across the site
@@ -75,7 +77,7 @@ export const metadata: Metadata = {
   verification: {
     google: 'your-google-verification-code',
     other: {
-      'facebook-domain-verification': 'e007ydnumqsrkmb7vw7i42nxj47ll8',
+      'facebook-domain-verification': facebookDomainVerification,
     },
   },
   authors: [{ name: SITE_CONFIG.name }],
@@ -106,6 +108,12 @@ export default function RootLayout({
         
         {/* Force HTTPS */}
         <meta httpEquiv="Content-Security-Policy" content="upgrade-insecure-requests" />
+
+        {/* Meta (Facebook) domain verification: keep explicit tag for reliable scraping */}
+        <meta name="facebook-domain-verification" content={facebookDomainVerification} />
+
+        {/* OpenGraph fb:app_id (optional) - helps Meta Sharing Debugger warnings */}
+        {facebookAppId ? <meta property="fb:app_id" content={facebookAppId} /> : null}
         
         {/* Google tag (gtag.js) */}
         <Script 
