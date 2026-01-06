@@ -24,6 +24,14 @@ Set these in **Netlify → Site configuration → Environment variables** (do NO
 - `GOOGLE_CALENDAR_OWNER_EMAIL` (optional)
   - Default: `optimusksa@gmail.com`
   - Only this email is allowed to connect; prevents connecting the wrong Google account.
+- `MEETING_DEFAULT_ATTENDEE_EMAILS` (optional)
+  - Comma-separated list of emails that will be added as **attendees** on every new Book-a-Call calendar event.
+  - They will receive the calendar invite email and see it on their calendars (depending on their Google Calendar settings).
+  - Example: `abdulrahman-alkhassafi@optimus-solutions.org, shereen.akhun@optimus-solutions.org, Ceo@optimusksa.com`
+
+## Tip: use a Google Group (recommended for teams)
+
+Instead of listing multiple individual emails, you can create a Google Group (mailing list) like `meetings@optimus-solutions.org` and set `MEETING_DEFAULT_ATTENDEE_EMAILS` to that single address. This makes it easy to add/remove employees without redeploying.
 
 ## Google Cloud Console checklist
 

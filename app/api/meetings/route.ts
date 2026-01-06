@@ -17,6 +17,27 @@ interface MeetingRequestBody {
 }
 
 const CALENDAR_ORGANIZER_EMAIL = process.env.CALENDAR_ORGANIZER_EMAIL || 'optimusksa@gmail.com';
+const DEFAULT_CALENDAR_ATTENDEE_EMAILS_ENV = process.env.MEETING_DEFAULT_ATTENDEE_EMAILS || '';
+
+function parseEmailList(value: string): string[] {
+  if (!value) return [];
+  return value
+    .split(/[,\n;]/g)
+    .map((s) => s.trim())
+    .filter(Boolean);
+}
+
+function uniqueEmails(emails: string[]): string[] {
+  const seen = new Set<string>();
+  const out: string[] = [];
+  for (const e of emails) {
+    const key = e.toLowerCase();
+    if (seen.has(key)) continue;
+    seen.add(key);
+    out.push(e);
+  }
+  return out;
+}
 
 function icsEscape(value: string) {
   return String(value)
@@ -225,6 +246,9 @@ export async function POST(req: NextRequest) {
         const startIso = startDate.toISOString();
         const endIso = endDate.toISOString();
 
+        const defaultAttendees = parseEmailList(DEFAULT_CALENDAR_ATTENDEE_EMAILS_ENV);
+        const attendees = uniqueEmails([email, ...defaultAttendees]).map((email) => ({ email }));
+
         const event = await calendar.events.insert({
           calendarId,
           sendUpdates: 'all',
@@ -239,7 +263,7 @@ export async function POST(req: NextRequest) {
             ].filter(Boolean).join('\n'),
             start: { dateTime: startIso },
             end: { dateTime: endIso },
-            attendees: [{ email }]
+            attendees
           }
         });
 
