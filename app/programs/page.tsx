@@ -339,11 +339,16 @@ function ProgramsContent({ searchParams }: { searchParams: Record<string, string
     );
   }
 
+  const rawTitle = getContent('programs_page_title');
+  const titleText = rawTitle && rawTitle !== 'programs_page_title'
+    ? rawTitle
+    : (currentLanguage === 'ar' ? 'البرامج' : 'Programs');
+
   return (
     <ClientLayout>
       <div className="container mx-auto px-4 py-8">
         <div className="mb-8 text-center">
-          <h1 className="text-4xl font-bold text-primary mb-4">{getContent('programs_page_title')}</h1>
+          <h1 className="text-4xl font-bold text-primary mb-4">{titleText}</h1>
           <p className="text-xl text-gray-600 mb-2">
             {getContent('programs_page_subtitle')}
           </p>

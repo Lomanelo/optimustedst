@@ -131,9 +131,14 @@ const Navbar: React.FC = () => {
       </button>
     </div>
   ) : (
-    <Link href={`/register?lang=${currentLanguage}`}>
-      <Button variant="accent" size="md">{getContent('navbar_register')}</Button>
-    </Link>
+    <div className="flex items-center gap-4">
+      <Link href="/login" className="font-medium text-primary hover:text-primary-dark">
+        {currentLanguage === 'ar' ? 'تسجيل الدخول' : 'Login'}
+      </Link>
+      <Link href={`/register?lang=${currentLanguage}`}>
+        <Button variant="accent" size="md">{getContent('navbar_register')}</Button>
+      </Link>
+    </div>
   );
 
   return (
@@ -234,9 +239,14 @@ const Navbar: React.FC = () => {
               </button>
             </>
           ) : (
-            <Link href={`/register?lang=${currentLanguage}`} className="block w-full mt-2">
-              <Button variant="accent" size="md" className="w-full">{getContent('navbar_register')}</Button>
-            </Link>
+            <div className="flex flex-col gap-2">
+              <Link href="/login" className="block font-medium text-primary hover:text-primary-dark py-2">
+                {currentLanguage === 'ar' ? 'تسجيل الدخول' : 'Login'}
+              </Link>
+              <Link href={`/register?lang=${currentLanguage}`} className="block w-full">
+                <Button variant="accent" size="md" className="w-full">{getContent('navbar_register')}</Button>
+              </Link>
+            </div>
           )}
         </div>
       </div>

@@ -110,21 +110,30 @@ export const PAGE_METADATA = {
 export function generatePageMetadata(pageKey: keyof typeof PAGE_METADATA, locale: 'en' | 'ar' = 'en') {
   const pageData = PAGE_METADATA[pageKey];
   
+  // Ensure meta descriptions are within recommended length
+  const rawDesc = pageData.description[locale] || '';
+  const metaDescription = rawDesc.length > 160 ? `${rawDesc.substring(0, 157)}...` : rawDesc;
+
+  const path = pageKey === 'home' ? '' : pageKey;
+  const canonicalPath = `/${path}`;
+  const enAlt = `/${path}${path ? '?lang=en' : '?lang=en'}`;
+  const arAlt = `/${path}${path ? '?lang=ar' : '?lang=ar'}`;
+
   return {
     title: pageData.title[locale],
-    description: pageData.description[locale],
+    description: metaDescription,
     keywords: SITE_CONFIG.keywords,
     alternates: {
-      canonical: `${SITE_CONFIG.domain}/${pageKey === 'home' ? '' : pageKey}`,
+      canonical: `${SITE_CONFIG.domain}${canonicalPath}`,
       languages: {
-        en: `${SITE_CONFIG.domain}/en/${pageKey === 'home' ? '' : pageKey}`,
-        ar: `${SITE_CONFIG.domain}/ar/${pageKey === 'home' ? '' : pageKey}`,
+        en: `${SITE_CONFIG.domain}${enAlt}`,
+        ar: `${SITE_CONFIG.domain}${arAlt}`,
       }
     },
     openGraph: {
       title: pageData.title[locale],
-      description: pageData.description[locale],
-      url: `${SITE_CONFIG.domain}/${pageKey === 'home' ? '' : pageKey}`,
+      description: metaDescription,
+      url: `${SITE_CONFIG.domain}${canonicalPath}`,
       siteName: SITE_CONFIG.name,
       locale: locale === 'ar' ? 'ar_SA' : 'en_US',
       type: 'website',

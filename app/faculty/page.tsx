@@ -32,7 +32,7 @@ const facultyMembers = [
     experience_ar: 'أكثر من 20 عاماً في التعليم التجاري والاستشارات',
     bio: 'Dr. Al-Mansour brings over two decades of experience in executive education and strategic management. He has consulted for numerous Fortune 500 companies and government entities across the Middle East.',
     bio_ar: 'يجلب الدكتور المنصور أكثر من عقدين من الخبرة في التعليم التنفيذي والإدارة الاستراتيجية. قدم استشارات للعديد من شركات Fortune 500 والجهات الحكومية في الشرق الأوسط.',
-    image: '/grabbedPhotos/people/person1.jpg'
+    image: '/Logo.jpeg'
   },
   {
     id: 2,
@@ -56,7 +56,7 @@ const facultyMembers = [
     experience_ar: 'أكثر من 15 عاماً في التحليل المالي والتعليم',
     bio: 'Dr. Mitchell specializes in corporate finance and investment strategies. She has published extensively in top-tier academic journals and serves as a financial advisor to several multinational corporations.',
     bio_ar: 'تتخصص الدكتورة ميتشل في التمويل المؤسسي واستراتيجيات الاستثمار. نشرت على نطاق واسع في المجلات الأكاديمية الرائدة وتعمل كمستشارة مالية للعديد من الشركات متعددة الجنسيات.',
-    image: '/grabbedPhotos/people/person2.jpg'
+    image: '/Logo.jpeg'
   },
   {
     id: 3,
@@ -80,7 +80,7 @@ const facultyMembers = [
     experience_ar: 'أكثر من 18 عاماً في قيادة مبادرات التحول الرقمي',
     bio: 'Prof. Al-Fahad is a leading expert in digital transformation and business innovation. He has led numerous digital transformation projects aligned with Saudi Vision 2030.',
     bio_ar: 'الأستاذ الدكتور الفهد خبير رائد في التحول الرقمي والابتكار في الأعمال. قاد العديد من مشاريع التحول الرقمي المتوافقة مع رؤية السعودية 2030.',
-    image: '/grabbedPhotos/people/person3.jpg'
+    image: '/Logo.jpeg'
   },
   {
     id: 4,
@@ -104,7 +104,7 @@ const facultyMembers = [
     experience_ar: 'أكثر من 12 عاماً في إدارة وسياسات الرعاية الصحية',
     bio: 'Dr. Al-Zahrani combines medical expertise with management knowledge. She has advised on healthcare reform initiatives and hospital management across the Gulf region.',
     bio_ar: 'تجمع الدكتورة الزهراني بين الخبرة الطبية والمعرفة الإدارية. قدمت المشورة بشأن مبادرات إصلاح الرعاية الصحية وإدارة المستشفيات في منطقة الخليج.',
-    image: '/grabbedPhotos/people/person4.jpg'
+    image: '/Logo.jpeg'
   }
 ];
 

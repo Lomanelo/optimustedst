@@ -51,7 +51,7 @@ const Navbar: React.FC = () => {
           <div className="hidden md:flex space-x-6">
             <Link to="/programs" className={`${isActive('/programs')} hover:text-accent font-medium transition-colors`}>{t('header.programs')}</Link>
             <Link to="/about" className={`${isActive('/about')} hover:text-accent font-medium transition-colors`}>{t('header.about')}</Link>
-            <Link to="/blog" className={`${isActive('/blog')} hover:text-accent font-medium transition-colors`}>{t('header.blog')}</Link>
+            {/* Blog removed */}
             <Link to="/contact" className={`${isActive('/contact')} hover:text-accent font-medium transition-colors`}>{t('header.contact')}</Link>
             {currentUser && (
               <Link to="/dashboard" className={`${isActive('/dashboard')} hover:text-accent font-medium transition-colors`}>{t('header.dashboard')}</Link>
@@ -94,7 +94,7 @@ const Navbar: React.FC = () => {
         <div className="px-4 pt-2 pb-4 space-y-3">
           <Link to="/programs" className={`block ${isActive('/programs')} hover:text-accent font-medium py-2 transition-colors`}>{t('header.programs')}</Link>
           <Link to="/about" className={`block ${isActive('/about')} hover:text-accent font-medium py-2 transition-colors`}>{t('header.about')}</Link>
-          <Link to="/blog" className={`block ${isActive('/blog')} hover:text-accent font-medium py-2 transition-colors`}>{t('header.blog')}</Link>
+          {/* Blog removed */}
           <Link to="/contact" className={`block ${isActive('/contact')} hover:text-accent font-medium py-2 transition-colors`}>{t('header.contact')}</Link>
           {currentUser && (
             <Link to="/dashboard" className={`block ${isActive('/dashboard')} hover:text-accent font-medium py-2 transition-colors`}>{t('header.dashboard')}</Link>

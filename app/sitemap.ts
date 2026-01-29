@@ -35,36 +35,21 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       changeFrequency: 'monthly' as const,
       priority: 0.8,
     },
-    {
-      url: `${baseUrl}/blog`,
-      lastModified: currentDate,
-      changeFrequency: 'weekly' as const,
-      priority: 0.7,
-    },
+    // Blog removed from public site map
     {
       url: `${baseUrl}/faculty`,
       lastModified: currentDate,
       changeFrequency: 'monthly' as const,
       priority: 0.7,
     },
+    // Testimonials removed
     {
-      url: `${baseUrl}/testimonials`,
+      url: `${baseUrl}/book-a-call`,
       lastModified: currentDate,
       changeFrequency: 'weekly' as const,
-      priority: 0.7,
+      priority: 0.8,
     },
-    {
-      url: `${baseUrl}/login`,
-      lastModified: currentDate,
-      changeFrequency: 'monthly' as const,
-      priority: 0.5,
-    },
-    {
-      url: `${baseUrl}/register`,
-      lastModified: currentDate,
-      changeFrequency: 'monthly' as const,
-      priority: 0.5,
-    },
+    // Utility pages (login/register) excluded from sitemap
   ];
 
   // In a production environment, you would fetch dynamic pages from your database

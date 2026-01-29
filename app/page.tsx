@@ -15,10 +15,6 @@ const HowItWorks = dynamic(() => import('../src/components/HowItWorks'), {
   ssr: true,
   loading: () => <div className="py-16 md:py-24 flex justify-center"><div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-primary"></div></div>
 });
-const BlogPreview = dynamic(() => import('../src/components/BlogPreview'), { 
-  ssr: true,
-  loading: () => <div className="py-16 flex justify-center"><div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-primary"></div></div>
-});
 // Accreditations section removed per requirements
 
 
@@ -173,7 +169,6 @@ export default function HomePage() {
       <Hero />
       <ProgramsOverview />
       <HowItWorks />
-      <BlogPreview />
     </ClientLayout>
   );
 } 
