@@ -42,6 +42,16 @@ export const PAGE_METADATA = {
       ar: 'حوّل مسيرتك المهنية مع برامج ماجستير إدارة الأعمال والدكتوراه المعتمدة دولياً المصممة لقادة المستقبل في المملكة العربية السعودية. متوافقة مع رؤية 2030.'
     }
   },
+  'privacy-policy': {
+    title: {
+      en: 'Optimus-Solutions',
+      ar: 'Optimus-Solutions'
+    },
+    description: {
+      en: 'Read the OPTIMUS Solutions Privacy Policy to learn how we collect, use, and protect your personal information.',
+      ar: 'اقرأ سياسة الخصوصية لأوبتيموس التعليمية لمعرفة كيفية جمع معلوماتك واستخدامها وحمايتها.'
+    }
+  },
   programs: {
     title: {
       en: 'Optimus-Solutions',
