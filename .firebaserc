@@ -1,5 +1,7 @@
 {
   "projects": {
-    "default": "optimus-3fb40"
+    "default": "optimus-solutions-web",
+    "hosting": "optimus-solutions-web",
+    "data": "optimus-3fb40"
   }
-} 
+}

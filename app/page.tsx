@@ -1,7 +1,6 @@
 'use client';
 
-import React, { useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import React from 'react';
 import { useAuth } from './contexts/auth-context';
 import ClientLayout from './components/ClientLayout';
 import Hero from './components/Hero';
@@ -19,21 +18,8 @@ const HowItWorks = dynamic(() => import('../src/components/HowItWorks'), {
 
 
 export default function HomePage() {
-  const { currentUser, userRole, isLoading } = useAuth();
-  const router = useRouter();
+  const { currentUser } = useAuth();
 
-  // Show loading state while checking authentication
-  if (isLoading) {
-    return (
-      <ClientLayout>
-        <div className="flex justify-center items-center h-screen">
-          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-accent"></div>
-        </div>
-      </ClientLayout>
-    );
-  }
-
-  // Show homepage for both logged-in and non-logged-in users
   return (
     <ClientLayout>
       <h1 className="sr-only">Internationally Accredited MBA & DBA Programs in KSA | Optimus Solutions</h1>

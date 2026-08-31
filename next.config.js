@@ -4,6 +4,7 @@ const path = require('path');
 const nextConfig = {
   reactStrictMode: true,
   poweredByHeader: false,
+  output: 'standalone',
   // Ensure Next resolves the correct workspace root (avoids parent lockfile interference)
   outputFileTracingRoot: path.join(__dirname),
   // Remove trailingSlash for better API route compatibility

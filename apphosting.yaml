@@ -1,0 +1,15 @@
+# Cloud Run settings for the Next.js site.
+# Auth/CMS still talk to the existing Firebase project (optimus-3fb40).
+runConfig:
+  cpu: 1
+  memoryMiB: 2048
+  minInstances: 0
+  maxInstances: 10
+  concurrency: 80
+
+env:
+  - variable: NEXT_PUBLIC_FACEBOOK_DOMAIN_VERIFICATION
+    value: oddz68w7uqzlfi3mt4458bi9rbeguo
+    availability:
+      - BUILD
+      - RUNTIME

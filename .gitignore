@@ -24,8 +24,11 @@ dist-ssr
 *.sw?
 .env
 
-# Local Netlify folder
+# Local Netlify / Firebase folders
 .netlify
+.firebase
+firebase-debug.log
+firebase-debug.*.log
 
 # Next.js build output
 .next/

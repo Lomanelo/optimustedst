@@ -2,15 +2,19 @@
   "name": "optimus-education",
   "private": true,
   "version": "1.0.0",
+  "engines": {
+    "node": "22"
+  },
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "build": "next build && node scripts/copy-public-standalone.js",
     "start": "next start",
     "lint": "next lint",
     "populate-cms": "npx tsx scripts/populate-cms.ts",
     "sync-program-brochures": "npx --yes tsx scripts/sync-program-brochures.ts",
     "add-new-programs": "npx --yes tsx scripts/add-new-programs.ts",
-    "sync-program-specialities": "npx --yes tsx scripts/sync-program-specialities.ts"
+    "sync-program-specialities": "npx --yes tsx scripts/sync-program-specialities.ts",
+    "deploy:firebase": "npx -y firebase-tools@latest deploy --only apphosting:optimus --project optimus-solutions-web"
   },
   "dependencies": {
     "@types/nodemailer": "^6.4.17",

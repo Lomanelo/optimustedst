@@ -1,4 +1,26 @@
 {
+  "apphosting": [
+    {
+      "backendId": "optimus",
+      "rootDir": "/",
+      "ignore": [
+        "node_modules",
+        "node_modules/**",
+        ".git",
+        ".git/**",
+        ".next",
+        ".next/**",
+        ".firebase",
+        ".firebase/**",
+        ".netlify",
+        ".netlify/**",
+        "firebase-debug.log",
+        "firebase-debug.*.log",
+        "functions",
+        "*.log"
+      ]
+    }
+  ],
   "firestore": {
     "rules": "firestore.rules",
     "indexes": "firestore.indexes.json"

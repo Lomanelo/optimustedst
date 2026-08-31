@@ -218,7 +218,7 @@ function ProgramsContent({ searchParams }: { searchParams: Record<string, string
       try {
         setLoading(true);
         const res = await fetch('/programs/index.json', { cache: 'no-store' });
-        const data = await res.json();
+        const data = JSON.parse((await res.text()).replace(/^\uFEFF/, ''));
         const transformed: Program[] = (Array.isArray(data) ? data : []).map((p: any) => ({
           id: p.id,
           title: p.title || '',

@@ -57,7 +57,7 @@ export default function ProgramDetailPage({ params }: PageProps) {
       try {
         setLoading(true);
         const res = await fetch('/programs/index.json', { cache: 'no-store' });
-        const data = await res.json();
+        const data = JSON.parse((await res.text()).replace(/^\uFEFF/, ''));
         const list: ProgramLocal[] = Array.isArray(data) ? data : [];
         const found =
           list.find((p) => p.id === programId) ||
