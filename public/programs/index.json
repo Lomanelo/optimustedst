@@ -1350,7 +1350,7 @@
     "duration_ar": "سنتين و نصف",
     "price": 0,
     "thumbnail": "/ProgramPhotos/Dual-Accredited DBA In Business Consultation.jpg",
-    "brochure_en": "/brochures/DBA Strategic Management.pdf",
+    "brochure_en": "/brochures/DBA in Business consultation.pdf",
     "brochure_ar": "/brochures/ar-dual-accredited-dba-in-business-consultation.pdf",
     "modules": [
       "Research Philosophy",
@@ -2575,7 +2575,7 @@
     "duration_ar": "سنة واحده",
     "price": 0,
     "thumbnail": "/ProgramPhotos/Triple Accredited MBA In Hospital Management.png",
-    "brochure_en": "/brochures/MBA in healthcare management.pdf",
+    "brochure_en": "/brochures/MBA in Hospital Management.pdf",
     "brochure_ar": "/brochures/ar-triple-accredited-mba-in-hospital-management.pdf",
     "modules": [
       "International Healthcare Policy",
@@ -2832,7 +2832,7 @@
     "duration_ar": "سنة واحده",
     "price": 0,
     "thumbnail": "/ProgramPhotos/Triple Accredited MBA In Fintech.jpg",
-    "brochure_en": "/brochures/MBA in Digital Transformation.pdf",
+    "brochure_en": "/brochures/MBA in Fintech.pdf",
     "brochure_ar": "/brochures/ar-triple-mba-in-fintech.pdf",
     "modules": [
       "Managerial Accounting",
@@ -3245,7 +3245,7 @@
     "duration_ar": "سنة واحده",
     "price": 0,
     "thumbnail": "/ProgramPhotos/Triple Accredited MBA In Artificial Intelligence.jpg",
-    "brochure_en": "/brochures/MBA in Digital Transformation.pdf",
+    "brochure_en": "/brochures/MBA in Artificial Intelligence.pdf",
     "brochure_ar": "/brochures/ar-triple-accredited-mba-in-artificial-intelligence.pdf",
     "modules": [
       "Managerial Accounting",
